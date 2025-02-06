@@ -1,0 +1,34 @@
+[project]
+name = "hughes2d"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Theo Girard", email = "girard-theo@orange.fr" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.2",
+    "triangle>=20250106",
+]
+
+[project.scripts]
+hughes2d = "hughes2d:main"
+
+[project.optional-dependencies]
+plot = [
+    "plotly>=6.0.0",
+]
+file-formats = [
+    "ezdxf>=1.3.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "rich>=13.9.4",
+]
