@@ -28,15 +28,15 @@ class EikoSolver(object):
         self.density = density
 
     def computeFieldUnconstrainedDep2(self):
-        StateMap = [0 for i in range(len(self.mesh.meshDict['vertices']))]
-        #print(len(self.mesh.meshDict['vertices']))
+        StateMap = [0 for i in range(len(self.mesh.vertices))]
+        #print(len(self.mesh.vertices))
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
 
         #On ajoute les dirichlet sortie libre
-        for index in self.mesh.ExitVertices:
+        for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
@@ -45,7 +45,7 @@ class EikoSolver(object):
         #Selection de la liste de la nouvelle generation a traiter
 
         for index in Validated:
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[index]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -54,9 +54,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -65,9 +65,9 @@ class EikoSolver(object):
                         Visited = self.addInOrderByFieldValue(Visited,triangleWithoutIndex[1])
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -77,14 +77,14 @@ class EikoSolver(object):
 
                 elif(StateMap[triangleWithoutIndex[1]] == 2 and StateMap[triangleWithoutIndex[0]] == 2):
 
-                    PotentialValue = self.fieldValues[index] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][index],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[1]])
+                    PotentialValue = self.fieldValues[index] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[index],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[1]])
 
-                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][ValidatedPointindex][0],
-                                                                                                    self.mesh.meshDict['vertices'][ValidatedPointindex][1],
-                                                                                                    self.mesh.meshDict['vertices'][i][0],
-                                                                                                    self.mesh.meshDict['vertices'][i][1])"""
+                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[ValidatedPointindex][0],
+                                                                                                    self.mesh.vertices[ValidatedPointindex][1],
+                                                                                                    self.mesh.vertices[i][0],
+                                                                                                    self.mesh.vertices[i][1])"""
 
 
                     for i in range(2):
@@ -121,7 +121,7 @@ class EikoSolver(object):
 
 
             #Ajout des nouveaux consider
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[LastValidated]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -130,9 +130,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -142,9 +142,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -154,14 +154,14 @@ class EikoSolver(object):
 
                 elif(StateMap[triangleWithoutIndex[1]] == 2 and StateMap[triangleWithoutIndex[0]] == 2):
 
-                    PotentialValue = self.fieldValues[LastValidated] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][LastValidated],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[1]])
+                    PotentialValue = self.fieldValues[LastValidated] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[LastValidated],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[1]])
 
-                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][ValidatedPointindex][0],
-                                                                                                    self.mesh.meshDict['vertices'][ValidatedPointindex][1],
-                                                                                                    self.mesh.meshDict['vertices'][i][0],
-                                                                                                    self.mesh.meshDict['vertices'][i][1])"""
+                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[ValidatedPointindex][0],
+                                                                                                    self.mesh.vertices[ValidatedPointindex][1],
+                                                                                                    self.mesh.vertices[i][0],
+                                                                                                    self.mesh.vertices[i][1])"""
 
 
                     for i in range(2):
@@ -170,15 +170,15 @@ class EikoSolver(object):
                             Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[i])
 
     def computeFieldConstrainedDep2(self):
-        StateMap = [0 for i in range(len(self.mesh.meshDict['vertices']))]
-        #print(len(self.mesh.meshDict['vertices']))
+        StateMap = [0 for i in range(len(self.mesh.vertices))]
+        #print(len(self.mesh.vertices))
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
 
         #On ajoute les dirichlet sortie libre
-        for index in self.mesh.ExitVertices:
+        for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
@@ -187,7 +187,7 @@ class EikoSolver(object):
         #Selection de la liste de la nouvelle generation a traiter
 
         for index in Validated:
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[index]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -196,9 +196,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -208,9 +208,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -220,14 +220,14 @@ class EikoSolver(object):
 
                 elif(StateMap[triangleWithoutIndex[1]] == 2 and StateMap[triangleWithoutIndex[0]] == 2):
 
-                    PotentialValue = self.fieldValues[index] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][index],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[1]])
+                    PotentialValue = self.fieldValues[index] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[index],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[1]])
 
-                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][ValidatedPointindex][0],
-                                                                                                    self.mesh.meshDict['vertices'][ValidatedPointindex][1],
-                                                                                                    self.mesh.meshDict['vertices'][i][0],
-                                                                                                    self.mesh.meshDict['vertices'][i][1])"""
+                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[ValidatedPointindex][0],
+                                                                                                    self.mesh.vertices[ValidatedPointindex][1],
+                                                                                                    self.mesh.vertices[i][0],
+                                                                                                    self.mesh.vertices[i][1])"""
 
 
                     for i in range(2):
@@ -264,7 +264,7 @@ class EikoSolver(object):
 
 
             #Ajout des nouveaux consider
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[LastValidated]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -273,9 +273,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -285,9 +285,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -297,14 +297,14 @@ class EikoSolver(object):
 
                 elif(StateMap[triangleWithoutIndex[1]] == 2 and StateMap[triangleWithoutIndex[0]] == 2):
 
-                    PotentialValue = self.fieldValues[LastValidated] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][LastValidated],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                                                    self.mesh.meshDict['vertices'][triangleWithoutIndex[1]])
+                    PotentialValue = self.fieldValues[LastValidated] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[LastValidated],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                                                    self.mesh.vertices[triangleWithoutIndex[1]])
 
-                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][ValidatedPointindex][0],
-                                                                                                    self.mesh.meshDict['vertices'][ValidatedPointindex][1],
-                                                                                                    self.mesh.meshDict['vertices'][i][0],
-                                                                                                    self.mesh.meshDict['vertices'][i][1])"""
+                    """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[ValidatedPointindex][0],
+                                                                                                    self.mesh.vertices[ValidatedPointindex][1],
+                                                                                                    self.mesh.vertices[i][0],
+                                                                                                    self.mesh.vertices[i][1])"""
 
 
                     for i in range(2):
@@ -313,14 +313,14 @@ class EikoSolver(object):
                             Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[i])
 
     def computeFieldUnconstrainedDep1(self):
-        StateMap = [0 for i in range(len(self.mesh.meshDict['vertices']))]
-        #print(len(self.mesh.meshDict['vertices']))
+        StateMap = [0 for i in range(len(self.mesh.vertices))]
+        #print(len(self.mesh.vertices))
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
         #On ajoute les dirichlet sortie libre
-        for index in self.mesh.ExitVertices:
+        for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
@@ -329,7 +329,7 @@ class EikoSolver(object):
         #Selection de la liste de la nouvelle generation a traiter
 
         for index in Validated:
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[index]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -338,9 +338,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -350,9 +350,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -385,7 +385,7 @@ class EikoSolver(object):
 
 
             #Ajout des nouveaux consider
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[LastValidated]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -394,9 +394,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -407,9 +407,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -418,14 +418,14 @@ class EikoSolver(object):
                         Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[0])
 
     def computeFieldConstrainedDep1(self):
-        StateMap = [0 for i in range(len(self.mesh.meshDict['vertices']))]
-        #print(len(self.mesh.meshDict['vertices']))
+        StateMap = [0 for i in range(len(self.mesh.vertices))]
+        #print(len(self.mesh.vertices))
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
         #On ajoute les dirichlet sortie libre
-        for index in self.mesh.ExitVertices:
+        for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
@@ -434,7 +434,7 @@ class EikoSolver(object):
         #Selection de la liste de la nouvelle generation a traiter
 
         for index in Validated:
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[index]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -443,9 +443,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -455,9 +455,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][index],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[index],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[index],
                                                                             self.cost(self.density[triangleindex]))
@@ -490,7 +490,7 @@ class EikoSolver(object):
 
 
             #Ajout des nouveaux consider
-            for [triangleindex, triangleWithoutIndex] in self.mesh.TrianglesPerVertex[LastValidated]:
+            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
                     StateMap[triangleWithoutIndex[1]] = 2
@@ -499,9 +499,9 @@ class EikoSolver(object):
                     StateMap[triangleWithoutIndex[0]] = 2
 
                 if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[0]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -512,9 +512,9 @@ class EikoSolver(object):
 
 
                 elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.meshDict['vertices'][triangleWithoutIndex[0]],
-                                                                            self.mesh.meshDict['vertices'][triangleWithoutIndex[1]],
-                                                                            self.mesh.meshDict['vertices'][LastValidated],
+                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
+                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
+                                                                            self.mesh.vertices[LastValidated],
                                                                             self.fieldValues[triangleWithoutIndex[1]],
                                                                             self.fieldValues[LastValidated],
                                                                             self.cost(self.density[triangleindex]))
@@ -533,14 +533,14 @@ class EikoSolver(object):
             self.computeFieldUnconstrainedDep1()
 
     def showNarrowBandAfterStep(self, n):
-        NotVisited = [i for i in range(len(self.mesh.meshDict['vertices']))]
-        #print(len(self.mesh.meshDict['vertices']))
+        NotVisited = [i for i in range(len(self.mesh.vertices))]
+        #print(len(self.mesh.vertices))
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
         #On ajoute les dirichlet sortie libre
-        for index in self.mesh.ExitVertices:
+        for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             NotVisited.remove(index)
@@ -549,7 +549,7 @@ class EikoSolver(object):
         #Selection de la liste de la nouvelle generation a traiter
 
         for index in Validated:
-            for triangleindex, triangle in enumerate(self.mesh.meshDict['triangles']):
+            for triangleindex, triangle in enumerate(self.mesh.triangles):
                 if index in triangle:
                     count = 0
                     selected = -1
@@ -570,16 +570,16 @@ class EikoSolver(object):
                             NotVisited.remove(selected)
 
                         if(self.opt['constrained']):
-                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.meshDict['vertices'][triangle[offset]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 1)%3]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 2)%3]],
+                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.vertices[triangle[offset]],
+                                                                                self.mesh.vertices[triangle[(offset + 1)%3]],
+                                                                                self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
                         else:
-                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.meshDict['vertices'][triangle[offset]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 1)%3]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 2)%3]],
+                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.vertices[triangle[offset]],
+                                                                                self.mesh.vertices[triangle[(offset + 1)%3]],
+                                                                                self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
@@ -596,14 +596,14 @@ class EikoSolver(object):
                                 NotVisited.remove(i)
 
                             if(i not in Validated):
-                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]][0],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]][1],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[i]][0],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[i]][1])"""
+                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[triangle[offsetValidatedPoint]][0],
+                                                                                                                self.mesh.vertices[triangle[offsetValidatedPoint]][1],
+                                                                                                                self.mesh.vertices[triangle[i]][0],
+                                                                                                                self.mesh.vertices[triangle[i]][1])"""
 
-                                PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[(offsetValidatedPoint + 1)%3]],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[(offsetValidatedPoint + 2)%3]])
+                                PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[triangle[offsetValidatedPoint]],
+                                                                                                                self.mesh.vertices[triangle[(offsetValidatedPoint + 1)%3]],
+                                                                                                                self.mesh.vertices[triangle[(offsetValidatedPoint + 2)%3]])
                                 if PotentialValue < self.fieldValues[i]:
                                     self.fieldValues[i] = PotentialValue
 
@@ -617,7 +617,7 @@ class EikoSolver(object):
         for vide in range(n):
 
             #Ajout des nouveaux consider
-            for triangleindex,triangle in enumerate(self.mesh.meshDict['triangles']):
+            for triangleindex,triangle in enumerate(self.mesh.triangles):
                 if(LastValidated in triangle):
                     count = 0
                     selected = -1
@@ -637,16 +637,16 @@ class EikoSolver(object):
                             NotVisited.remove(selected)
 
                         if(self.opt['constrained']):
-                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.meshDict['vertices'][triangle[offset]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 1)%3]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 2)%3]],
+                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.vertices[triangle[offset]],
+                                                                                self.mesh.vertices[triangle[(offset + 1)%3]],
+                                                                                self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
                         else:
-                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.meshDict['vertices'][triangle[offset]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 1)%3]],
-                                                                                self.mesh.meshDict['vertices'][triangle[(offset + 2)%3]],
+                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.vertices[triangle[offset]],
+                                                                                self.mesh.vertices[triangle[(offset + 1)%3]],
+                                                                                self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
@@ -663,14 +663,14 @@ class EikoSolver(object):
                                 NotVisited.remove(i)
 
                             if(i not in Validated):
-                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]][0],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]][1],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[i]][0],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[i]][1])"""
+                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[triangle[offsetValidatedPoint]][0],
+                                                                                                                self.mesh.vertices[triangle[offsetValidatedPoint]][1],
+                                                                                                                self.mesh.vertices[triangle[i]][0],
+                                                                                                                self.mesh.vertices[triangle[i]][1])"""
 
-                                PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.meshDict['vertices'][triangle[offsetValidatedPoint]],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[(offsetValidatedPoint + 1)%3]],
-                                                                                                                self.mesh.meshDict['vertices'][triangle[(offsetValidatedPoint + 2)%3]])
+                                PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[triangle[offsetValidatedPoint]],
+                                                                                                                self.mesh.vertices[triangle[(offsetValidatedPoint + 1)%3]],
+                                                                                                                self.mesh.vertices[triangle[(offsetValidatedPoint + 2)%3]])
                                 if PotentialValue < self.fieldValues[i]:
                                     self.fieldValues[i] = PotentialValue
 

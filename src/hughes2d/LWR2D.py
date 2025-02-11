@@ -72,19 +72,19 @@ class LWRSolver(object):
 
     def computeStepTmap(self):
         if(self.options["convexFlux"]):
-            for triangleIndex, triangleCell in enumerate(self.mesh.TriangleWithEdgeList):
+            for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
                 for edgeNumber, edgeIndex in enumerate(triangleCell):
-                    PairOfTriangles = self.mesh.ListOfPairTriangles[edgeIndex]
+                    PairOfTriangles = self.mesh.pairsOfTriangles[edgeIndex]
                     TriangleGrad = self.directions[triangleIndex]
                     Normal = self.mesh.outerNormalVectByTriangles[triangleIndex][edgeNumber]
 
                     triangleFlux = TriangleGrad[0]*Normal[0] + TriangleGrad[1]*Normal[1]
 
-                    if(edgeIndex in self.mesh.ExitEdges):
+                    if(edgeIndex in self.mesh.exitEdges):
                         farFlux = 1
                         farDensity = 0
-                    elif(edgeIndex in self.mesh.WallEdges):
+                    elif(edgeIndex in self.mesh.wallEdges):
                         triangleFlux = 0
                         farFlux = 0
                         farDensity = 0
@@ -121,23 +121,23 @@ class LWRSolver(object):
                         EnteringFlux = farFlux*self.fluxFunction(max(farDensity,self.maxFluxPoint))
                         OutingFlux = triangleFlux*self.fluxFunction(min(self.densityt0[triangleIndex],self.maxFluxPoint))
                         Totalflux = min(OutingFlux,EnteringFlux)
-                    Modifdensity -= (self.dt/self.mesh.cellVolumes[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
+                    Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
                 self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
 
         else: #flux not convex
-            for triangleIndex, triangleCell in enumerate(self.mesh.TriangleWithEdgeList):
+            for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
                 for edgeNumber, edgeIndex in enumerate(triangleCell):
-                    PairOfTriangles = self.mesh.ListOfPairTriangles[edgeIndex]
+                    PairOfTriangles = self.mesh.pairsOfTriangles[edgeIndex]
                     TriangleGrad = self.directions[triangleIndex]
                     Normal = self.mesh.outerNormalVectByTriangles[triangleIndex][edgeNumber]
 
                     triangleFlux = TriangleGrad[0]*Normal[0] + TriangleGrad[1]*Normal[1]
 
-                    if(edgeIndex in self.mesh.ExitEdges):
+                    if(edgeIndex in self.mesh.exitEdges):
                         farFlux = 1
                         farDensity = 0
-                    elif(edgeIndex in self.mesh.WallEdges):
+                    elif(edgeIndex in self.mesh.wallEdges):
                         triangleFlux = 0
                         farFlux = 0
                         farDensity = 0
@@ -165,23 +165,23 @@ class LWRSolver(object):
                         parametrizedFlux = lambda k : God(Outerflux, self.densityt0[triangleIndex], k,self.options['ApproximationThreshold']) - God(Innerflux,k, farDensity, self.options['ApproximationThreshold'])
                         k = ApproZeroDichotomie(parametrizedFlux,0,1,self.options['ApproximationThreshold'])
                         Totalflux = God(Outerflux, self.densityt0[triangleIndex], k,self.options['ApproximationThreshold'])
-                Modifdensity -= (self.dt/self.mesh.cellVolumes[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
+                Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
             self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
 
     def computeStepMidVector(self):
         if(self.options["convexFlux"]):
-            for triangleIndex, triangleCell in enumerate(self.mesh.TriangleWithEdgeList):
+            for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
                 for edgeNumber, edgeIndex in enumerate(triangleCell):
-                    PairOfTriangles = self.mesh.ListOfPairTriangles[edgeIndex]
+                    PairOfTriangles = self.mesh.pairsOfTriangles[edgeIndex]
                     TriangleGrad = self.directions[triangleIndex]
                     Normal = self.mesh.outerNormalVectByTriangles[triangleIndex][edgeNumber]
                     Totalflux = 1
 
-                    if(edgeIndex in self.mesh.ExitEdges):
+                    if(edgeIndex in self.mesh.exitEdges):
                         VectorFlux = TriangleGrad
                         farDensity = 0
-                    elif(edgeIndex in self.mesh.WallEdges):
+                    elif(edgeIndex in self.mesh.wallEdges):
                         VectorFlux = TriangleGrad
                         Totalflux = 0
                     else:
@@ -217,22 +217,22 @@ class LWRSolver(object):
                             else:
                                 Totalflux = Scalar*max(self.fluxFunction(self.densityt0[triangleIndex]),self.fluxFunction(farDensity))/normeVectorFlux
 
-                    Modifdensity -= (self.dt/self.mesh.cellVolumes[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
+                    Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
                 self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
             return self.densityt1
         else: #si flux non convexe
-            for triangleIndex, triangleCell in enumerate(self.mesh.TriangleWithEdgeList):
+            for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
                 for edgeNumber, edgeIndex in enumerate(triangleCell):
-                    PairOfTriangles = self.mesh.ListOfPairTriangles[edgeIndex]
+                    PairOfTriangles = self.mesh.pairsOfTriangles[edgeIndex]
                     TriangleGrad = self.directions[triangleIndex]
                     Normal = self.mesh.outerNormalVectByTriangles[triangleIndex][edgeNumber]
                     Totalflux = 1
 
-                    if(edgeIndex in self.mesh.ExitEdges):
+                    if(edgeIndex in self.mesh.exitEdges):
                         VectorFlux = TriangleGrad
                         farDensity = 0
-                    elif(edgeIndex in self.mesh.WallEdges):
+                    elif(edgeIndex in self.mesh.wallEdges):
                         VectorFlux = TriangleGrad
                         Totalflux = 0
                     else:
@@ -253,7 +253,7 @@ class LWRSolver(object):
                         ModifFluxFunc = lambda x : (VectorFlux[0]*Normal[0] + VectorFlux[1]*Normal[1])/normeVectorFlux *self.fluxFunction(x)
                         Totalflux = God(ModifFluxFunc, self.densityt0[triangleIndex], farDensity)
 
-                    Modifdensity -= (self.dt/self.mesh.cellVolumes[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
+                    Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
                 self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
             return self.densityt1
 
