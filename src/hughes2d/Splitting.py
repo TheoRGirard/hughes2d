@@ -33,7 +33,7 @@ class HughesScheme(object):
         self.options = options
 
         if('framerate' not in self.options.keys()):
-            self.options['framerate'] = 50
+            self.options['framerate'] = 25
 
         self.dt = dt
 
@@ -43,6 +43,7 @@ class HughesScheme(object):
         self.dx = dx
 
         self.speedFunction = speedFunction
+        print(self.speedFunction(0))
         self.costFunction = costFunction
 
         if('save' not in self.options.keys()):
@@ -182,9 +183,9 @@ def writeSlice_parallel_Vec(filename, numSlice, data, num_processes=4):
 
 
 
-    for j,T in enumerate(self.mesh.meshDict['triangles']):
-        fig.add_trace(go.Scatter(x=[self.mesh.meshDict['vertices'][i][0] for i in T]+[self.mesh.meshDict['vertices'][T[0]][0]],
-                                y=[self.mesh.meshDict['vertices'][i][1] for i in T]+[self.mesh.meshDict['vertices'][T[0]][1]],
+    for j,T in enumerate(self.mesh.triangles):
+        fig.add_trace(go.Scatter(x=[self.mesh.vertices[i][0] for i in T]+[self.mesh.vertices[T[0]][0]],
+                                y=[self.mesh.vertices[i][1] for i in T]+[self.mesh.vertices[T[0]][1]],
                         fill="toself",
                         hoverinfo = "none",
                         showlegend = False,
@@ -200,9 +201,9 @@ def writeSlice_parallel_Vec(filename, numSlice, data, num_processes=4):
 
     for dens in self.densities:
         triangleTraces  = []
-        for j,T in enumerate(self.mesh.meshDict['triangles']):
-            triangleTraces.append(go.Scatter(x=[self.mesh.meshDict['vertices'][i][0] for i in T]+[self.mesh.meshDict['vertices'][T[0]][0]],
-                                    y=[self.mesh.meshDict['vertices'][i][1] for i in T]+[self.mesh.meshDict['vertices'][T[0]][1]],
+        for j,T in enumerate(self.mesh.triangles):
+            triangleTraces.append(go.Scatter(x=[self.mesh.vertices[i][0] for i in T]+[self.mesh.vertices[T[0]][0]],
+                                    y=[self.mesh.vertices[i][1] for i in T]+[self.mesh.vertices[T[0]][1]],
                             fill="toself",
                             hoverinfo = "none",
                             showlegend = False,

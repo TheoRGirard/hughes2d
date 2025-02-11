@@ -21,7 +21,10 @@ plot = [
 ]
 file-formats = [
     "ezdxf>=1.3.5",
+    "meshio>=5.3.5",
 ]
+msh-files = []
+file-import = []
 
 [build-system]
 requires = ["hatchling"]
@@ -30,5 +33,4 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
-    "rich>=13.9.4",
 ]
