@@ -52,6 +52,9 @@ class HughesScheme(object):
         if('filename' not in self.options.keys()):
             self.options['filename'] = "Save"+str(date.today())
 
+        if('additional_computations' not in self.options.keys()):
+            self.options['additional_computations'] = dict()
+
         if(self.options["constantDirectionField"]):
             self.directions = directions
 
@@ -73,6 +76,11 @@ class HughesScheme(object):
             proc.start()
             previousProcessDens = proc
 
+        if('total_mass' in self.options['additional_computations'].keys()):
+            self.totalMass = [initialDensity.integrate()]
+        if('oneDList' in self.options['additional_computations'].keys()):
+            self.oneDList = []
+
         self.LWRsolver = LWRSolver(self.mesh, self.dt, self.dx, previousDensity = initialDensity, DirectionMap = self.directions, speedFunction = self.speedFunction, options = self.options['lwrSolver'])
 
     def computeStep(self):
@@ -81,15 +89,20 @@ class HughesScheme(object):
         if(self.options["constantDirectionField"]):
             if(self.options['save']):
                 if(self.timeStep % self.numForgottenSteps == 0):
-                    self.saveDensityslice(self.LWRsolver.densityt1.values)
+                    self.saveDensityslice(self.LWRsolver.densityt1)
         else:
-            self.Eikosolver.updateDensity(self.LWRsolver.densityt1.values)
+            self.Eikosolver.updateDensity(self.LWRsolver.densityt1)
             self.Eikosolver.computeField()
             self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
             if(self.options['save']):
                 if(self.timeStep % self.numForgottenSteps == 0):
-                    self.saveDensityslice(self.LWRsolver.densityt1.values)
+                    self.saveDensityslice(self.LWRsolver.densityt1)
                     self.saveVectorslice(self.directions)
+
+        if('total_mass' in self.options['additional_computations'].keys()):
+            self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
+        if('1Dy' in self.options['additional_computations'].keys()):
+            self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
 
         self.LWRsolver.update(self.directions)
 
@@ -98,6 +111,10 @@ class HughesScheme(object):
             self.computeStep()
             if("verbose" in self.options.keys()):
                 print("Time step : ", i, "/", n)
+
+        if('total_mass' in self.options['additional_computations'].keys()):
+            writeFirstLine(self.options['filename']+"_total_mass.csv",[self.dt*i for i in range(len(self.totalMass))])
+            writeSlice(self.options['filename']+"_total_mass.csv",self.totalMass)
 
     def computeStepsAndShow(self,n):
         for i in range(n):

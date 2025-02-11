@@ -70,6 +70,9 @@ class NonConvexDomain(object):
         self.wallEdges = []
         self.wallHolesPoint = []
         self.exitList = []
+        self.zoneDict = dict()
+        self.zoneVertices = []
+        self.zoneEdges = []
 
     def importFromDXF(self, filename: str) -> int:
         """
@@ -77,6 +80,7 @@ class NonConvexDomain(object):
         - a "domain" layer (mandatory) that contain the outer boundary
         - an "innerWalls" layer that contains all the inner structures of the domain.
         - an "exits" layer that contains all the exits of the domain.
+        - (optional) "zone_<zone_name>" layers defining the zones with zone name.
 
         The package ezdxf must be installed in order to use this method.
         """
@@ -109,14 +113,14 @@ class NonConvexDomain(object):
             # entity query for all LINE entities in modelspace
             for e in msp.query("LINE"):
                 if(e.dxf.layer == "0" or e.dxf.layer == "domain"):
-                    P = [e.dxf.start[0],e.dxf.start[1]]
+                    P = [np.round(e.dxf.start[0],5),np.round(e.dxf.start[1],5)]
                     if P not in self.listOuterVertex:
                         numP = len(self.listOuterVertex)
                         self.listOuterVertex.append(P)
                     else:
                         numP = self.addBoundaryPoint(P)
 
-                    Q = [e.dxf.end[0],e.dxf.end[1]]
+                    Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
                     if Q not in self.listOuterVertex:
                         numQ = len(self.listOuterVertex)
                         self.listOuterVertex.append(Q)
@@ -131,13 +135,13 @@ class NonConvexDomain(object):
             for e in msp.query("LINE"):
                 if(e.dxf.layer == "innerWalls"):
                     cycling = 0
-                    P = [e.dxf.start[0],e.dxf.start[1]]
+                    P = [np.round(e.dxf.start[0],5),np.round(e.dxf.start[1],5)]
                     if P not in wallVert:
                         wallVert.append(P)
                     else:
                         cycling += 1
 
-                    Q = [e.dxf.end[0],e.dxf.end[1]]
+                    Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
                     if Q not in wallVert:
                         wallVert.append(Q)
                     else:
@@ -151,6 +155,7 @@ class NonConvexDomain(object):
                             self.addWall(wallVert, cycle =False)
                         wallVert = [P,Q]
                     elif(cycling == 2):
+                        print("Adding wall : ", wallVert)
                         self.addWall(wallVert, cycle =True)
                         wallVert = []
 
@@ -159,9 +164,21 @@ class NonConvexDomain(object):
 
             for e in msp.query("LINE"):
                 if(e.dxf.layer == "exits"):
-                    P = [e.dxf.start[0],e.dxf.start[1]]
-                    Q = [e.dxf.end[0],e.dxf.end[1]]
+                    P = [np.round(e.dxf.start[0],5),np.round(e.dxf.start[1],5)]
+                    Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
                     self.addExit([P,Q])
+
+            for e in msp.query("LINE"):
+                if(str(e.dxf.layer).find("zone_") == 0):
+                    label = str(e.dxf.layer)[5:]
+                    print(label)
+                    if(label not in self.zoneDict.keys()):
+                        self.zoneDict[label] = []
+
+            print(self.wallHolesPoint)
+            print(self.wallVertices)
+            print(self.wallEdges)
+
 
         else:
             raise ImportError("ezdxf not or wrongly installed.")
@@ -218,11 +235,12 @@ class NonConvexDomain(object):
                 self.wallVertices.append(P)
 
             Centerpoint = [0,0]
-            for P in coordWall[:-1]:
+            for P in coordWall:
                 Centerpoint[0] += P[0]
                 Centerpoint[1] += P[1]
+            print(Centerpoint)
 
-            self.wallHolesPoint.append([Centerpoint[0]/(len(coordWall)-1),Centerpoint[1]/(len(coordWall)-1)])
+            self.wallHolesPoint.append([Centerpoint[0]/len(coordWall),Centerpoint[1]/len(coordWall)])
         else:
             for i in range(len(self.wallVertices),len(self.wallVertices)+len(coordWall)-1):
                 self.wallEdges.append([i,i+1])
@@ -334,15 +352,15 @@ class NonConvexDomain(object):
         return False
 
     def show(self) -> None:
-        if(plt):
-            print("MatplotLib show not implemented yet.")
-        elif(go):
+        if(go):
             fig = go.Figure()
             self.addPlot(fig)
             fig.update_layout(yaxis=dict(
                 scaleanchor='x',
                 scaleratio=1))
             fig.show()
+        elif(plt):
+            print("MatplotLib show not implemented yet.")
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
@@ -421,7 +439,7 @@ class Mesh(object):
     - self.exitVertices : ArrayLike                   # array of the vertices index that belong to an exit.
     - self.exitEdges : ArrayLike                      # array of the edges index where the edge belongs to an exit
     - self.wallEdges : ArrayLike                      # array of the edges index where the edge belongs to an exit
-    - self.boundaryPoints : list = []                 #
+    - self.boundaryPoints : ArrayLike                #
     - self.boundaryEdgesIndex : ArrayLike             #
 
     - self.trianglesWithEdges : ArrayLike             # array of triangles ordered as self.triangles, elements as [edgeIndex, edgeIndex, edgeIndex]
@@ -451,7 +469,7 @@ class Mesh(object):
         self.exitVertices : ArrayLike
         self.exitEdges : ArrayLike #Liste des edges d'exit par indice d'edge
         self.wallEdges : ArrayLike #Liste des wall edges par indice d'edge
-        self.boundaryPoints : list = []
+        self.boundaryPoints : ArrayLike
         self.boundaryEdgesIndex : ArrayLike #Liste des indices des edges faisant le bord du domaine
         self.vertexFlags : list = []
 
@@ -610,7 +628,7 @@ class Mesh(object):
             self.computeOuterNormals()
 
             self.dx = self.computeCellAreas()
-            print("Maximal area for a triangle in the mesh : ", self.dx)
+            print("Minimal area for a triangle in the mesh : ", self.dx)
 
             self.computeEdgeLength()
 
@@ -703,12 +721,13 @@ class Mesh(object):
         else:
             D = dict(vertices=domainVertices, segments=domainSpecialEdges)
 
+
         flag = 'q'+str(da)+'pa'+str(dx)
         meshDict = tr.triangulate(D, flag)
 
         if 'segments' not in meshDict.keys():
             raise ValueError("Corrupted domain, impossible to generate a mesh.")
-        print("Mesh generated. Contains %d triangles" % len(triangles))
+        print("Mesh generated. Contains %d triangles" % len(meshDict['triangles']))
 
         boundaryPoints = []
         for edge in meshDict['segments']:
@@ -718,8 +737,8 @@ class Mesh(object):
 
         self.boundaryPoints = np.array(boundaryPoints)
 
-        self.vertices = vertices
-        self.triangles = triangles
+        self.vertices = meshDict['vertices']
+        self.triangles = meshDict['triangles']
 
         self.computeEdgeList()
 
@@ -736,6 +755,7 @@ class Mesh(object):
         self.computeOuterNormals()
 
         self.dx = self.computeCellAreas()
+        print("Minimal area for a triangle in the mesh : ", self.dx)
 
         self.computeEdgeLength()
 
@@ -884,7 +904,7 @@ class Mesh(object):
         """
         barycenters = []
         cellAreas = []
-        max = 0
+        min = 100
         for triangle in self.triangles:
             A = self.vertices[triangle[0]]
             B = self.vertices[triangle[1]]
@@ -892,14 +912,14 @@ class Mesh(object):
 
             barycenters.append([(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3])
             cellAreas.append(abs( (B[0]-A[0])*(C[1]-A[1]) - (B[1]-A[1])*(C[0]-A[0]))/2)
-            if(cellAreas[-1] > max):
-                max = cellAreas[-1]
+            if(cellAreas[-1] < min):
+                min = cellAreas[-1]
             elif(cellAreas[-1] == 0):
                 print(A,B,C)
                 raise ValueError("Degenerated mesh : at least one of the triangle is of area 0.")
         self.cellAreas = np.array(cellAreas)
         self.barycenters = np.array(barycenters)
-        return(max)
+        return(min)
 
     def computeEdgeLength(self) -> None:
         """
@@ -978,6 +998,7 @@ class Mesh(object):
         with open(filename) as f:
             data = json.load(f)
             self.dx : float = data['dx']
+            print("Minimal area for a triangle in the mesh : ", self.dx)
 
             self.vertices : ArrayLike = np.array(data['vertices'])
             self.edges : ArrayLike = np.array(data['edges']) #Liste des edges par paires d'indices de vertex
@@ -986,7 +1007,7 @@ class Mesh(object):
             self.exitVertices : ArrayLike = np.array(data['exitVertices'])
             self.exitEdges : ArrayLike = np.array(data['exitEdges'])#Liste des edges d'exit par indice d'edge
             self.wallEdges : ArrayLike = np.array(data['wallEdges'])#Liste des wall edges par indice d'edge
-            self.boundaryPoints : list = data['boundaryPoints']
+            self.boundaryPoints : ArrayLike = np.array(data['boundaryPoints'])
             self.boundaryEdgesIndex : ArrayLike = np.array(data['boundaryEdgesIndex'])#Liste des indices des edges faisant le bord du domaine
             self.vertexFlags : list = data['vertexFlags']
 
@@ -1104,6 +1125,9 @@ class CellValueMap(object):
         for index in range(len(self.Mesh.triangles)):
             self[index] *= a
 
+    def integrate(self):
+        return sum([self.values[i]*self.Mesh.cellAreas[i] for i in range(len(self.Mesh.triangles))])
+
     def valueOnTriangle(self, L):
         for index, triangle in enumerate(self.Mesh.triangles):
             if(list(triangle) == list(L)):
@@ -1112,7 +1136,7 @@ class CellValueMap(object):
 
     def setConstantCircle(self, center:List[PointType], radius:float, value:float):
         for index in range(len(self.Mesh.triangles)):
-            if((self.Mesh.barycenters[index][0] - center[0])**2 + (self.Mesh.barycenters[index][1] - center[1])**2 <= radius):
+            if((self.Mesh.barycenters[index][0] - center[0])**2 + (self.Mesh.barycenters[index][1] - center[1])**2 <= radius**2):
                 self.values[index] = value
             else:
                 self.values[index] = 0
