@@ -70,9 +70,7 @@ class NonConvexDomain(object):
         self.wallEdges = []
         self.wallHolesPoint = []
         self.exitList = []
-        self.zoneDict = dict()
-        self.zoneVertices = []
-        self.zoneEdges = []
+        self.zones = dict()
 
     def importFromDXF(self, filename: str) -> int:
         """
@@ -168,25 +166,32 @@ class NonConvexDomain(object):
                     Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
                     self.addExit([P,Q])
 
+            zoneDict = dict()
             for e in msp.query("LINE"):
                 if(str(e.dxf.layer).find("zone_") == 0):
                     label = str(e.dxf.layer)[5:]
-                    print(label)
-                    if(label not in self.zoneDict.keys()):
-                        self.zoneDict[label] = []
+                    if(label not in zoneDict.keys()):
+                        zoneDict[label] = []
 
-            print(self.wallHolesPoint)
-            print(self.wallVertices)
-            print(self.wallEdges)
+                    P = [np.round(e.dxf.start[0],5),np.round(e.dxf.start[1],5)]
+                    if P not in zoneDict[label]:
+                        zoneDict[label].append(P)
 
+                    Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
+                    if Q not in zoneDict[label]:
+                        zoneDict[label].append(Q)
 
+            for label in zoneDict.keys():
+                self.addZone(label, zoneDict[label])
+
+            print(self.zones)
         else:
             raise ImportError("ezdxf not or wrongly installed.")
 
 
     def __contains__(self, point: PointType):
         for i in range(1,len(self.listOuterVertex) - 1):
-            if(NonConvexDomain.belongTriangle(point, [self.listOuterVertex[0],self.listOuterVertex[i],self.listOuterVertex[i+1]])):
+            if(belongTriangle(point, [self.listOuterVertex[0],self.listOuterVertex[i],self.listOuterVertex[i+1]])):
                 return True
         return False
 
@@ -203,6 +208,12 @@ class NonConvexDomain(object):
             for i, point2 in enumerate(self.listOuterVertex):
                 if point2 == point:
                     return i
+
+    def addZone(self, zoneName:str, zoneVertices:List[PointType]) -> None:
+        if(zoneName in self.zones.keys()):
+            raise NameError("The zone name is already used.")
+        self.zones[zoneName] = zoneVertices
+
 
     def addWallPoint(self, point: PointType) -> int:
         if point not in self.wallVertices:
@@ -403,18 +414,6 @@ class NonConvexDomain(object):
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
     @staticmethod
-    def belongTriangle(M: PointType,T: List[PointType]) -> bool:
-        det = (T[1][0]-T[0][0])*(T[2][1]-T[0][1]) - (T[1][1]-T[0][1])*(T[2][0]-T[0][0])
-        if det == 0:
-            return False
-
-        X = ((M[0]-T[0][0])*(T[2][1]-T[0][1]) - (M[1]-T[0][1])*(T[2][0]-T[0][0]))/det
-        Y = ((T[1][0]-T[0][0])*(M[1]-T[0][1]) - (T[1][1]-T[0][1])*(M[0]-T[0][0]))/det
-        if( 0 <= X and 0 <= Y and X+Y <= 1):
-            return True
-        else:
-            return False
-
     def belongSegment(P: PointType,AB: List[PointType]) -> bool:
         A = AB[0]
         B = AB[1]
@@ -422,6 +421,18 @@ class NonConvexDomain(object):
             scal = (A[0] - P[0])*(A[0] - B[0]) + (A[1] - P[1])*(A[1] - B[1])
             if( scal <= (A[0] - B[0])**2 + (A[1] - B[1])**2 and scal >= 0):
                 return True
+        return False
+
+def belongTriangle(M: PointType,T: List[PointType]) -> bool:
+    det = (T[1][0]-T[0][0])*(T[2][1]-T[0][1]) - (T[1][1]-T[0][1])*(T[2][0]-T[0][0])
+    if det == 0:
+        return False
+
+    X = ((M[0]-T[0][0])*(T[2][1]-T[0][1]) - (M[1]-T[0][1])*(T[2][0]-T[0][0]))/det
+    Y = ((T[1][0]-T[0][0])*(M[1]-T[0][1]) - (T[1][1]-T[0][1])*(M[0]-T[0][0]))/det
+    if( 0 <= X and 0 <= Y and X+Y <= 1):
+        return True
+    else:
         return False
 
 
@@ -481,6 +492,8 @@ class Mesh(object):
         self.cellAreas : ArrayLike
         self.barycenters : ArrayLike
         self.edgeLength : ArrayLike
+
+        self.zones : dict = dict()
 
     def getEdgeCoord(self, edge):
         return [self.vertices[edge[0]], self.vertices[edge[1]]]
@@ -643,6 +656,25 @@ class Mesh(object):
     def addInnerWall(self, wall):
         print("pas imp")
 
+    def addConvexZone(self, zoneName, zoneVertices):
+        if(zoneName in self.zones.keys()):
+            raise NameError("Zone name already in use.")
+
+        self.zones[zoneName] = {'boundary' : zoneVertices,
+                                'triangles' : []}
+
+    def computeZonesTriangles(self):
+        for index, center in enumerate(self.barycenters):
+            for zoneName in self.zones.keys():
+                if self.inZone(center, zoneName):
+                    self.zones[zoneName]['triangles'].append(index)
+
+    def inZone(self, point, zoneName):
+            for i in range(1,len(self.zones[zoneName]['boundary']) - 1):
+                if(belongTriangle(point, [self.zones[zoneName]['boundary'][0],self.zones[zoneName]['boundary'][i],self.zones[zoneName]['boundary'][i+1]])):
+                    return True
+            return False
+
     def addEdgeConstraint(self, edges, constraintLvl):
         print("pas imp")
 
@@ -746,6 +778,9 @@ class Mesh(object):
 
         self.computeVertexFlags(domain)
 
+        for zoneName in domain.zones.keys():
+            self.addConvexZone(zoneName, domain.zones[zoneName])
+
         #print(self.wallEdges)
         #print(np.array([[self.vertices[self.edges[edge][0]],self.vertices[self.edges[edge][1]]] for edge in self.wallEdges]))
         #BUG à fix hasExitEdge Domain dans les angles....
@@ -760,6 +795,8 @@ class Mesh(object):
         self.computeEdgeLength()
 
         self.computeTrianglesPerVertex()
+
+        self.computeZonesTriangles()
 
 
     def computeEdgeList(self) -> None:
@@ -959,6 +996,8 @@ class Mesh(object):
         MeshDico["barycenters"] = self.barycenters.tolist()
         MeshDico["edgeLength"] = self.edgeLength.tolist()
 
+        MeshDico["zones"] = self.zones
+
         dico["mesh"] = MeshDico
 
     def saveToJson(self, filename):
@@ -988,6 +1027,8 @@ class Mesh(object):
         MeshDico["cellAreas"] = self.cellAreas.tolist()
         MeshDico["barycenters"] = self.barycenters.tolist()
         MeshDico["edgeLength"] = self.edgeLength.tolist()
+
+        MeshDico["zones"] = self.zones
 
         with open(filename+"_mesh.json", 'w', encoding='utf-8') as f:
             json.dump(MeshDico, f, ensure_ascii=False, indent=4)
@@ -1019,6 +1060,8 @@ class Mesh(object):
             self.cellAreas : ArrayLike = np.array(data['cellAreas'])
             self.barycenters : ArrayLike = np.array(data['barycenters'])
             self.edgeLength : ArrayLike = np.array(data['edgeLength'])
+
+            self.zones :dict = data["zones"]
 
             print("Mesh successfully loaded.")
 
@@ -1141,6 +1184,43 @@ class CellValueMap(object):
             else:
                 self.values[index] = 0
 
+    """def integrateOverSquareBall(self, radius:float, conv_func) -> list: #function: F(rho(y),|x_1-y_1|,|x_2,y_2|) convert cell value map to vertex value map
+        def recursiveIntegral(center, rad, visited, index) -> float:
+            visited.append(index)
+            if(len(visited) == 1):
+                print("Convolution : ", index/len(self.Mesh.triangles), "%")
+            distX = np.abs(self.Mesh.barycenters[index][0] - center[0])
+            distY = np.abs(self.Mesh.barycenters[index][1] - center[1])
+            if(distX > rad or distY > rad):
+                return 0.0
+            Sum = conv_func(self.values[index],distX,distY)
+            for vertex in self.Mesh.triangles[index]:
+                for neighborTriangle in self.Mesh.trianglesPerVertex[vertex]:
+                    if neighborTriangle[0] not in visited:
+                        Sum += recursiveIntegral(center,rad, visited, neighborTriangle[0])
+            return Sum
+
+        return [recursiveIntegral(self.Mesh.barycenters[triangleIndex],radius,[],triangleIndex) for triangleIndex in range(len(self.Mesh.triangles))]
+        """
+    def convolutionOverSquareBall(self, radius:float, conv_func) -> list: #function: F(rho(y),|x_1-y_1|,|x_2,y_2|) convert cell value map to vertex value map
+        def recursiveIntegral(center, rad, visited, index) -> float:
+            visited.append(index)
+            distX = np.abs(self.Mesh.barycenters[index][0] - center[0])
+            distY = np.abs(self.Mesh.barycenters[index][1] - center[1])
+            if(distX > rad or distY > rad):
+                return 0.0
+            Sum = conv_func(self.values[index],distX,distY)*self.Mesh.cellAreas[index]
+            if(Sum < 0):
+                print("Valeurs : ",self.values[index],distX,distY,rad)
+                raise ValueError( "Probleme ici")
+            for vertex in self.Mesh.triangles[index]:
+                for neighborTriangle in self.Mesh.trianglesPerVertex[vertex]:
+                    if neighborTriangle[0] not in visited:
+                        Sum += recursiveIntegral(center,rad, visited, neighborTriangle[0])
+            return Sum
+
+        return [recursiveIntegral(self.Mesh.vertices[vertexIndex],radius,[],self.Mesh.trianglesPerVertex[vertexIndex][0][0]) for vertexIndex in range(len(self.Mesh.vertices))]
+
     def fitAveragedMap(self, other): #Realise la moyenne pondérée entre deux CellValueMap dont le mesh est potentiellement différent.
         for i in range(len(self.values)):
             LenCell = self.Mesh.points[i+1] - self.Mesh.points[i]
@@ -1211,7 +1291,7 @@ class VertexValueMap(object):
 
     def __init__(self, Mesh):
         self.Mesh = Mesh
-        self.values = [0 for _ in self.Mesh.vertices]
+        self.values = np.array([0 for _ in self.Mesh.vertices])
 
     def generateRandom(self,variability = 0.5):
         self.values = [ 0.5 + variability*(alea.random()-0.5) for _ in self.Mesh.vertices]
@@ -1224,6 +1304,10 @@ class VertexValueMap(object):
 
     def __setitem__(self,index, value):
         self.values[index] = value
+
+    def __add__(self,other):
+        newOne = VertexValueMap(self.Mesh)
+        newOne.values = self.values + other.values
 
     def __str__(self):
         return(str(self.values))
@@ -1286,7 +1370,7 @@ class VertexValueMap(object):
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
 
-    def computeGradientFlow(self):
+    def computeGradientFlow(self,normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
         if(go):
             LTrianglesGrad = []
             for point in range(len(self.Mesh.vertices)):
@@ -1304,14 +1388,14 @@ class VertexValueMap(object):
                             + (self.values[triangle[1]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[2]][1] - self.Mesh.vertices[triangle[0]][1]) )/det
                     Vecy = ( (self.values[triangle[0]] - self.values[triangle[1]])*(self.Mesh.vertices[triangle[2]][0] - self.Mesh.vertices[triangle[0]][0])
                             + (self.values[triangle[2]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[1]][0] - self.Mesh.vertices[triangle[0]][0]) )/det
-                    LTrianglesGrad.append([-Vecx/np.sqrt(Vecx**2 + Vecy**2),-Vecy/np.sqrt(Vecx**2 + Vecy**2)])
-            return LTrianglesGrad
+                    LTrianglesGrad.append([-Vecx/normalization(Vecx, Vecy),-Vecy/normalization(Vecx, Vecy)] if normalize else [-Vecx,-Vecy])
+            return np.array(LTrianglesGrad)
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def showVectorField(self):
+    def showVectorField(self, normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
         if(go):
-            L = self.computeGradientFlow()
+            L = self.computeGradientFlow(normalize, normalization)
             fig = go.Figure()
             #self.Mesh.domain.addPlot(fig)
             fig.add_trace(go.Scatter(x=[P[0] for P in self.Mesh.vertices],
