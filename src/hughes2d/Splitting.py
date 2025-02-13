@@ -76,10 +76,13 @@ class HughesScheme(object):
             proc.start()
             previousProcessDens = proc
 
+
         if('total_mass' in self.options['additional_computations'].keys()):
             self.totalMass = [initialDensity.integrate()]
-        if('oneDList' in self.options['additional_computations'].keys()):
-            self.oneDList = []
+        if('zones_mean_density' in self.options['additional_computations'].keys()):
+            self.zoneDensity = dict()
+            for zoneName in self.mesh.zones.keys():
+                self.zoneDensity[zoneName] = []
 
         self.LWRsolver = LWRSolver(self.mesh, self.dt, self.dx, previousDensity = initialDensity, DirectionMap = self.directions, speedFunction = self.speedFunction, options = self.options['lwrSolver'])
 
@@ -98,11 +101,12 @@ class HughesScheme(object):
                 if(self.timeStep % self.numForgottenSteps == 0):
                     self.saveDensityslice(self.LWRsolver.densityt1)
                     self.saveVectorslice(self.directions)
-
-        if('total_mass' in self.options['additional_computations'].keys()):
-            self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
-        if('1Dy' in self.options['additional_computations'].keys()):
-            self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
+        if(self.timeStep % self.numForgottenSteps == 0):
+            if('total_mass' in self.options['additional_computations'].keys()):
+                self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
+            if('zones_mean_density' in self.options['additional_computations'].keys()):
+                for zoneName in self.mesh.zones.keys():
+                    self.zoneDensity[zoneName].append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']])/sum([self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']]))
 
         self.LWRsolver.update(self.directions)
 
@@ -112,9 +116,17 @@ class HughesScheme(object):
             if("verbose" in self.options.keys()):
                 print("Time step : ", i, "/", n)
 
+        self.saveAdditionnalComputations()
+
+    def saveAdditionnalComputations(self):
         if('total_mass' in self.options['additional_computations'].keys()):
-            writeFirstLine(self.options['filename']+"_total_mass.csv",[self.dt*i for i in range(len(self.totalMass))])
+            writeFirstLine(self.options['filename']+"_total_mass.csv",[self.dt*i*self.numForgottenSteps for i in range(len(self.totalMass))])
             writeSlice(self.options['filename']+"_total_mass.csv",self.totalMass)
+
+        if('zones_mean_density' in self.options['additional_computations'].keys()):
+            writeFirstLine(self.options['filename']+"_zones_mean_densiy.csv",["time"]+[self.dt*i*self.numForgottenSteps for i in range(len(self.zoneDensity[list(self.mesh.zones.keys())[0]]))])
+            for zoneName in self.mesh.zones.keys():
+                writeSlice(self.options['filename']+"_zones_mean_densiy.csv",[zoneName+"_density"]+ self.zoneDensity[zoneName])
 
     def computeStepsAndShow(self,n):
         for i in range(n):

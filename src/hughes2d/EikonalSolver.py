@@ -13,6 +13,7 @@ class EikoSolver(object):
         else:
             self.density = CellValueMap(self.mesh)
 
+        #self.fieldValues = np.array([0.0 for _ in self.mesh.vertices])
         self.fieldValues = VertexValueMap(self.mesh)
 
         self.opt = opt

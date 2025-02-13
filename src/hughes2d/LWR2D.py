@@ -123,7 +123,7 @@ class LWRSolver(object):
                         Totalflux = min(OutingFlux,EnteringFlux)
                     Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
                 #self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
-                self.densityt1[triangleIndex] = self.densityt0[triangleIndex] + Modifdensity 
+                self.densityt1[triangleIndex] = self.densityt0[triangleIndex] + Modifdensity
 
         else: #flux not convex
             for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
@@ -232,9 +232,9 @@ class LWRSolver(object):
 
                     Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
 
-                #self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
+                self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
 
-                self.densityt1[triangleIndex] = self.densityt0[triangleIndex] + Modifdensity
+                #self.densityt1[triangleIndex] = self.densityt0[triangleIndex] + Modifdensity
 
                 if(np.abs(min(1,max(self.densityt0[triangleIndex] + Modifdensity,0)) - (self.densityt0[triangleIndex] + Modifdensity)) > float(1e-10)):
                     print("Différentiel de masse : ", self.densityt0[triangleIndex] + Modifdensity)

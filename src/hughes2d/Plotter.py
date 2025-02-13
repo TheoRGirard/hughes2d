@@ -7,6 +7,9 @@ import matplotlib.collections as collections
 
 import matplotlib.animation as animation
 
+import plotly.figure_factory as ff
+import plotly.graph_objects as go
+
 import csv
 
 def plot(filename):
@@ -45,3 +48,18 @@ def plot(filename):
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(values), interval=30)
 
     plt.show()
+
+def plotVectorField(VertexList, TriangleList, VectorField):
+    if(go):
+        fig = go.Figure()
+        #self.Mesh.domain.addPlot(fig)
+        figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
+                                    [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
+                                    [V[0] for V in VectorField], [V[1] for V in VectorField])
+        fig.add_traces(figQuiv.data)
+        fig.update_layout(yaxis=dict(
+            scaleanchor='x',
+            scaleratio=1))
+        fig.show()
+    else:
+        raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
