@@ -249,7 +249,6 @@ class NonConvexDomain(object):
             for P in coordWall:
                 Centerpoint[0] += P[0]
                 Centerpoint[1] += P[1]
-            print(Centerpoint)
 
             self.wallHolesPoint.append([Centerpoint[0]/len(coordWall),Centerpoint[1]/len(coordWall)])
         else:
@@ -320,6 +319,7 @@ class NonConvexDomain(object):
         return False
 
     def hasWallEdge(self, edge : List[PointType]) -> bool:
+
         wallIndices = [self.findWallPoint(edge[0]), self.findWallPoint(edge[1])]
         if wallIndices[0] == -1 or wallIndices[1] == -1:
             return False
@@ -330,6 +330,19 @@ class NonConvexDomain(object):
         if NonConvexDomain.belongSegment(wall1Coord[0], wall2Coord) or NonConvexDomain.belongSegment(wall1Coord[1], wall2Coord):
             if np.abs( (wall1Coord[1][0]- wall1Coord[0][0])*(wall2Coord[1][1]- wall2Coord[0][1]) - (wall1Coord[1][1]- wall1Coord[0][1])*(wall2Coord[1][0]- wall2Coord[0][0]) ) < float(1e-10):
                 return True
+
+        #Nouveau bug trouvé !!!!
+        verticesIndex = [0,0]
+        for index, point in enumerate(self.wallVertices):
+            for i in range(2):
+                if ((edge[i][0] - point[0])**2 + (edge[i][1] - point[1])**2) < float(1e-10):
+                    verticesIndex[i] = index
+        for wall in self.wallEdges:
+            if( wall[0] == verticesIndex[0] and wall[1] == verticesIndex[1]) or ( wall[0] == verticesIndex[1] and wall[1] == verticesIndex[0]):
+                return True
+        print("N'est pas un wallEdge : ", edge)
+        print("Wall 1 : ", wall1Coord)
+        print("Wall 2 : ", wall2Coord)
         return False
 
     def hasOuterEdge(self, edge : List[PointType]) -> bool:
@@ -647,6 +660,37 @@ class Mesh(object):
 
             self.computeTrianglesPerVertex()
 
+    def importFromLists(self, vertices:List[PointType], triangles:List[List[int]], domain:NonConvexDomain):
+        self.vertices = np.array(vertices)
+        self.triangles = np.array(triangles)
+
+        self.computeEdgeList()
+
+        self.setExitsFromDomain(domain)
+
+        """self.computeVertexFlags(domain)
+
+        for zoneName in domain.zones.keys():
+            self.addConvexZone(zoneName, domain.zones[zoneName])"""
+
+        #print(self.wallEdges)
+        #print(np.array([[self.vertices[self.edges[edge][0]],self.vertices[self.edges[edge][1]]] for edge in self.wallEdges]))
+        #BUG à fix hasExitEdge Domain dans les angles....
+
+        self.computePairOfTrianglesList()
+
+        self.computeOuterNormals()
+
+        self.dx = self.computeCellAreas()
+        print("Minimal area for a triangle in the mesh : ", self.dx)
+
+        self.computeEdgeLength()
+
+        self.computeTrianglesPerVertex()
+
+        #self.computeZonesTriangles()
+
+
     def addExit(self, exitCoordinates):
         print("Pas imp")
 
@@ -936,7 +980,7 @@ class Mesh(object):
         Computes also the barycenter of each triangle.
 
         Return :
-        - the maximal area of a triangle in the mesh
+        - the minimal area of a triangle in the mesh
 
         """
         barycenters = []
@@ -1294,7 +1338,7 @@ class VertexValueMap(object):
         self.values = np.array([0 for _ in self.Mesh.vertices])
 
     def generateRandom(self,variability = 0.5):
-        self.values = [ 0.5 + variability*(alea.random()-0.5) for _ in self.Mesh.vertices]
+        self.values = np.array([ 0.5 + variability*(alea.random()-0.5) for _ in self.Mesh.vertices])
 
     def __len__(self):
         return len(self.values)
@@ -1347,6 +1391,17 @@ class VertexValueMap(object):
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
+    def add3Dplot(self, fig, color=[244,22,100,0.6]):
+        if(go):
+            fig.add_trace(go.Mesh3d(x=[P[0] for P in self.Mesh.vertices],
+                                    y = [P[1] for P in self.Mesh.vertices],
+                                    z = self.values,
+                                    opacity=1,
+                                    color='rgba('+str(color[0])+','+str(color[1])+','+str(color[2])+','+str(color[3])+')'))
+        else:
+            raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
+
+
     def show(self, grid=False, colorscale_name = 'viridis'):
         if(go):
             fig = go.Figure()
@@ -1371,27 +1426,45 @@ class VertexValueMap(object):
 
 
     def computeGradientFlow(self,normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
-        if(go):
-            LTrianglesGrad = []
-            for point in range(len(self.Mesh.vertices)):
-                if(self.values[point] < 0):
-                    print("GROS PROBLEME");
-            for triangle in self.Mesh.triangles: #On a des déterminants égaux à 0....
-                    det =  ((self.Mesh.vertices[triangle[1]][0] - self.Mesh.vertices[triangle[0]][0])*(self.Mesh.vertices[triangle[2]][1] - self.Mesh.vertices[triangle[0]][1])
-                            - (self.Mesh.vertices[triangle[2]][0] - self.Mesh.vertices[triangle[0]][0])*(self.Mesh.vertices[triangle[1]][1] - self.Mesh.vertices[triangle[0]][1]))
-                    if(det == 0):
-                        print("det nul :")
-                        print(str(self.Mesh.vertices[triangle[0]][0])+','+str(self.Mesh.vertices[triangle[0]][1]))
-                        print(str(self.Mesh.vertices[triangle[1]][0])+','+str(self.Mesh.vertices[triangle[1]][1]))
-                        print(str(self.Mesh.vertices[triangle[2]][0])+','+str(self.Mesh.vertices[triangle[2]][1]))
-                    Vecx = ( (self.values[triangle[0]] - self.values[triangle[2]])*(self.Mesh.vertices[triangle[1]][1] - self.Mesh.vertices[triangle[0]][1])
-                            + (self.values[triangle[1]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[2]][1] - self.Mesh.vertices[triangle[0]][1]) )/det
-                    Vecy = ( (self.values[triangle[0]] - self.values[triangle[1]])*(self.Mesh.vertices[triangle[2]][0] - self.Mesh.vertices[triangle[0]][0])
-                            + (self.values[triangle[2]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[1]][0] - self.Mesh.vertices[triangle[0]][0]) )/det
-                    LTrianglesGrad.append([-Vecx/normalization(Vecx, Vecy),-Vecy/normalization(Vecx, Vecy)] if normalize else [-Vecx,-Vecy])
-            return np.array(LTrianglesGrad)
-        else:
-            raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
+        """
+        Compute the gradients of the affine by triangles function defined by the vertex valued map.
+        """
+        LTrianglesGrad = []
+
+        for triangle in self.Mesh.triangles: #On a des déterminants égaux à 0....
+                det =  ((self.Mesh.vertices[triangle[1]][0] - self.Mesh.vertices[triangle[0]][0])*(self.Mesh.vertices[triangle[2]][1] - self.Mesh.vertices[triangle[0]][1])
+                        - (self.Mesh.vertices[triangle[2]][0] - self.Mesh.vertices[triangle[0]][0])*(self.Mesh.vertices[triangle[1]][1] - self.Mesh.vertices[triangle[0]][1]))
+                if(det == 0):
+                    raise ValueError("At least one of the triangles of the mesh is degenerated.")
+                Vecx = ( (self.values[triangle[0]] - self.values[triangle[2]])*(self.Mesh.vertices[triangle[1]][1] - self.Mesh.vertices[triangle[0]][1])
+                        + (self.values[triangle[1]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[2]][1] - self.Mesh.vertices[triangle[0]][1]) )/det
+                Vecy = ( (self.values[triangle[0]] - self.values[triangle[1]])*(self.Mesh.vertices[triangle[2]][0] - self.Mesh.vertices[triangle[0]][0])
+                        + (self.values[triangle[2]] - self.values[triangle[0]])*(self.Mesh.vertices[triangle[1]][0] - self.Mesh.vertices[triangle[0]][0]) )/det
+                LTrianglesGrad.append([-Vecx/normalization(Vecx, Vecy),-Vecy/normalization(Vecx, Vecy)] if normalize else [-Vecx,-Vecy])
+        return np.array(LTrianglesGrad)
+
+    def computeVertexGradientFlow(self,normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
+        """
+        Compute the gradients as the mean gradient at each vertex.
+        """
+        VertexTrianglesGrad = []
+
+        for vertex in range(len(self.Mesh.vertices)):
+            meanVect = np.array([0.0,0.0])
+            treatedVertices = []
+            for i in range(len(self.Mesh.trianglesPerVertex[vertex])):
+                for point in self.Mesh.trianglesPerVertex[vertex][i][1]:
+                    if point not in treatedVertices:
+                        treatedVertices.append(point)
+                        meanVect += ((self.values[point] - self.values[vertex])/np.sqrt((self.Mesh.vertices[point][0]-self.Mesh.vertices[vertex][0])**2 + (self.Mesh.vertices[point][1]-self.Mesh.vertices[vertex][1])**2))*(self.Mesh.vertices[point]-self.Mesh.vertices[vertex])
+            VertexTrianglesGrad.append([meanVect[0]/normalization(meanVect[0], meanVect[1]),meanVect[1]/normalization(meanVect[0], meanVect[1])] if normalize else meanVect/len(treatedVertices))
+        MeanTriangleGrads = []
+        for triangle in self.Mesh.triangles:
+            Vecx = sum([VertexTrianglesGrad[i][0] for i in triangle])
+            Vecy = sum([VertexTrianglesGrad[i][1] for i in triangle])
+            MeanTriangleGrads.append([-Vecx/normalization(Vecx, Vecy),-Vecy/normalization(Vecx, Vecy)] if normalize else [-Vecx,-Vecy])
+        return np.array(MeanTriangleGrads)
+
 
     def showVectorField(self, normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
         if(go):
