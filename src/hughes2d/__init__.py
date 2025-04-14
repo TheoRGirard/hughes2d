@@ -8,5 +8,6 @@ __all__ = [
         'EikonalSolver',
         'Mesh2D',
         'LWR2D',
-        'Splitting'
+        'Splitting',
+        'Plotter'
         ]

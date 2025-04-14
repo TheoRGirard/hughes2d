@@ -24,7 +24,7 @@ Methods:
 - show : plot the densities
 """
 
-class HughesScheme(object):
+class PedestrianSolver(object):
 
     def __init__(self, Mesh, dt, dx, initialDensity=[], speedFunction = (lambda x: 1-x), costFunction = (lambda x: 1+2*x), directions = [], options=dict(constantDirectionField = True, convexFlux = True, anNum = "dichotomy", method = "midVector")):
         self.mesh = Mesh #type Mesh
@@ -55,20 +55,57 @@ class HughesScheme(object):
         if('additional_computations' not in self.options.keys()):
             self.options['additional_computations'] = dict()
 
-        if(self.options["constantDirectionField"]):
-            self.directions = directions
+        if("model" not in self.options.keys()):
+            raise ValueError("A model should be prescribed")
 
-        else:
+        if(self.options["model"] == "constantDirectionField"):
+            if(len(directions) > 0):
+                self.directions = directions
+            else:
+                self.directions = []
+                self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = (lambda x : 1), opt=self.options['eikoSolver'])
+
+                self.Eikosolver.computeField()
+
+                self.constantField = self.Eikosolver.fieldValues
+
+                self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
+
+        elif(self.options["model"] == "hughes"):
             self.directions = []
             self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = self.costFunction, opt=self.options['eikoSolver'])
 
             self.Eikosolver.computeField()
 
             self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
+        elif(self.options["model"] == "colombo-garavello"):
+            if(directions != []):
+                self.constantDirections = directions
+            else:
+                self.directions = []
+                self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = (lambda x : 1), opt=self.options['eikoSolver'])
+
+                self.Eikosolver.computeField()
+
+                self.constantField = self.Eikosolver.fieldValues
+
+                self.constantDirections = self.Eikosolver.fieldValues.computeGradientFlow()
+
+            self.deviationField = VertexValueMap(self.mesh)
+            self.radius = self.options["CGparameters"]["radius"]
+            self.epsilon = self.options["CGparameters"]["epsilon"]
+
+            self.normalizationFunc = (lambda x,y: self.radius**2 * (np.sqrt(1 + x**2 + y**2))/self.epsilon)
+            self.deviationField.values = initialDensity.convolutionOverSquareBall(self.radius, self.convolutionFunctionCG)
+
+            self.lastDensity = CellValueMap(self.mesh)
+
+            self.directions = self.constantDirections + self.deviationField.computeGradientFlow(normalization = self.normalizationFunc)
 
         if(self.options['save']):
             global previousProcessDens, previousProcessVec
             proc = multiprocessing.Process(target=writeFirstLine, args = (self.options['filename']+"_vectors.csv", self.directions))
+            print(self.directions)
             proc.start()
             previousProcessVec = proc
 
@@ -83,17 +120,19 @@ class HughesScheme(object):
             self.zoneDensity = dict()
             for zoneName in self.mesh.zones.keys():
                 self.zoneDensity[zoneName] = []
+        if('max_density' in self.options['additional_computations'].keys()):
+            self.maxDensity = [max(initialDensity.values)]
 
         self.LWRsolver = LWRSolver(self.mesh, self.dt, self.dx, previousDensity = initialDensity, DirectionMap = self.directions, speedFunction = self.speedFunction, options = self.options['lwrSolver'])
 
     def computeStep(self):
         self.timeStep += 1
         self.LWRsolver.computeNextStep()
-        if(self.options["constantDirectionField"]):
+        if(self.options["model"] == "constantDirectionField"):
             if(self.options['save']):
                 if(self.timeStep % self.numForgottenSteps == 0):
                     self.saveDensityslice(self.LWRsolver.densityt1)
-        else:
+        elif(self.options["model"] == "hughes"):
             self.Eikosolver.updateDensity(self.LWRsolver.densityt1)
             self.Eikosolver.computeField()
             self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
@@ -101,12 +140,23 @@ class HughesScheme(object):
                 if(self.timeStep % self.numForgottenSteps == 0):
                     self.saveDensityslice(self.LWRsolver.densityt1)
                     self.saveVectorslice(self.directions)
+        elif(self.options["model"] == "colombo-garavello"):
+            self.lastDensity.values = self.LWRsolver.densityt1
+            self.deviationField.values = self.lastDensity.convolutionOverSquareBall(self.radius, self.convolutionFunctionCG)
+            self.directions = self.constantDirections + self.deviationField.computeGradientFlow(normalization = self.normalizationFunc)
+            if(self.options['save']):
+                if(self.timeStep % self.numForgottenSteps == 0):
+                    self.saveDensityslice(self.LWRsolver.densityt1)
+                    self.saveVectorslice(self.directions)
+
         if(self.timeStep % self.numForgottenSteps == 0):
             if('total_mass' in self.options['additional_computations'].keys()):
                 self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
             if('zones_mean_density' in self.options['additional_computations'].keys()):
                 for zoneName in self.mesh.zones.keys():
                     self.zoneDensity[zoneName].append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']])/sum([self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']]))
+            if('max_density' in self.options['additional_computations'].keys()):
+                self.maxDensity.append(max(self.LWRsolver.densityt1))
 
         self.LWRsolver.update(self.directions)
 
@@ -115,6 +165,20 @@ class HughesScheme(object):
             self.computeStep()
             if("verbose" in self.options.keys()):
                 print("Time step : ", i, "/", n)
+
+        self.saveAdditionnalComputations()
+
+    def computeUntilEmpty(self, max_frames = 5000):
+        if('total_mass' not in self.options['additional_computations'].keys()):
+            self.totalMass = [self.densityt0[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]
+            self.options['additional_computations']['total_mass'] = True
+
+        numSteps = 0
+        while(self.totalMass[-1] > float(1e-2) and len(self.totalMass) < max_frames):
+            self.computeStep()
+            if("verbose" in self.options.keys()):
+                print("Time step : ", numSteps, "/", max_frames*self.numForgottenSteps," total mass : ", self.totalMass[-1])
+            numSteps += 1
 
         self.saveAdditionnalComputations()
 
@@ -128,6 +192,10 @@ class HughesScheme(object):
             for zoneName in self.mesh.zones.keys():
                 writeSlice(self.options['filename']+"_zones_mean_densiy.csv",[zoneName+"_density"]+ self.zoneDensity[zoneName])
 
+        if('max_density' in self.options['additional_computations'].keys()):
+            writeFirstLine(self.options['filename']+"_max_density.csv",[self.dt*i*self.numForgottenSteps for i in range(len(self.maxDensity))])
+            writeSlice(self.options['filename']+"_max_density.csv",self.maxDensity)
+
     def computeStepsAndShow(self,n):
         for i in range(n):
             self.computeStep()
@@ -137,6 +205,10 @@ class HughesScheme(object):
         if(not self.options["constantDirectionField"]):
             self.directions.showVectorField()
         self.LWRsolver.densityt1.show()
+
+    def convolutionFunctionCG(self, dens, dx, dy):
+        return dens*(1-(dx/self.radius)**2)**3 * (1-(dy/self.radius)**2)**3
+
 
     def saveDensityslice(self, density):
         writeSlice_parallel_Dens(self.options['filename']+ "_densities.csv", self.timeStep, density)

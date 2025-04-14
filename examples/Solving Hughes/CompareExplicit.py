@@ -23,6 +23,7 @@ MyMesh = Mesh2D.Mesh()
 MyMesh.generateMeshFromDomain(MyDomain,dx)
 #MyMesh.show()
 
+
 MyMap = Mesh2D.CellValueMap(MyMesh)
 #MyMap.generateRandom()
 for i in range(len(MyMap)):
@@ -51,24 +52,11 @@ MyEmptyMap = Mesh2D.CellValueMap(MyMesh)
 Opt3=dict(method = "FMT", constrained = True, NarrowBandDepth = 2)
 FMTCSolv = EikonalSolver.EikoSolver(MyMesh,DensityMap = MyEmptyMap,opt=Opt3)
 FMTCSolv.computeField()
-MyVectors = FMTCSolv.fieldValues.computeGradientFlow()
-#Plotter.plotVectorField(MyMesh.vertices,MyMesh.triangles,MyVectors2)
+MyVectors2 = FMTCSolv.fieldValues.computeGradientFlow()
 
-MyVectors2 = [[1,0] for _ in MyMesh.triangles]
+MyVectors = [[1,0] for _ in MyMesh.triangles]
 
 opt = dict(model = "constantDirectionField",
-            filename = "data/HughesCouloirTmap",
-            save = False,
-            verbose = True,
-            lwrSolver = {   'convexFlux' : True,
-                            'anNum' : "dichotomy",
-                            'method' : "tmap",
-                            'ApproximationThreshold' : 0.0001}
-                            )
-
-Solver = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors, options=opt)
-
-opt2 = dict(model = "constantDirectionField",
             filename = "data/HughesCouloirTmap",
             save = False,
             verbose = True,
@@ -78,29 +66,69 @@ opt2 = dict(model = "constantDirectionField",
                             'ApproximationThreshold' : 0.0001}
                             )
 
-Solver2 = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors, options=opt2)
+Solver = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors, options=opt)
 
-L1Diffs = [[],[]]
+opt3 = dict(model = "constantDirectionField",
+            filename = "data/HughesCouloirTmap",
+            save = False,
+            verbose = True,
+            lwrSolver = {   'convexFlux' : True,
+                            'anNum' : "dichotomy",
+                            'method' : "midVector",
+                            'ApproximationThreshold' : 0.0001}
+                            )
+
+Solver3 = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors2, options=opt3)
+
+opt2 = dict(model = "hughes",
+            filename = "data/HughesCouloirTmap",
+            save = False,
+            verbose = True,
+            lwrSolver = {   'convexFlux' : True,
+                            'anNum' : "dichotomy",
+                            'method' : "midVector",
+                            'ApproximationThreshold' : 0.0001},
+            eikoSolver = { 'method' : 'FMT',
+                            'constrained' : True,
+                            'NarrowBandDepth' : 2
+                            })
+
+Solver2 = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, options=opt2)
+
+L1Diffs = [[],[],[]]
 for j in range(numStep):
     Solver.computeStep()
     Solver2.computeStep()
-    if(j == 50):
+    Solver3.computeStep()
+    if(j == 800):
         Map = Mesh2D.CellValueMap(MyMesh)
+        Map.values = ExplicitSol[j]
+        Map.show()
         Map.values = Solver.LWRsolver.densityt1
         Map.show()
+        Map.values = [np.abs(Solver.LWRsolver.densityt1[k]-ExplicitSol[j][k]) for k in range(len(MyMesh.triangles))]
+        Map.show()
+        print(max(Map.values))
         Map.values = Solver2.LWRsolver.densityt1
         Map.show()
-        ExplicitSol[j].show()
+        Map.values = [np.abs(Solver2.LWRsolver.densityt1[k]-ExplicitSol[j][k]) for k in range(len(MyMesh.triangles))]
+        Map.show()
+        print(max(Map.values))
+
+
     D = 0
     D2 = 0
+    D3 = 0
     for k in range(len(MyMesh.triangles)):
         D += abs(Solver.LWRsolver.densityt1[k]-ExplicitSol[j][k])*MyMesh.cellAreas[k]
         D2 += abs(Solver2.LWRsolver.densityt1[k]-ExplicitSol[j][k])*MyMesh.cellAreas[k]
+        D3 += abs(Solver3.LWRsolver.densityt1[k]-ExplicitSol[j][k])*MyMesh.cellAreas[k]
     L1Diffs[0].append(D/50)
     L1Diffs[1].append(D2/50)
+    L1Diffs[2].append(D3/50)
 
 T = [i*dt for i in range(numStep)]
-models =["discontinuous flux", "mid vector"]
+models =["Hughes' model", "LWR - explicit vectors", "LWR - FMTC vectors"]
 fig, axs = plt.subplots(1)
 for i,model in enumerate(models):
     axs.plot(T,L1Diffs[i], label = model)
@@ -108,4 +136,4 @@ axs.set_title("L¹ difference with the explicit solution with |Δ| = "+str(dx)+"
 axs.set_xlabel("t")
 axs.legend()
 #plt.show()
-plt.savefig("figs/plotTest2.png")
+plt.savefig("figs/CompareExplicit.png")
