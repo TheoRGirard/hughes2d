@@ -1181,7 +1181,7 @@ class CellValueMap(object):
         self.values = [0 for _ in self.Mesh.triangles]
 
     def generateRandom(self,variability = 0.4):
-        self.values = [ 0.2 + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
+        self.values = [ 0.23 + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
 
     def __len__(self):
         return len(self.values)

@@ -170,8 +170,10 @@ class PedestrianSolver(object):
 
     def computeUntilEmpty(self, max_frames = 5000):
         if('total_mass' not in self.options['additional_computations'].keys()):
-            self.totalMass = [self.densityt0[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]
             self.options['additional_computations']['total_mass'] = True
+            self.totalMass = [sum([self.LWRsolver.densityt0[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))])]
+            print("première masse trouvée : ", self.totalMass[0])
+
 
         numSteps = 0
         while(self.totalMass[-1] > float(1e-2) and len(self.totalMass) < max_frames):
