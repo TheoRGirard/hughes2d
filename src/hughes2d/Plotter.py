@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 
 import csv
 
-def convertToMP4(filename):
+def convertToMP4(filename, limits = []):
 
     with open(filename +"_mesh.json") as f:
         data = json.load(f)
@@ -30,19 +30,25 @@ def convertToMP4(filename):
     fig, ax = plt.subplots()
 
     col = collections.PolyCollection(Triangles)
-    col.set_array(values[0])
     col.set_cmap(cm.viridis)
+    col.set_clim([0, 1])
+    rgcol = col.set_array(values[0])
+
     ax.add_collection(col)
-    #fig.colorbar(ax,label="density")
-    ax.set_xlim(0,12)
-    ax.set_ylim(0,7)
+    fig.colorbar(rgcol, ax=ax, label="density")
+
+
+    if len(limits) > 0:
+        ax.set_xlim(limits[0][0],limits[0][1])
+        ax.set_ylim(limits[1][0],limits[1][1])
+        plt.axis('equal')
 
 
     def update(frame):
         # for each frame, update the data stored on each artist.
         col.set_array(values[frame])
-        col.set_cmap(cm.viridis)
         ax.add_collection(col)
+
         return (col,ax)
 
 
