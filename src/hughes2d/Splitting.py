@@ -58,6 +58,16 @@ class PedestrianSolver(object):
         if("model" not in self.options.keys()):
             raise ValueError("A model should be prescribed")
 
+        if("eikoSolver" not in self.options.keys()):
+            self.options['eikoSolver'] = {  'constrained' : True,
+                                            'NarrowBandDepth' : 2}
+
+        if("lwrSolver" not in self.options.keys()):
+            self.options['lwrSolver'] = {   'convexFlux' : True,
+                                            'anNum' : "dichotomy",
+                                            'method' : "midVector",
+                                            'ApproximationThreshold' : 0.0001}
+
         if(self.options["model"] == "constantDirectionField"):
             if(len(directions) > 0):
                 self.directions = directions
