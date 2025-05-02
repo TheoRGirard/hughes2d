@@ -48,7 +48,7 @@ Plotter.convertToMP4("gettingStartedSimu", limits=[[0,1],[0,1]])
 ```
 Compiling and running this code should create 3 .csv files, 1 .json file and 1 .mp4 file. The .mp4 file should look like the video below:
 <video width="320" height="240" controls>
-  <source src="[video.mov](https://github.com/TheoRGirard/hughes2d/examples/gettingStartedVid.mp4))" type="video/mp4">
+  <source src="https://github.com/TheoRGirard/hughes2d/examples/gettingStartedVid.mp4" type="video/mp4">
 </video>
 
 ## The **opt** dictionary
