@@ -4,8 +4,8 @@ A numerical scheme to approximate the solutions of the Hughes model using a fini
 ## Installation
 The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
 ```
-git clone https://github.com/TheoRGirard/hughes2d
-cd hughes2d
+git clone https://github.com/TheoRGirard/hughes2d |
+cd hughes2d |
 uv sync
 ```
 If you don't have uv installed, you can see a list of the dependencies in the _pyproject.toml_ file.
@@ -47,7 +47,7 @@ Solver.computeUntilEmpty(100)
 Plotter.convertToMP4("gettingStartedSimu", limits=[[0,1],[0,1]])
 ```
 Compiling and running this code should create 3 .csv files, 1 .json file and 1 .mp4 file. The .mp4 file should look like the video below:
-![](examples/gettingStartedVid.mp4)
+![](https://github.com/TheoRGirard/hughes2d/examples/gettingStartedVid.mp4)
 
 ## The **opt** dictionary
 
