@@ -68,12 +68,15 @@ def saveTimeSlices(times, filename, slicename, limits = []):
         for lines in csvFile:
             values.append(np.array([float(lines[i]) for i in range(len(lines))]))
 
+
     for i,t in enumerate(times):
         fig, ax = plt.subplots()
 
         col = collections.PolyCollection(Triangles)
-        rgcol = col.set_array(values[IntTimes[i]])
         col.set_cmap(cm.viridis)
+        col.set_clim([0, 1])
+        rgcol = col.set_array(values[IntTimes[i]])
+
 
         if len(limits) > 0:
             ax.set_xlim(limits[0][0],limits[0][1])
@@ -83,7 +86,7 @@ def saveTimeSlices(times, filename, slicename, limits = []):
         ax.add_collection(col)
         ax.set_title("t = "+str(times[i])+"s")
         fig.colorbar(rgcol, ax=ax, label="density")
-        plt.savefig("fig/" + slicename + str(times[i]) +"s.png")
+        plt.savefig(slicename + str(times[i]) +"s.png")
 
 
 

@@ -41,9 +41,10 @@ MyDomain.addExits(Exits)
 MyDomain.show()
 
 #construction du Mesh--------------------------------------
-MyMesh = Mesh2D.Mesh(MyDomain, 0.05)
-MyMesh.triangulate()
+MyMesh = Mesh2D.Mesh()
+MyMesh.generateMeshFromDomain(MyDomain, 0.01)
 MyMesh.show()
+MyMesh.saveToJson("HughesRuGrandmont")
 
 
 #Construction de la donnée initiale ---------------------------------------
@@ -51,8 +52,8 @@ MyMap = Mesh2D.CellValueMap(MyMesh)
 MyMap.generateRandom()
 MyMap.show()
 
-opt = dict(constantDirectionField = False,
-            filename = "data/HughesRuGrandmont4",
+opt = dict(model = "hughes",
+            filename = "data/HughesRuGrandmont",
             save = True,
             verbose = True,
             lwrSolver = {   'convexFlux' : True,
@@ -62,10 +63,9 @@ opt = dict(constantDirectionField = False,
             eikoSolver = {  'constrained' : True,
                             'NarrowBandDepth' : 2})
 
-Solver = Splitting.HughesScheme(MyMesh, 0.025,0.05, initialDensity = MyMap, options=opt)
+Solver = Splitting.PedestrianSolver(MyMesh, 0.01,0.01, initialDensity = MyMap, options=opt)
 #for i in range(5):
 #Solver.computeStepsAndShow(2)
 #Solver.directions[-1].checkGradientValidity()
 #Solver.directions[-1].showVectorField()
-Solver.computeSteps(3000)
-Solver.saveToJson()
+Solver.computeUntilEmpty(5000)
