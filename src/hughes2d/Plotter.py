@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 
 import csv
 
-def convertToMP4(filename, limits = []):
+def convertToMP4(filename, limits = [], dpi_set = 300):
 
     with open(filename +"_mesh.json") as f:
         data = json.load(f)
@@ -27,7 +27,7 @@ def convertToMP4(filename, limits = []):
             values.append(np.array([float(lines[i]) for i in range(len(lines))]))
 
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(dpi=dpi_set)
 
     col = collections.PolyCollection(Triangles)
     col.set_cmap(cm.viridis)
@@ -55,10 +55,10 @@ def convertToMP4(filename, limits = []):
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(values), interval=30)
 
     FFwriter = animation.FFMpegWriter(fps=25)
-    ani.save(filename+'.mp4', writer = FFwriter)
+    ani.save(filename+'.mp4', writer = FFwriter, dpi=dpi_set)
 
 
-def saveTimeSlices(times, filename, slicename, limits = []):
+def saveTimeSlices(times, filename, slicename, limits = [], dpi_set = 300):
 
     IntTimes = [int(times[i]*25) for i in range(len(times))]
 
@@ -92,7 +92,7 @@ def saveTimeSlices(times, filename, slicename, limits = []):
         ax.add_collection(col)
         ax.set_title("t = "+str(times[i])+"s")
         fig.colorbar(rgcol, ax=ax, label="density")
-        plt.savefig(slicename + str(times[i]) +"s.png")
+        plt.savefig(slicename + str(times[i]) +"s.png", dpi=dpi_set)
 
 
 

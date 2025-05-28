@@ -22,6 +22,7 @@ import triangle as tr
 
 try:
     import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
 except ImportError:
     plt = None
 
@@ -190,12 +191,26 @@ class NonConvexDomain(object):
 
 
     def __contains__(self, point: PointType):
+        """
+        This method tests if the point passed as a parameter is inside the convex hull of the domain.
+        It takes a PointType as parameter i.e. [float, float]
+        """
         for i in range(1,len(self.listOuterVertex) - 1):
             if(belongTriangle(point, [self.listOuterVertex[0],self.listOuterVertex[i],self.listOuterVertex[i+1]])):
                 return True
         return False
 
     def addBoundaryPoint(self, point : PointType) -> int:
+        """
+        Add a given point of the boundary to the list of points of the domain.
+        This is typically used in order to guarantee that the given point will be included as a vertex of the mesh generated from this domain.
+        If the point is already in listouterVertex, the method returns the index of the point without adding it.
+        ERRORS:
+        The method raises a value error if the given point is not in the boundary of the domain.
+
+        RETURNS:
+        The method returns the index corresponding to the added point in the listOuterVertex list.
+        """
         if point not in self.listOuterVertex:
             for index, edge in enumerate(self.outerBoundary):
                 if(NonConvexDomain.belongSegment(point, [self.listOuterVertex[edge[i]] for i in [0,1]])):
@@ -209,13 +224,51 @@ class NonConvexDomain(object):
                 if point2 == point:
                     return i
 
+    def getLimits(self):
+        """
+        Returns the extremal coordinates of the domain as a list of two two-elements lists
+        i.e. [[x_min,x_max],[y_min,y_max]].
+        """
+        x_min, x_max = self.listOuterVertex[0][0],self.listOuterVertex[0][0]
+        y_min, y_max = self.listOuterVertex[0][1],self.listOuterVertex[0][1]
+        for P in self.listOuterVertex:
+            if P[0] > x_max:
+                x_max = P[0]
+            if P[1] > y_max:
+                y_max = P[1]
+            if P[0] < x_min:
+                x_min = P[0]
+            if P[1] < y_min:
+                y_min = P[1]
+        return [[x_min,x_max],[y_min,y_max]]
+
+
     def addZone(self, zoneName:str, zoneVertices:List[PointType]) -> None:
+        """
+        Adds a zone to the list of zones of the domain.
+        PARAMETERS:
+        -zoneName (str) : the name to be given to the new zone.
+        -zoneVertices (List[PointType]) : list of the vertex of the boundary of the zone.
+
+        ERRORS:
+        Raises a name error if the zone name is already taken.
+        """
         if(zoneName in self.zones.keys()):
             raise NameError("The zone name is already used.")
         self.zones[zoneName] = zoneVertices
 
 
     def addWallPoint(self, point: PointType) -> int:
+        """
+        Add a given point of the boundary to the list of points of the inner walls of the domain.
+        This is typically used in order to guarantee that the given point will be included as a vertex of the mesh generated from this domain.
+        If the point is already in wallVertices, the method returns the index of the point without adding it.
+        ERRORS:
+        The method raises a value error if the given point is not in the inner walls of the domain.
+
+        RETURNS:
+        The method returns the index corresponding to the added point in the wallVertices list.
+        """
         if point not in self.wallVertices:
             for index, edge in enumerate(self.wallEdges):
                 if(NonConvexDomain.belongSegment(point, [self.wallVertices[edge[i]] for i in [0,1]])):
@@ -231,7 +284,14 @@ class NonConvexDomain(object):
 
     def addWall(self, coordWall: List[PointType], cycle: bool=False ) -> None:
         """
-        Can only exclude convex domains.
+        Adds a wall in the domain. If cycle is set to True, the wall is considered as an area to exclude from the domain.
+        If not, only the edges defined by the coordWall are excluded from the domain.
+        PARAMETERS:
+        - coordWall (List[PointType]) : List of the vertices defining the walls.
+        - cycle (bool) : A boolean switching between a hole to exclude from the domain and only walls of zero thickness to exclude from the domain.
+
+        ERRORS:
+        Raises a Value Error if the points of wallCoord are not inside the convex hull of the domain.
         """
         for P in coordWall:
             if(P not in self):
@@ -259,55 +319,130 @@ class NonConvexDomain(object):
                 self.wallVertices.append(P)
 
     def addExit(self, exitEdge: List[PointType]):
-        self.exitList.append(exitEdge)
+        """
+        Adds an exit passed in parameter. If the two exit points are on different edges, the shortest path (in number of vertices crossed) following the wall is added as an exit.
+        PARAMETERS:
+        - exitEdge (List[PointType]) : an exit defined by two extremal points.
+
+        ERRORS:
+        Raises a ValueError if:
+            - at least one of the extremal points is not in a wall edge or a boundary edge;
+            - there exists no path staying either in the walls or in the boundary that links the two extremal points of the exit.
+
+        """
         VertexIndex = [0,0]
         if(len(exitEdge) > 2):
             raise ValueError("An exit is a list of two points.")
-        if(self.hasEdgeInInnerWall(exitEdge)):
+        if(self.hasWallEdge(exitEdge)):
             for i in [0,1]:
                 VertexIndex[i] = self.addWallPoint(exitEdge[i])
-            if VertexIndex not in self.wallEdges and [VertexIndex[1],VertexIndex[0]] not in self.wallEdges:
+
+            exitPath = NonConvexDomain.shortestPathBFS(VertexIndex[0],VertexIndex[1],self.wallEdges)
+            if len(exitPath) == 0:
                 raise ValueError("Impossible exit for this domain inner walls")
-        elif(self.hasEdgeInOuterBoundary(exitEdge)):
+            else:
+                exitEdges = [ [self.wallVertices[exitPath[i]],self.wallVertices[exitPath[i+1]]] for i in range(len(exitPath) - 1)]
+                self.exitList += exitEdges
+        elif(self.hasOuterEdge(exitEdge)):
             for i in [0,1]:
                 VertexIndex[i] = self.addBoundaryPoint(exitEdge[i])
-            if VertexIndex not in self.outerBoundary and [VertexIndex[1],VertexIndex[0]] not in self.outerBoundary:
+            exitPath = NonConvexDomain.shortestPathBFS(VertexIndex[0],VertexIndex[1],self.outerBoundary)
+            if len(exitPath) == 0:
                 raise ValueError("Impossible exit for this domain boundary")
+            else:
+                exitEdges = [ [self.listOuterVertex[exitPath[i]],self.listOuterVertex[exitPath[i+1]]] for i in range(len(exitPath) - 1)]
+                self.exitList += exitEdges
         else:
             raise ValueError("The exit is not inside an inner wall nor in an outer oboundary.")
 
     def addExits(self, ListOfExits: List[List[PointType]]):
+        """
+        Call the method addExit multiple times.
+        """
         for exitEdge in ListOfExits:
             self.addExit(exitEdge)
 
     def findBoundaryPoint(self, P: PointType) -> int :
+        """
+        Searches an edge of the boundary containing P.
+        PARAMETERS:
+        - P (PointType): the point the should be in the researched edge.
+
+        RETURNS:
+        The index of the first edge found in the boundary that contains P; returns -1 if no such edge is found.
+        """
         for i,edge in enumerate(self.outerBoundary):
             if NonConvexDomain.belongSegment(P, [self.listOuterVertex[edge[0]], self.listOuterVertex[edge[1]]]):
                 return i
         return -1
 
     def findWallPoint(self, P: PointType) -> int :
+        """
+        Searches an edge of the inner walls containing P.
+        PARAMETERS:
+        - P (PointType): the point the should be in the researched edge.
+
+        RETURNS:
+        The index of the first edge found in the inner walls that contains P; returns -1 if no such edge is found.
+        """
         for i, edge in enumerate(self.wallEdges):
             if NonConvexDomain.belongSegment(P, [self.wallVertices[edge[0]], self.wallVertices[edge[1]]]):
                 return i
         return -1
 
     def findExitPoint(self, P: PointType) -> int:
+        """
+        Searches an edge of the exits containing P.
+        PARAMETERS:
+        - P (PointType): the point the should be in the researched edge.
+
+        RETURNS:
+        The index of the first edge found in the exits that contains P; returns -1 if no such edge is found.
+        """
         for i, exit in enumerate(self.exitList):
             if NonConvexDomain.belongSegment(P, exit):
                 return i
         return -1
 
     def hasBoundaryPoint(self, P: PointType) -> bool :
+        """
+        Checks that the point P passed as a parameter belongs to the outer boundary.
+        PARAMETERS:
+        - P (PointType): the point to test.
+
+        RETURNS:
+        A boolean that is True if P is in the outer boundary.
+        """
         return (self.findBoundaryPoint(P) != -1)
 
     def hasWallPoint(self, P: PointType) -> bool :
+        """
+        Checks that the point P passed as a parameter belongs to the inner walls.
+        PARAMETERS:
+        - P (PointType): the point to test.
+
+        RETURNS:
+        A boolean that is True if P is in the inner walls.
+        """
         return (self.findWallPoint(P) != -1)
 
     def hasExitPoint(self, P: PointType) -> bool:
+        """
+        Checks that the point P passed as a parameter belongs to the exits.
+        PARAMETERS:
+        - P (PointType): the point to test.
+
+        RETURNS:
+        A boolean that is True if P is in the exits.
+        """
         return (self.findExitPoint(P) != -1)
 
     def hasExitEdge(self, edge : List[PointType]) -> bool:
+        """
+        Tests if the segment defined by the pair of points passed as a parameter is inside an exit.
+        PARAMETERS:
+        - edge (List[PointType]) :  a pair of points defining a segment to test.
+        """
         exitIndices = [self.findExitPoint(edge[0]), self.findExitPoint(edge[1])]
         if exitIndices[0] == -1 or exitIndices[1] == -1:
             return False
@@ -319,7 +454,11 @@ class NonConvexDomain(object):
         return False
 
     def hasWallEdge(self, edge : List[PointType]) -> bool:
-
+        """
+        Tests if the segment defined by the pair of points passed as a parameter is inside an inner wall.
+        PARAMETERS:
+        - edge (List[PointType]) :  a pair of points defining a segment to test.
+        """
         wallIndices = [self.findWallPoint(edge[0]), self.findWallPoint(edge[1])]
         if wallIndices[0] == -1 or wallIndices[1] == -1:
             return False
@@ -331,7 +470,6 @@ class NonConvexDomain(object):
             if np.abs( (wall1Coord[1][0]- wall1Coord[0][0])*(wall2Coord[1][1]- wall2Coord[0][1]) - (wall1Coord[1][1]- wall1Coord[0][1])*(wall2Coord[1][0]- wall2Coord[0][0]) ) < float(1e-10):
                 return True
 
-        #Nouveau bug trouvé !!!!
         verticesIndex = [0,0]
         for index, point in enumerate(self.wallVertices):
             for i in range(2):
@@ -340,12 +478,15 @@ class NonConvexDomain(object):
         for wall in self.wallEdges:
             if( wall[0] == verticesIndex[0] and wall[1] == verticesIndex[1]) or ( wall[0] == verticesIndex[1] and wall[1] == verticesIndex[0]):
                 return True
-        print("N'est pas un wallEdge : ", edge)
-        print("Wall 1 : ", wall1Coord)
-        print("Wall 2 : ", wall2Coord)
+
         return False
 
     def hasOuterEdge(self, edge : List[PointType]) -> bool:
+        """
+        Tests if the segment defined by the pair of points passed as a parameter is inside the outer boundary.
+        PARAMETERS:
+        - edge (List[PointType]) :  a pair of points defining a segment to test.
+        """
         outerIndices = [self.findBoundaryPoint(edge[0]), self.findBoundaryPoint(edge[1])]
         if outerIndices[0] == -1 or outerIndices[1] == -1:
             return False
@@ -355,27 +496,15 @@ class NonConvexDomain(object):
             return True
         if NonConvexDomain.belongSegment(outer1Coord[0], outer2Coord) or NonConvexDomain.belongSegment(outer1Coord[1], outer2Coord):
             if np.abs( (outer1Coord[1][0]- outer1Coord[0][0])*(outer2Coord[1][1]- outer2Coord[0][1]) - (outer1Coord[1][1]- outer1Coord[0][1])*(outer2Coord[1][0]- outer2Coord[0][0]) ) < float(1e-10):
-                if(edge[1][0] == 4.6875):
-                    print("outerIndices : ", outerIndices)
-                    print("Oui 2 outers different mais alignées sur edge ", edge)
-                    print("Resultat determinant : ",(outer1Coord[1][0]- outer1Coord[0][0])*(outer2Coord[1][1]- outer2Coord[0][1]) - (outer1Coord[1][1]- outer1Coord[0][1])*(outer2Coord[1][0]- outer2Coord[0][0]))
-                    print("Avec Outer coords = ", outer1Coord, outer2Coord)
-                return True
-        return False
-
-    def hasEdgeInOuterBoundary(self, edge: List[PointType]) -> bool:
-        for i in [0,1]:
-            if self.hasBoundaryPoint(edge[i]):
-                return True
-        return False
-
-    def hasEdgeInInnerWall(self, edge: List[PointType]) -> bool:
-        for i in [0,1]:
-            if self.hasWallPoint(edge[i]):
                 return True
         return False
 
     def show(self) -> None:
+        """
+        Plotting method for the domain object. The method opens either a new window or a default navigator tab.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed, plotly is used.
+        """
         if(go):
             fig = go.Figure()
             self.addPlot(fig)
@@ -384,12 +513,23 @@ class NonConvexDomain(object):
                 scaleratio=1))
             fig.show()
         elif(plt):
-            print("MatplotLib show not implemented yet.")
+            fig, ax = plt.subplots()
+            self.addPlot(fig,ax)
+            limits = self.getLimits()
+            ax.set_xlim(limits[0][0],limits[0][1])
+            ax.set_ylim(limits[1][0],limits[1][1])
+            plt.axis('equal')
+            plt.show()
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def addPlot(self, fig) -> None:
-        if(go):
+    def addPlot(self, fig, ax=None) -> None:
+        """
+        Non-blocking plotting method for the domain object. The method does not show the graph.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed, plotly is used.
+        """
+        if(go): #plotly version of the plot
             startPoint = self.listOuterVertex[self.outerBoundary[0][0]]
             orderedOuterVertices = [startPoint]
             endPoint = self.listOuterVertex[self.outerBoundary[0][1]]
@@ -423,11 +563,71 @@ class NonConvexDomain(object):
                             color="Red",
                             width=2,
                         ))
+        elif(plt): #matplotlib version of the plot
+            startPoint = self.listOuterVertex[self.outerBoundary[0][0]]
+            orderedOuterVertices = [startPoint]
+            endPoint = self.listOuterVertex[self.outerBoundary[0][1]]
+            while(endPoint != startPoint):
+                orderedOuterVertices.append(endPoint)
+                for edge in self.outerBoundary:
+                    if(self.listOuterVertex[edge[0]] == endPoint):
+                        endPoint = self.listOuterVertex[edge[1]]
+                        break
+
+            domain_polygon = patches.Polygon([(P[0],P[1]) for P in orderedOuterVertices], edgecolor='black', facecolor='white')
+            ax.add_patch(domain_polygon)
+
+            for edge in self.wallEdges:
+                path = [    (self.wallVertices[edge[0]][0], self.wallVertices[edge[0]][1]),
+                            (self.wallVertices[edge[1]][0], self.wallVertices[edge[1]][1]) ]
+                ax.add_patch(patches.Polygon(path, edgecolor='black',linewidth=1))
+
+            for exit in self.exitList:
+                path = [    (exit[0][0], exit[0][1]),
+                            (exit[1][0], exit[1][1]) ]
+                ax.add_patch(patches.Polygon(path, edgecolor='red',linewidth=2))
+
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
     @staticmethod
+    def shortestPathBFS(Istart: int , Iend: int, listEdges: List[List[int]]):
+        """
+        Computes the shortest path between Istart and Iend (in number of vertices) on the network defined by the integers as vertice and the edges of listEdges.
+        The method uses a Breadth First Search algorithm with memory of the pathes explored.
+        PARAMETERS:
+        - Istart (int) : the starting vertex of the searched path.
+        - Iend (int) : the ending vertex of the searched path.
+        - listEdges (List[List[int]]) : a list of the edges of the network symbolized by a list of two integers.
+        RETURNS:
+        The shortest path found as a list of integers i.e. the list of the successive vertices defining the path.
+        If no path is found the method returns an empty list.
+        """
+        visited = []
+        Pathes = [[Istart]]
+        while(len(Pathes) > 0):
+            newPathes = []
+            for path in Pathes:
+                if path[-1] == Iend:
+                    return path
+                visited.append(path[-1])
+
+                for edge in listEdges:
+                    if path[-1] == edge[0] and edge[1] not in visited:
+                        newPathes.append(path+[edge[1]])
+                    if path[-1] == edge[1] and edge[0] not in visited:
+                        newPathes.append(path+[edge[0]])
+            Pathes = newPathes
+
+        return []
+
     def belongSegment(P: PointType,AB: List[PointType]) -> bool:
+        """
+        Checks that a point belongs to a segment within an error margin of float(1e-10).
+        PARAMETERS:
+        - P (PointType) : the point to test.
+        - AB (List[PointType]) : the segment to test.
+        """
         A = AB[0]
         B = AB[1]
         if(np.abs((A[0]- P[0])*(A[1]-B[1]) -(A[1]- P[1])*(A[0]-B[0])) < float(1e-10)):
@@ -437,6 +637,12 @@ class NonConvexDomain(object):
         return False
 
 def belongTriangle(M: PointType,T: List[PointType]) -> bool:
+    """
+    Checks that a point belongs to a triangle.
+    PARAMETERS:
+    - M (PointType) : the point to test.
+    - T (List[PointType]) : the triangle to test.
+    """
     det = (T[1][0]-T[0][0])*(T[2][1]-T[0][1]) - (T[1][1]-T[0][1])*(T[2][0]-T[0][0])
     if det == 0:
         return False
@@ -508,19 +714,14 @@ class Mesh(object):
 
         self.zones : dict = dict()
 
-    def getEdgeCoord(self, edge):
-        return [self.vertices[edge[0]], self.vertices[edge[1]]]
-
-    def getNeighborPoints(self, index):
-        listIndex = []
-        for triangle in self.triangles:
-            if(index in triangle):
-                for j in triangle:
-                    if(j != index and j not in listIndex):
-                        listIndex.append(j)
-        return(listIndex)
-
     def importMeshFromMsh(self, filename):
+        """
+        Imports the data from a .msh file into the Mesh object.
+        PARAMETERS:
+        - filename (string) : the path to the file to import.
+        REQUIRES:
+        Requires the python library meshio.
+        """
         if not meshio:
             raise ImportError("meshio must be installed in order to use .msh related methods.")
         Imesh = meshio.read(filename)
@@ -530,13 +731,6 @@ class Mesh(object):
         self.computeEdgeList()
         self.exitEdges = []
         self.wallEdges = []
-
-        print(Imesh)
-        print(Imesh.cells_dict["line"])
-        print(Imesh.point_data)
-        #print(Imesh.point_data["gmsh:dim_tags"])
-        print(Imesh.cell_data["gmsh:geometrical"])
-        #print(Imesh.cell_data["gmsh:physical"])
 
         specialEdgesIndex = []
         if("line" in Imesh.cells_dict.keys()):
@@ -588,10 +782,17 @@ class Mesh(object):
         self.computeTrianglesPerVertex()
 
     def importMeshFromMshFreeFem(self, filename : str, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}) -> None:
+        """
+        Imports the data from a mesh file constructed in FreeFEM into the Mesh object.
+        The specific structure (inner walls, exits...) can be specified by specifying different flags in FreeFEM.
+        PARAMETERS:
+        - filename (str) : the path to the file to import.
+        - flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number.
+                    Must contain the keys domain, exit and wall.
+        """
         with open(filename, "r") as file:
             line = file.readline().split()
             nb_vertices, nb_triangles, nb_spe_edges = int(line[0]), int(line[1]), int(line[2])
-            print(nb_vertices, nb_triangles, nb_spe_edges)
 
             vertices = []
             exitVertices = []
@@ -614,8 +815,6 @@ class Mesh(object):
             self.triangles = np.array(triangles)
 
             self.computeEdgeList()
-
-            #print(self.triangles)
 
             exitEdges = []
             wallEdges = []
@@ -645,10 +844,6 @@ class Mesh(object):
 
             print("Mesh imported. Contains %d triangles."% len(self.triangles))
 
-            print(len(self.vertices), len(self.triangles), len(self.exitEdges)+len(self.wallEdges))
-
-            print(len(self.edges), len(self.trianglesWithEdges))
-
             self.computePairOfTrianglesList()
 
             self.computeOuterNormals()
@@ -661,21 +856,19 @@ class Mesh(object):
             self.computeTrianglesPerVertex()
 
     def importFromLists(self, vertices:List[PointType], triangles:List[List[int]], domain:NonConvexDomain):
+        """
+        Imports the lists passed as parameters into the Mesh object.
+        PARAMETERS:
+        - vertices (List[PointType]) : list of all the vertices coordinates.
+        - triangles (List[List[int]]) : list of the triangles symbolized by a triplet of the indices of the corresponding verttices in the vertices list.
+        - domain (NonConvexDomain) : a NonConvexDomain instance corresponding to the mesh imported.
+        """
         self.vertices = np.array(vertices)
         self.triangles = np.array(triangles)
 
         self.computeEdgeList()
 
         self.setExitsFromDomain(domain)
-
-        """self.computeVertexFlags(domain)
-
-        for zoneName in domain.zones.keys():
-            self.addConvexZone(zoneName, domain.zones[zoneName])"""
-
-        #print(self.wallEdges)
-        #print(np.array([[self.vertices[self.edges[edge][0]],self.vertices[self.edges[edge][1]]] for edge in self.wallEdges]))
-        #BUG à fix hasExitEdge Domain dans les angles....
 
         self.computePairOfTrianglesList()
 
@@ -688,19 +881,15 @@ class Mesh(object):
 
         self.computeTrianglesPerVertex()
 
-        #self.computeZonesTriangles()
+        self.computeZonesTriangles()
 
-
-    def addExit(self, exitCoordinates):
-        print("Pas imp")
-
-    def addExits(self, exitList):
-        print("pas imp")
-
-    def addInnerWall(self, wall):
-        print("pas imp")
-
-    def addConvexZone(self, zoneName, zoneVertices):
+    def addConvexZone(self, zoneName: str, zoneVertices: List[PointType]):
+        """
+        Adds a convex zone to the Mesh object.
+        PARAMETERS:
+        - zoneName (str) : the unique name designing the zone to add.
+        - zoneVertices (List[PointType]) :  the vertices of the outer boundary of the zone. The zone is supposed convex.
+        """
         if(zoneName in self.zones.keys()):
             raise NameError("Zone name already in use.")
 
@@ -708,19 +897,27 @@ class Mesh(object):
                                 'triangles' : []}
 
     def computeZonesTriangles(self):
+        """
+        Computes the triangles included in each zone.
+        """
         for index, center in enumerate(self.barycenters):
             for zoneName in self.zones.keys():
                 if self.inZone(center, zoneName):
                     self.zones[zoneName]['triangles'].append(index)
 
     def inZone(self, point, zoneName):
-            for i in range(1,len(self.zones[zoneName]['boundary']) - 1):
-                if(belongTriangle(point, [self.zones[zoneName]['boundary'][0],self.zones[zoneName]['boundary'][i],self.zones[zoneName]['boundary'][i+1]])):
-                    return True
-            return False
-
-    def addEdgeConstraint(self, edges, constraintLvl):
-        print("pas imp")
+        """
+        Tests if a given point is included in a given zone.
+        PARAMETERS:
+        - point (PointType) :  the point to test.
+        - zoneName (str) :  the name of the zone to test.
+        """
+        if zoneName not in self.zones.keys():
+            raise NameError("The name "+zoneName+" does not correspond to a zone of the Mesh.")
+        for i in range(1,len(self.zones[zoneName]['boundary']) - 1):
+            if(belongTriangle(point, [self.zones[zoneName]['boundary'][0],self.zones[zoneName]['boundary'][i],self.zones[zoneName]['boundary'][i+1]])):
+                return True
+        return False
 
     def exportMeshMsh(self, filename):
         if not meshio:
