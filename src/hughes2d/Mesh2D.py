@@ -23,6 +23,8 @@ import triangle as tr
 try:
     import matplotlib.pyplot as plt
     import matplotlib.patches as patches
+    import matplotlib.cm as cm
+    import matplotlib.collections as collections
 except ImportError:
     plt = None
 
@@ -499,13 +501,15 @@ class NonConvexDomain(object):
                 return True
         return False
 
-    def show(self) -> None:
+    def show(self, preference ="plotly") -> None:
         """
         Plotting method for the domain object. The method opens either a new window or a default navigator tab.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
         REQUIRES:
-        plotly or matplotlib should be installed. If both are installed, plotly is used.
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
-        if(go):
+        if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
             self.addPlot(fig)
             fig.update_layout(yaxis=dict(
@@ -514,22 +518,26 @@ class NonConvexDomain(object):
             fig.show()
         elif(plt):
             fig, ax = plt.subplots()
-            self.addPlot(fig,ax)
+            self.addPlot(fig,ax,preference)
             limits = self.getLimits()
             ax.set_xlim(limits[0][0],limits[0][1])
             ax.set_ylim(limits[1][0],limits[1][1])
             plt.axis('equal')
             plt.show()
+            fig.clf()
+            plt.close(fig)
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def addPlot(self, fig, ax=None) -> None:
+    def addPlot(self, fig, ax=None, preference="plotly") -> None:
         """
         Non-blocking plotting method for the domain object. The method does not show the graph.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
         REQUIRES:
-        plotly or matplotlib should be installed. If both are installed, plotly is used.
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
-        if(go): #plotly version of the plot
+        if( go and (not plt or preference == "plotly") ): #plotly version of the plot
             startPoint = self.listOuterVertex[self.outerBoundary[0][0]]
             orderedOuterVertices = [startPoint]
             endPoint = self.listOuterVertex[self.outerBoundary[0][1]]
@@ -714,11 +722,18 @@ class Mesh(object):
 
         self.zones : dict = dict()
 
-    def importMeshFromMsh(self, filename):
+    def importMeshFromMsh(self, filename :str,verbose : bool = False, requirements : List[str] = ['all']):
         """
         Imports the data from a .msh file into the Mesh object.
         PARAMETERS:
         - filename (string) : the path to the file to import.
+        - verbose (bool, optional).
+        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+                - EikonalSolver : the mesh will be used in order to solve an eikonal equation
+                - LWRSolver : the mesh will be used in order to solve a scalar conservation law
+                - all : all the possible computations will be done
+                - integrate : the mesh will be used in order to compute some integrals over the domain
+                - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
         REQUIRES:
         Requires the python library meshio.
         """
@@ -770,18 +785,9 @@ class Mesh(object):
             print("WARNING : Losing some special edges during the import of .msh file.")
 
         print("Mesh imported. Contains %d triangles."% len(self.triangles))
+        self.computations(verbose=verbose, requirements=requirements)
 
-        self.computePairOfTrianglesList()
-
-        self.computeOuterNormals()
-
-        self.dx = self.computeCellAreas()
-
-        self.computeEdgeLength()
-
-        self.computeTrianglesPerVertex()
-
-    def importMeshFromMshFreeFem(self, filename : str, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}) -> None:
+    def importMeshFromMshFreeFem(self, filename : str, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}, verbose : bool = False, requirements : List[str] = ['all']) -> None:
         """
         Imports the data from a mesh file constructed in FreeFEM into the Mesh object.
         The specific structure (inner walls, exits...) can be specified by specifying different flags in FreeFEM.
@@ -789,6 +795,13 @@ class Mesh(object):
         - filename (str) : the path to the file to import.
         - flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number.
                     Must contain the keys domain, exit and wall.
+        - verbose (bool, optional).
+        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+                - EikonalSolver : the mesh will be used in order to solve an eikonal equation
+                - LWRSolver : the mesh will be used in order to solve a scalar conservation law
+                - all : all the possible computations will be done
+                - integrate : the mesh will be used in order to compute some integrals over the domain
+                - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
         """
         with open(filename, "r") as file:
             line = file.readline().split()
@@ -842,46 +855,29 @@ class Mesh(object):
             if(nb_spe_edges != len(self.exitEdges) + len(self.wallEdges)):
                 print("WARNING : Losing some special edges during the import of .msh file.")
 
-            print("Mesh imported. Contains %d triangles."% len(self.triangles))
+            if verbose :
+                print("Mesh imported. Contains %d triangles."% len(self.triangles))
 
-            self.computePairOfTrianglesList()
+            self.computations(verbose=verbose, requirements=requirements)
 
-            self.computeOuterNormals()
-
-            self.dx = self.computeCellAreas()
-            print("Minimal area for a triangle in the mesh : ", self.dx)
-
-            self.computeEdgeLength()
-
-            self.computeTrianglesPerVertex()
-
-    def importFromLists(self, vertices:List[PointType], triangles:List[List[int]], domain:NonConvexDomain):
+    def importFromLists(self, vertices:List[PointType], triangles:List[List[int]], domain:NonConvexDomain, verbose :bool = False, requirements : List[str] = ['all']):
         """
         Imports the lists passed as parameters into the Mesh object.
         PARAMETERS:
         - vertices (List[PointType]) : list of all the vertices coordinates.
         - triangles (List[List[int]]) : list of the triangles symbolized by a triplet of the indices of the corresponding verttices in the vertices list.
         - domain (NonConvexDomain) : a NonConvexDomain instance corresponding to the mesh imported.
+        - verbose (bool, optional).
+        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+                - EikonalSolver : the mesh will be used in order to solve an eikonal equation
+                - LWRSolver : the mesh will be used in order to solve a scalar conservation law
+                - all : all the possible computations will be done
+                - integrate : the mesh will be used in order to compute some integrals over the domain
+                - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
         """
         self.vertices = np.array(vertices)
         self.triangles = np.array(triangles)
-
-        self.computeEdgeList()
-
-        self.setExitsFromDomain(domain)
-
-        self.computePairOfTrianglesList()
-
-        self.computeOuterNormals()
-
-        self.dx = self.computeCellAreas()
-        print("Minimal area for a triangle in the mesh : ", self.dx)
-
-        self.computeEdgeLength()
-
-        self.computeTrianglesPerVertex()
-
-        self.computeZonesTriangles()
+        self.computations(domain, verbose, requirements)
 
     def addConvexZone(self, zoneName: str, zoneVertices: List[PointType]):
         """
@@ -920,6 +916,14 @@ class Mesh(object):
         return False
 
     def exportMeshMsh(self, filename):
+        """
+        Exports the data of the Mesh object in a .msh file.
+        PARAMETERS:
+        - filename (str) :  the complete path to the file.
+
+        REQUIRES:
+        Requires meshio to be installed to work properly.
+        """
         if not meshio:
             raise ImportError("meshio must be installed in order to use .msh related methods.")
         points = self.vertices
@@ -927,7 +931,6 @@ class Mesh(object):
             ("line", np.array([self.edges[i] for i in np.concatenate([self.exitEdges, self.wallEdges])])),
             ("triangle", self.triangles)
         ]
-
 
 
         cell_data_dict = {
@@ -952,6 +955,11 @@ class Mesh(object):
         print("Saving mesh as ", filename)
 
     def exportMeshMshFreeFem(self, filename):
+        """
+        Exports the data of the Mesh object in a .msh file following the specific structure of the FreeFEM mesh files.
+        PARAMETERS:
+        - filename (str) :  the complete path to the file.
+        """
         with open(filename, "w") as file:
             file.write("%d %d %d\n"% (len(self.vertices), len(self.triangles), len(self.exitEdges)+len(self.wallEdges)))
             #file.write("Vertices")
@@ -968,16 +976,23 @@ class Mesh(object):
 
         print("Saving mesh as ", filename)
 
-    def getDomainFromMesh(self) -> NonConvexDomain:
-        print("pas imp")
-        return None
 
-    def generateMeshFromDomain(self, domain: NonConvexDomain, dx: float, da: float=30) -> None:
+    def generateMeshFromDomain(self, domain: NonConvexDomain, dx: float, da: float=30, verbose :bool = False, requirements : List[str] = ['all']) -> None:
         """
         Compute a triangular mesh covering domain with the maximal length of an edge being set to dx.
-        The computations are done using triangle
-        da : min angle insiade a triangle (be careful, crash if set too high)
-        dx : max area of a triangle (heavy computations when set low, computation time ~ 1/(dx)^2 )
+        The computations are done using triangle (see https://www.cs.cmu.edu/~quake/triangle.html)
+
+        PARAMETERS:
+        - domain (NonConvexDomain): the domain object from which the mesh must be generated.
+        - dx (float): max area of a triangle (heavy computations when set low, computation time ~ 1/(dx)^2 ).
+        - da (float, optional): min angle inside a triangle (be careful, crash if set too high). Default = 30.
+        - verbose (bool, optional).
+        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+                - EikonalSolver : the mesh will be used in order to solve an eikonal equation
+                - LWRSolver : the mesh will be used in order to solve a scalar conservation law
+                - all : all the possible computations will be done
+                - integrate : the mesh will be used in order to compute some integrals over the domain
+                - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
         """
         domainVertices = []
         domainSpecialEdges = []
@@ -1000,7 +1015,8 @@ class Mesh(object):
 
         if 'segments' not in meshDict.keys():
             raise ValueError("Corrupted domain, impossible to generate a mesh.")
-        print("Mesh generated. Contains %d triangles" % len(meshDict['triangles']))
+        if verbose :
+            print("Mesh generated. Contains %d triangles" % len(meshDict['triangles']))
 
         boundaryPoints = []
         for edge in meshDict['segments']:
@@ -1012,32 +1028,64 @@ class Mesh(object):
 
         self.vertices = meshDict['vertices']
         self.triangles = meshDict['triangles']
+        self.computations(domain, verbose, requirements)
 
-        self.computeEdgeList()
+    def computations(self, domain: NonConvexDomain = None, verbose : bool = False, requirements : List[str] = ['all']) -> None:
+        """
+        Triggers all the computations required for the Mesh object.
+        PARAMETERS:
+        - verbose (bool, optional).
+        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+                - EikonalSolver : the mesh will be used in order to solve an eikonal equation
+                - LWRSolver : the mesh will be used in order to solve a scalar conservation law
+                - all : all the possible computations will be done
+                - integrate : the mesh will be used in order to compute some integrals over the domain
+                - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
+        """
+        if "all" in requirements:
+            self.computeEdgeList()
 
-        self.setExitsFromDomain(domain)
+            if domain is not None:
+                self.setExitsFromDomain(domain)
+                self.computeVertexFlags(domain)
+                for zoneName in domain.zones.keys():
+                    self.addConvexZone(zoneName, domain.zones[zoneName])
 
-        self.computeVertexFlags(domain)
+            self.computePairOfTrianglesList()
+            self.computeOuterNormals()
+            self.dx = self.computeCellAreas()
+            if(verbose):
+                print("Minimal area for a triangle in the mesh : ", self.dx)
+            self.computeEdgeLength()
+            self.computeTrianglesPerVertex()
+            self.computeZonesTriangles()
+        else:
+            if("EikonalSolver" in requirements or "LWRSolver" in requirements or "FreeFEM" in requirements):
+                self.computeEdgeList()
 
-        for zoneName in domain.zones.keys():
-            self.addConvexZone(zoneName, domain.zones[zoneName])
+            if("EikonalSolver" in requirements or "LWRSolver" in requirements):
+                self.setExitsFromDomain(domain)
+                for zoneName in domain.zones.keys():
+                    self.addConvexZone(zoneName, domain.zones[zoneName])
+                self.computeEdgeLength()
 
-        #print(self.wallEdges)
-        #print(np.array([[self.vertices[self.edges[edge][0]],self.vertices[self.edges[edge][1]]] for edge in self.wallEdges]))
-        #BUG à fix hasExitEdge Domain dans les angles....
+            if("FreeFEM" in requirements):
+                self.computeVertexFlags(domain)
 
-        self.computePairOfTrianglesList()
+            if("LWRSolver" in requirements):
+                self.computePairOfTrianglesList()
+                self.computeOuterNormals()
 
-        self.computeOuterNormals()
+            if("LWRSolver" in requirements or "integrate" in requirements):
+                self.dx = self.computeCellAreas()
+                if(verbose):
+                    print("Minimal area for a triangle in the mesh : ", self.dx)
 
-        self.dx = self.computeCellAreas()
-        print("Minimal area for a triangle in the mesh : ", self.dx)
+            if("EikonalSolver" in requirements or "integrate" in requirements):
+                self.computeTrianglesPerVertex()
 
-        self.computeEdgeLength()
-
-        self.computeTrianglesPerVertex()
-
-        self.computeZonesTriangles()
+            if("integrate" in requirements):
+                self.computeZonesTriangles()
 
 
     def computeEdgeList(self) -> None:
@@ -1046,7 +1094,10 @@ class Mesh(object):
         - self.edges : cointaining all the edges of the mesh as a pair of vertex index.
         - self.trianglesWithEdges : containing all the triangles of self.triangles, in the same order, represented as a triplet of edge index.
 
-        These arrays are required for : ......
+        REQUIRED FOR:
+        - LWRSolver
+        - EikonalSolver
+        - setExitsFromDomain
         """
         edges = [] #Liste des edges par paires d'indices de vertex
         TriangleWithEdgeList = [] #Liste des triangles par indice d'edge
@@ -1078,10 +1129,12 @@ class Mesh(object):
         """
         Configure the exits and the wall edges and vertices lists from the domain object passed in parameter.
 
-        INPUT :
-        - domain : NonConvexDomain instance
+        PARAMETERS:
+        - domain (NonConvexDomain) the domain object containing information about the exits.
 
-        These lists are required for : .....
+        REQUIRED FOR:
+        - LWRSolver
+        - EikonalSolver
         """
         exitVertices = []
         for i in range(len(self.vertices)):
@@ -1089,9 +1142,8 @@ class Mesh(object):
                 if NonConvexDomain.belongSegment(self.vertices[i],exit):
                     exitVertices.append(i)
         self.exitVertices = np.array(exitVertices)
-        #print("Exit Vertices : ", self.ExitVertices)
 
-        exitEdges = [] # List of Edge exit par indices d'edge
+        exitEdges = []
         for i,edge in enumerate(self.edges):
             if(domain.hasExitEdge([self.vertices[edge[0]],self.vertices[edge[1]]])):
                 exitEdges.append(i)
@@ -1101,7 +1153,6 @@ class Mesh(object):
             raise ValueError("Your mesh has no exit edge.")
 
         wallEdges = []
-        #Juste remplir avec les methodes de non convex domain....
         for index, edge in enumerate(self.edges):
                 if( ( domain.hasWallEdge([self.vertices[edge[0]],self.vertices[edge[1]]]) and not domain.hasExitEdge([self.vertices[edge[0]],self.vertices[edge[1]]]) )
                         or ( domain.hasOuterEdge([self.vertices[edge[0]],self.vertices[edge[1]]]) and not domain.hasExitEdge([self.vertices[edge[0]],self.vertices[edge[1]]]) )):
@@ -1109,6 +1160,11 @@ class Mesh(object):
         self.wallEdges = np.array(wallEdges)
 
     def computeVertexFlags(self, domain : NonConvexDomain, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}) -> None:
+        """
+        Computation of the vertices flags necessary to export the Mesh as FreeFEM mesh file.
+        REQUIRED FOR:
+        - exportMeshMshFreeFem
+        """
         self.vertexFlags = []
         for point in self.vertices:
             if domain.hasExitPoint(point):
@@ -1123,7 +1179,9 @@ class Mesh(object):
         """
         Compute the self.trianglesPerVertex list.
 
-        Required for : EikonalSolver, ....
+        REQUIRED FOR:
+        - EikonalSolver
+        - integrateOverSquareBall
         """
         self.trianglesPerVertex : list = []
 
@@ -1140,7 +1198,9 @@ class Mesh(object):
         """
         Compute the lists pairsOfTriangles and boundaryEdgesIndex;
 
-        Required for : .......
+        REQUIRED FOR:
+        - LWRSolver
+        - checkGradientValidity
         """
         self.pairsOfTriangles=[] #Liste des triangles entourant les edges ordonnée comme la EdgeList par les indices des triangles.
         boundaryEdgesIndex = [] #Liste des indices des edges faisant le bord du domaine
@@ -1158,6 +1218,13 @@ class Mesh(object):
         self.boundaryEdgesIndex = np.array(boundaryEdgesIndex)
 
     def computeOuterNormals(self) -> None:
+        """
+        Compute the list outerNormalVectByTriangles.
+
+        REQUIRED FOR:
+        - LWRSolver
+        """
+
         outerNormalVectByTriangles = []
         for index, triangle in enumerate(self.trianglesWithEdges):
             L = []
@@ -1176,9 +1243,12 @@ class Mesh(object):
         Compute the areas of each triangular cell. Raises an error if a triangle is degenerated.
         Computes also the barycenter of each triangle.
 
-        Return :
-        - the minimal area of a triangle in the mesh
+        RETURNS :
+        The minimal area of a triangle in the mesh.
 
+        REQUIRED FOR:
+        - integrate
+        - LWRSolver
         """
         barycenters = []
         cellAreas = []
@@ -1202,6 +1272,10 @@ class Mesh(object):
     def computeEdgeLength(self) -> None:
         """
         Compute the edgeLength array.
+
+        REQUIRED FOR:
+        - LWRSolver
+        - EikonalSolver
         """
         edgeLength = []
         for edge in self.edges:
@@ -1210,6 +1284,24 @@ class Mesh(object):
 
             edgeLength.append(np.sqrt( (B[0]-A[0])*(B[0]-A[0]) + (B[1]-A[1])*(B[1]-A[1])))
         self.edgeLength = np.array(edgeLength)
+
+    def getLimits(self):
+        """
+        Returns the extremal coordinates of the vertices of the mesh as a list of two two-elements lists
+        i.e. [[x_min,x_max],[y_min,y_max]].
+        """
+        x_min, x_max = self.vertices[0][0],self.vertices[0][0]
+        y_min, y_max = self.vertices[0][1],self.vertices[0][1]
+        for P in self.vertices:
+            if P[0] > x_max:
+                x_max = P[0]
+            if P[1] > y_max:
+                y_max = P[1]
+            if P[0] < x_min:
+                x_min = P[0]
+            if P[1] < y_min:
+                y_min = P[1]
+        return [[x_min,x_max],[y_min,y_max]]
 
     def appendDict(self, dico):
 
@@ -1308,8 +1400,15 @@ class Mesh(object):
 
 
 
-    def show(self, with_domain: NonConvexDomain=None) -> None:
-        if(go):
+    def show(self, with_domain: NonConvexDomain=None, preference = "plotly") -> None:
+        """
+        Plotting method for the Mesh object.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        """
+        if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
             if(with_domain):
                 with_domain.addPlot(fig)
@@ -1348,11 +1447,36 @@ class Mesh(object):
                         ))
 
             fig.show()
+        elif(plt):
+            fig, ax = plt.subplots()
+            self.addPlot(fig,ax)
+            for edge in self.wallEdges:
+                path = [    (self.vertices[self.edges[edge][0]][0], self.vertices[self.edges[edge][0]][1]),
+                            (self.vertices[self.edges[edge][1]][0], self.vertices[self.edges[edge][1]][1]) ]
+                ax.add_patch(patches.Polygon(path, edgecolor='black',linewidth=1))
+
+            for exit in self.exitEdges:
+                path = [    (self.vertices[self.edges[exit][0]][0], self.vertices[self.edges[exit][0]][1]),
+                            (self.vertices[self.edges[exit][1]][0], self.vertices[self.edges[exit][1]][1]) ]
+                ax.add_patch(patches.Polygon(path, edgecolor='red',linewidth=2))
+            limits = self.getLimits()
+            ax.set_xlim(limits[0][0],limits[0][1])
+            ax.set_ylim(limits[1][0],limits[1][1])
+            plt.axis('equal')
+            plt.show()
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def addPlot(self, fig):
-        if(go):
+    def addPlot(self, fig, ax = None, preference = "plotly"):
+        """
+        Non-blocking plotting method for the mesh object.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        """
+        if( go and (not plt or preference == "plotly") ):
             for T in self.triangles:
                 fig.add_trace(go.Scatter(x=[self.vertices[i][0] for i in T]+[self.vertices[T[0]][0]],
                                         y=[self.vertices[i][1] for i in T]+[self.vertices[T[0]][1]],
@@ -1361,8 +1485,13 @@ class Mesh(object):
                                 mode="lines",
                                 line=dict(
                                     color="Black",
-                                    width=1
+                                    width=0.5
                                  )))
+        elif(plt):
+            for T in self.triangles:
+                triangle = patches.Polygon([(self.vertices[i][0],self.vertices[i][1]) for i in T], edgecolor='black', facecolor='white')
+                ax.add_patch(triangle)
+
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
@@ -1370,80 +1499,90 @@ class Mesh(object):
 class CellValueMap(object):
     """
     Cell Value map :
-    correspond to a function which is constant on the triangles (ex : densities)
+    correspond to a function which is constant on the triangles of a mesh (ex : densities)
     """
 
-    def __init__(self, Mesh):
-        self.Mesh = Mesh
-        self.values = [0 for _ in self.Mesh.triangles]
+    def __init__(self, Mesh: Mesh):
+        self.Mesh : Mesh = Mesh
+        self.values : List[float] = [0 for _ in self.Mesh.triangles]
 
-    def generateRandom(self,variability = 0.4):
-        self.values = [ 0.23 + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
+    def generateRandom(self,variability :float = 0.4, mean : float= 0.23):
+        """
+        Generates random values for the map on each triangle of the mesh.
+        The random value follows a uniform law on [mean -variability/2, mean + variability/2].
+        PARAMETERS:
+        - variability (float): the length of the interval of random values.
+        - mean (float): the center of the interval of random values.
+        """
+        self.values = [ mean + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
 
     def __len__(self):
         return len(self.values)
 
-    def __getitem__(self, index): #renvoie le tuple (triangle, value)
+    def __getitem__(self, index):
         return self.values[index]
 
-    def __setitem__(self, index, value): #renvoie le tuple (triangle, value)
+    def __setitem__(self, index, value):
         self.values[index] = value
 
     def __add__(self, other):
-        result = CellValueMap(self.Mesh)
-        for index in range(len(self.Mesh.triangles)):
-            result[index] = self[index] + other[index]
-        return result
+        if isinstance(other, CellValueMap):
+            result = CellValueMap(self.Mesh)
+            for index in range(len(self.Mesh.triangles)):
+                result[index] = self[index] + other[index]
+            return result
+        elif isinstance(other, float) or isinstance(other, int):
+            result = CellValueMap(self.Mesh)
+            for index in range(len(self.Mesh.triangles)):
+                result[index] = self[index] + other
+            return result
+        else:
+            raise TypeError("A CellValueMap can be summed only with another CellValueMap or a float or an integer.")
 
-    def __iadd__(self, other):
-        for index in range(len(self.Mesh.triangles)):
-            self[index] += other[index]
-
-    def __mul__(self,a):
-        result = CellValueMap(self.Mesh)
-        for index in range(len(self.Mesh.triangles)):
-            result[index] = self[index]*a
-        return result
-
-    def __imul__(self, a):
-        for index in range(len(self.Mesh.triangles)):
-            self[index] *= a
+    def __mul__(self, other):
+        if isinstance(other, CellValueMap):
+            result = CellValueMap(self.Mesh)
+            for index in range(len(self.Mesh.triangles)):
+                result[index] = self[index]*other[index]
+            return result
+        elif isinstance(other, float) or isinstance(other, int):
+            result = CellValueMap(self.Mesh)
+            for index in range(len(self.Mesh.triangles)):
+                result[index] = self[index]*other
+            return result
+        else:
+            raise TypeError("A CellValueMap can only be multiplied with another CellValueMap or a float or an integer.")
 
     def integrate(self):
+        """
+        Computes the integral of the map over the whole domain.
+        RETURNS:
+        The integral of the CellValueMap over the whole domain.
+        """
         return sum([self.values[i]*self.Mesh.cellAreas[i] for i in range(len(self.Mesh.triangles))])
 
-    def valueOnTriangle(self, L):
-        for index, triangle in enumerate(self.Mesh.triangles):
-            if(list(triangle) == list(L)):
-                return self.values[index]
-        return None
-
     def setConstantCircle(self, center:List[PointType], radius:float, value:float):
+        """
+        Sets to the given value all the cells for which the barycenter is inside the disk of given center and radius.
+        PARAMETERS:
+        - center (List[PointType]): the center of the disk
+        - radius (float): the radius of the disk
+        - value (float): the value to set on the corresponding cells.
+        """
         for index in range(len(self.Mesh.triangles)):
             if((self.Mesh.barycenters[index][0] - center[0])**2 + (self.Mesh.barycenters[index][1] - center[1])**2 <= radius**2):
                 self.values[index] = value
-            else:
-                self.values[index] = 0
 
-    """def integrateOverSquareBall(self, radius:float, conv_func) -> list: #function: F(rho(y),|x_1-y_1|,|x_2,y_2|) convert cell value map to vertex value map
-        def recursiveIntegral(center, rad, visited, index) -> float:
-            visited.append(index)
-            if(len(visited) == 1):
-                print("Convolution : ", index/len(self.Mesh.triangles), "%")
-            distX = np.abs(self.Mesh.barycenters[index][0] - center[0])
-            distY = np.abs(self.Mesh.barycenters[index][1] - center[1])
-            if(distX > rad or distY > rad):
-                return 0.0
-            Sum = conv_func(self.values[index],distX,distY)
-            for vertex in self.Mesh.triangles[index]:
-                for neighborTriangle in self.Mesh.trianglesPerVertex[vertex]:
-                    if neighborTriangle[0] not in visited:
-                        Sum += recursiveIntegral(center,rad, visited, neighborTriangle[0])
-            return Sum
-
-        return [recursiveIntegral(self.Mesh.barycenters[triangleIndex],radius,[],triangleIndex) for triangleIndex in range(len(self.Mesh.triangles))]
+    def convolutionOverSquareBall(self, radius:float, conv_func) -> list:
         """
-    def convolutionOverSquareBall(self, radius:float, conv_func) -> list: #function: F(rho(y),|x_1-y_1|,|x_2,y_2|) convert cell value map to vertex value map
+        Computes the convolution of the CellValueMap with the conv_func function on the support defined by the square of given radius (infinity-norm ball).
+        PARAMETERS:
+        - radius (float): the radius of the convolution support.
+        - conv_func (function): the convolution function in the form  F(rho(y),|x_1-y_1|,|x_2,y_2|) where rho is the cellValueMap and x = (x_1,x_2) is the vertex where the convolution is computed.
+                The computed quantity is then, for any x = (x_1,x_2), iint_{[-radius/2, radius/2]^2} F(rho(x+y), |y_1|,|y_2|) d y_1 d y_2.
+        RETURNS:
+        A list containing the computed value of the convolution for each vertex of the mesh ordered in the same way as the vertices of the Mesh object.
+        """
         def recursiveIntegral(center, rad, visited, index) -> float:
             visited.append(index)
             distX = np.abs(self.Mesh.barycenters[index][0] - center[0])
@@ -1451,9 +1590,6 @@ class CellValueMap(object):
             if(distX > rad or distY > rad):
                 return 0.0
             Sum = conv_func(self.values[index],distX,distY)*self.Mesh.cellAreas[index]
-            if(Sum < 0):
-                print("Valeurs : ",self.values[index],distX,distY,rad)
-                raise ValueError( "Probleme ici")
             for vertex in self.Mesh.triangles[index]:
                 for neighborTriangle in self.Mesh.trianglesPerVertex[vertex]:
                     if neighborTriangle[0] not in visited:
@@ -1462,7 +1598,12 @@ class CellValueMap(object):
 
         return [recursiveIntegral(self.Mesh.vertices[vertexIndex],radius,[],self.Mesh.trianglesPerVertex[vertexIndex][0][0]) for vertexIndex in range(len(self.Mesh.vertices))]
 
-    def fitAveragedMap(self, other): #Realise la moyenne pondérée entre deux CellValueMap dont le mesh est potentiellement différent.
+    def fitAveragedMap(self, other):
+        """
+        Fits a cellValueMap over another cellValueMap when the Mesh are different but the domains are the same by averaging over each triangle
+        PARAMETERS:
+        - other (CellValueMap): the other map to fit onto the self map.
+        """
         for i in range(len(self.values)):
             LenCell = self.Mesh.points[i+1] - self.Mesh.points[i]
             start = 0
@@ -1480,10 +1621,17 @@ class CellValueMap(object):
                 j += 1
             self.values[i] = Average/LenCell
 
-    def show(self):
-        if(go):
+    def show(self, preference = "plotly"):
+        """
+        Plotting method for the CellValueMap object.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        """
+        if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
-            #self.Mesh.domain.addPlot(fig)
             for j,T in enumerate(self.Mesh.triangles):
                 fig.add_trace(go.Scatter(x=[self.Mesh.vertices[i][0] for i in T]+[self.Mesh.vertices[T[0]][0]],
                                         y=[self.Mesh.vertices[i][1] for i in T]+[self.Mesh.vertices[T[0]][1]],
@@ -1497,11 +1645,34 @@ class CellValueMap(object):
                 scaleanchor='x',
                 scaleratio=1))
             fig.show()
+        elif(plt):
+            fig, ax = plt.subplots()
+
+            col = collections.PolyCollection([[ (self.Mesh.vertices[i][0],self.Mesh.vertices[i][1]) for i in T] for T in self.Mesh.triangles])
+            col.set_cmap(cm.viridis)
+            col.set_clim([0, 1])
+            rgcol = col.set_array(self.values)
+
+            ax.add_collection(col)
+            fig.colorbar(rgcol, ax=ax, label="density")
+
+            limits = self.Mesh.getLimits()
+            ax.set_xlim(limits[0][0],limits[0][1])
+            ax.set_ylim(limits[1][0],limits[1][1])
+            plt.axis('equal')
+            plt.show()
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def getScatter(self):
-        if(go):
+    def getScatter(self, preference="plotly"):
+        """
+        Non-blocking plotting method for the cellValueMap object.
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        """
+        if( go and (not plt or preference == "plotly") ):
             L = []
             for j,T in enumerate(self.Mesh.triangles):
                 L.append(go.Scatter(x=[self.Mesh.vertices[i][0] for i in T]+[self.Mesh.vertices[T[0]][0]],
@@ -1513,11 +1684,10 @@ class CellValueMap(object):
                                 fillcolor ='rgb('+str( int(255*min(1,max(self.values[j],0))) )+',0,0)'
                                 ))
             return L
+        elif(plt):
+            print("Useless method for matplotlib.")
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
-
-
-
 
 
 class VertexValueMap(object):
@@ -1576,8 +1746,14 @@ class VertexValueMap(object):
                 print("Intensité de l'erreur : ")
                 print(Scal)
 
-    def show3D(self):
-        if(go):
+    def show3D(self, preference="plotly"):
+        """
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        """
+        if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
             fig.add_trace(go.Mesh3d(x=[P[0] for P in self.Mesh.vertices],
                                     y = [P[1] for P in self.Mesh.vertices],
@@ -1588,8 +1764,15 @@ class VertexValueMap(object):
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
-    def add3Dplot(self, fig, color=[244,22,100,0.6]):
-        if(go):
+    def add3Dplot(self, fig, color=[244,22,100,0.6], preference ="plotly"):
+        """
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        """
+        if( go and (not plt or preference == "plotly") ):
             fig.add_trace(go.Mesh3d(x=[P[0] for P in self.Mesh.vertices],
                                     y = [P[1] for P in self.Mesh.vertices],
                                     z = self.values,
@@ -1599,8 +1782,15 @@ class VertexValueMap(object):
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
 
 
-    def show(self, grid=False, colorscale_name = 'viridis'):
-        if(go):
+    def show(self, grid=False, colorscale_name = 'viridis', preference="plotly"):
+        """
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        """
+        if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
             #self.Mesh.domain.addPlot(fig)
             if(grid):
@@ -1663,8 +1853,14 @@ class VertexValueMap(object):
         return np.array(MeanTriangleGrads)
 
 
-    def showVectorField(self, normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
-        if(go):
+    def showVectorField(self, normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2)), preference="plotly"):
+        """
+        PARAMETERS:
+        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+        REQUIRES:
+        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        """
+        if( go and (not plt or preference == "plotly") ):
             L = self.computeGradientFlow(normalize, normalization)
             fig = go.Figure()
             #self.Mesh.domain.addPlot(fig)
@@ -1693,9 +1889,7 @@ class VertexValueMap(object):
 
 def ComputeOuterNormalUnitVect(A,B,C):
     N = np.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
-    x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N) #Distance AH
-    """if(x < 0):
-        print("triangle non aigu...") #Point d'intersection entre AB et la hauteur issue de C"""
+    x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N) 
     H = [ A[0] + (B[0]-A[0])*x/N, A[1] + (B[1]-A[1])*x/N ]
     Sign = (C[0]-H[0])*(B[1]-A[1]) + (C[1]-H[1])*(A[0]-B[0])
     if(Sign > 0):
