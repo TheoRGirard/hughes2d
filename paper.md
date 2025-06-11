@@ -1,27 +1,23 @@
 ---
-title: 'Hughes2d: approximating solutions of the Hughes'model'
+title: "Hughes2d: approximating solutions of the Hughes'model"
 tags:
   - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - non-linear PDE 
+  - pedestrian evacuation
+  - macroscopic crowd dynamics
+  - finite volume scheme
+  - fast marching method
 authors:
   - name: Théo R. Girard
     orcid: 0000-0002-9382-6746
     equal-contrib: true
     affiliation: 1
 affiliations:
- - name: Institut Denis Poisson, Université de Tours
-   index: 1
-   ror: 00hx57361
-date: 13 August 2017
+  - name: Institut Denis Poisson, Université de Tours
+    index: 1
+    ror: 05djhd259
+date: 11 June 2025
 bibliography: paper.bib
-
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
