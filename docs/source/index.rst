@@ -16,6 +16,7 @@ Contents
 
 .. toctree::
 
-   maths
    usage
-   api
+   maths
+   mesh
+   simulations
