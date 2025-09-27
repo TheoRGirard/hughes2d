@@ -22,7 +22,8 @@ Getting Started
 
 You can find a file named getting_started.py in /examples. We rewrite below the content of this file.
 
-.. code-block:: python
+.. code-block:
+
    from hughes2d import *
    
    #Construction of the domain--------------------------------
