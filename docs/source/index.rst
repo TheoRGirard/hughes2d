@@ -1,11 +1,9 @@
-Welcome to Lumache's documentation!
+Hughes2d documentation
 ===================================
 
-**Lumache** (/lu'make/) is a Python library for cooks and food lovers
-that creates recipes mixing random ingredients.
-It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
-and offers a *simple* and *intuitive* API.
+**Hughes2d** is a Python library for approximating the solutions of a macroscopic pedestrian flow model named the Hughes' model. The package combines a finite volume scheme for the scalar conservation law and a fast marching algorithm for the Eikonal equation.
 
+Check out the :doc:`maths` section for a quick introduction to macroscopic pedestrian models and a short bibliography on the subject. 
 Check out the :doc:`usage` section for further information, including
 how to :ref:`installation` the project.
 
