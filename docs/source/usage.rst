@@ -6,29 +6,57 @@ Usage
 Installation
 ------------
 
-To use Lumache, first install it using pip:
+The hughes2d package dependencies are managed using uv (see uv). If uv is installed, you can install the hughes2d package and its dependencies by typing:
 
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   git clone https://github.com/TheoRGirard/hughes2d |
+   cd hughes2d |
+   uv sync
 
-Creating recipes
+If you don't have uv installed, you can see a list of the dependencies in the pyproject.toml file.
+
+
+Getting Started
 ----------------
 
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
+You can find a file named getting_started.py in /examples. We rewrite below the content of this file.
 
-.. autofunction:: lumache.get_random_ingredients
+.. code-block:: python
+   from hughes2d import *
+   
+   #Construction of the domain--------------------------------
+   MyDomain = Mesh2D.NonConvexDomain([[0,0],[0,1],[1,1],[1,0]])
+   MyDomain.addExits([[[1,0],[1,1]]])
+   MyDomain.show()
+   
+   #Construction of the mesh--------------------------------------
+   MyMesh = Mesh2D.Mesh()
+   MyMesh.generateMeshFromDomain(MyDomain, 0.01)
+   MyMesh.show()
+   MyMesh.saveToJson("gettingStartedSimu")
+   
+   
+   #Construction of a random initial datum---------------------------------------
+   MyMap = Mesh2D.CellValueMap(MyMesh)
+   MyMap.generateRandom()
+   MyMap.show()
+   
+   #Setting the options for the simulation-----------------------------------------
+   opt = dict(model = "hughes",
+               filename = "gettingStartedSimu",
+               save = True,
+               verbose = True
+               )
+   
+   #Creating the solver and computing---------------------------------------------------
+   Solver = Splitting.PedestrianSolver(MyMesh, 0.01,0.01, initialDensity = MyMap, options=opt)
+   Solver.computeUntilEmpty(100)
+   
+   #Converting the data to a mp4 video------------------------------------------
+   Plotter.convertToMP4("gettingStartedSimu", limits=[[0,1],[0,1]])
 
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
 
-.. autoexception:: lumache.InvalidKindError
+Compiling and running this code should create 3 .csv files, 1 .json file and 1 .mp4 file. The .mp4 file should look like the video below:
 
-For example:
-
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
-
+.. image: ../examples/gettingStartedVid.mp4
