@@ -272,11 +272,11 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   .. math::
     f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),
   
-  which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity :math:`k \mapsto k` ``transmission map'', in the terminology of \cite{CancesAndreianov2015}.
+  which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity :math:`k \mapsto k` "transmission map", in the terminology of \cite{CancesAndreianov2015}.
 
 .. note::
   The **weighted flux** method corresponds to the following procedure: we define :math:`\vec{v}_m(\mathcal{T})` as a weighted mean of the two vectors :math:`V^j_{\mathcal{T}}` and :math:`V^j_{\mathcal{T}'}`;
-  then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had :math:`V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})`.\\
+  then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had :math:`V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})`.
   The heuristics for this method comes from the following situation.
 
   .. image:: assets/MidVectorSchema.png
@@ -287,14 +287,14 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
     V^j_{\mathcal{T}'}\cdot \vec{n}_m(\mathcal{T}) = 0.
   
   Then, if we use the **discontinuous flux** method, for any :math:`\rho_{\mathcal{T}}^j, \rho_{\mathcal{T}'}^j  \in [0,1]` we have :math:`f_m^j(\mathcal{T}) = 0`. Then there is no flux exiting the cell :math:`\mathcal{T}` even if :math:`\rho_{\mathcal{T}'}^j = 0`.
-  Heuristically, this means that the agents of cell :math:`\mathcal{T}` are prevented from moving in the direction :math:`V^j_{\mathcal{T}}` because the ``phantom'' agents of cell :math:`\mathcal{T}'` (since the cell is almost empty) should move in the incompatible direction :math:`V^j_{\mathcal{T}'}`.
+  Heuristically, this means that the agents of cell :math:`\mathcal{T}` are prevented from moving in the direction :math:`V^j_{\mathcal{T}}` because the "phantom" agents of cell :math:`\mathcal{T}'` (since the cell is almost empty) should move in the incompatible direction :math:`V^j_{\mathcal{T}'}`.
   This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if :math:`\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j` then we have that :math:`\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j`.
   Then
   
   .. math::
     f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.
   
-  This represents a kind of ``majority-rule'' where the direction of the high density cells prevails over the direction of the low density cells.
+  This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
   
 .. warning::
   Even if we do not provide any proof of convergence for the above finite volume scheme in [Gir25]_, we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
@@ -315,16 +315,16 @@ In this paragraph, we fix :math:`j \in [\![ 0, j ]\!]`. Then, for any :math:`n \
 
 We define :math:`\phi_\Delta : V_\Delta \rightarrow \mathbb{R}^+` as the solution of the :math:`\mathbf{FMTC}` numerical scheme.
 Let :math:`P^0 = V_\Delta \bigcap E`. We set :math:`\phi_\Delta(P) = 0` for any :math:`P \in P^0`.
-For any :math:`m \in \mathbb{N}`, we introduce the following iterative :math:`\mathbf{FMTC}` procedure, using the conceptual framework of Fast Marching algorithms where :math:`P^m` denotes the given set of ``frozen'' vertices of the mesh at step :math:`m`.
+For any :math:`m \in \mathbb{N}`, we introduce the following iterative :math:`\mathbf{FMTC}` procedure, using the conceptual framework of Fast Marching algorithms where :math:`P^m` denotes the given set of "frozen" vertices of the mesh at step :math:`m`.
 
-1. We compute the set of neighbours among which we will choose the next vertex (or vertices) to freeze (named the ``narrow band''):
+1. We compute the set of neighbours among which we will choose the next vertex (or vertices) to freeze (named the "narrow band"):
 
 .. math::
   NB^m = \left\{ P \in V_\Delta \setminus P^m \textrm{ s.t. } \exists Q \in P^m, P \in \mathcal{V}(Q) \right\}.
 
 2. If :math:`NB^m = \emptyset`, the algorithm is terminated.
-3. Else, for any :math:`A \in NB^m`, we compute :math:`\mathcal{V}_A` as described below.\\
-  We consider :math:`(\mathcal{T}_k)_{1\leq k \leq K}` the set of all triangles of :math:`M_\Delta` such that :math:`A` is one of the vertices of the triangle and at least one other vertex of the triangle is in :math:`P^m`. Denote by :math:`ABC` the triangle :math:`\mathcal{T}_k`.\\
+3. Else, for any :math:`A \in NB^m`, we compute :math:`\mathcal{V}_A` as described below.
+  We consider :math:`(\mathcal{T}_k)_{1\leq k \leq K}` the set of all triangles of :math:`M_\Delta` such that :math:`A` is one of the vertices of the triangle and at least one other vertex of the triangle is in :math:`P^m`. Denote by :math:`ABC` the triangle :math:`\mathcal{T}_k`.
 
   For each :math:`k` we compute :math:`V^k_A` distinguishing between three cases.
     
