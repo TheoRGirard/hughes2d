@@ -156,7 +156,7 @@ Let :math:`\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}` be constant on the t
 Then, we define the lower semi-continuous envelope of :math:`\rho_\Delta` by:
 
 .. math::
-  \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in [\![ 1, N ]\!], \\ \textrm{ s.t. } x \in \widebar{\mathcal{T}_n}\end{matrix}} \rho_n.
+  \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in [\![ 1, N ]\!], \\ \textrm{ s.t. } x \in \overline{\textrm{$\mathcal{T}_n$}}\end{matrix}} \rho_n.
 
 Then, we will apply the following procedure iteratively for any :math:`j \in [\![ 0 , J ]\!]`.
 
@@ -292,7 +292,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   Then
   
   .. math::
-  f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.
+    f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.
   
   This represents a kind of ``majority-rule'' where the direction of the high density cells prevails over the direction of the low density cells.
   
@@ -300,7 +300,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   Even if we do not provide any proof of convergence for the above finite volume scheme in [Gir25]_, we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
   
   .. math::
-    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{\raisebox{0pt}[1pt][0.5pt]{$\triangle$}}}Lip_f},
+    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
   
   where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in :math:`M_\Delta`. The numerical experiments with the present package must be done under the above CFL condition !
 
@@ -346,7 +346,7 @@ For any :math:`m \in \mathbb{N}`, we introduce the following iterative :math:`\m
   .. math::
     \mathcal{V}_A := \min_k \{ V_A^k \}.
 
-4. We freeze the point :math:`P = \argmin_{A \in NB^m} \mathcal{V}_A` i.e. :math:`P^{m+1} = P^m \cup \{ P \}`. We set :math:`\phi_\Delta(P) = \mathcal{V}_P`. If multiple points satisfy :math:`\phi_\Delta(P) = \mathcal{V}_P`, we freeze all these points. We loop back to step 1.
+4. We freeze the point :math:`P = \mathbf{argmin}_{A \in NB^m} \mathcal{V}_A` i.e. :math:`P^{m+1} = P^m \cup \{ P \}`. We set :math:`\phi_\Delta(P) = \mathcal{V}_P`. If multiple points satisfy :math:`\phi_\Delta(P) = \mathcal{V}_P`, we freeze all these points. We loop back to step 1.
 
 
 In the following, we denote by :math:`\phi_\Delta` the unique function of :math:`W^{1,\infty}(\bar\Omega)` that is affine on each triangle and
