@@ -20,3 +20,4 @@ Contents
    maths
    mesh
    simulations
+   reference
