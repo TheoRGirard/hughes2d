@@ -95,4 +95,4 @@ You can find a file named getting_started.py in /examples. We rewrite below the 
 
 Compiling and running this code should create 3 .csv files, 1 .json file and 1 .mp4 file. The .mp4 file should look like the video below:
 
-.. image: ../examples/gettingStartedVid.mp4
+.. image: gettingStartedVid.gif
