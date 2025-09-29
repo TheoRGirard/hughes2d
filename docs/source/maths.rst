@@ -18,58 +18,59 @@ The present python package focuses on the numerical approximation of solutions t
 Hughes' model
 -------------
 
-.. latex::
+In [Hug02]_, Hughes proposed a mathematical model for the two-dimensional dynamics of pedestrian crowds. The model consists in a system of two equations set on a bounded domain :math:`\Omega \subset \mathbb{R}^2`. The first equation models the flow of a density :math:`\rho`. To be more precise  :math:`\rho(t,x)` represents the density of pedestrian at time :math:`t` and location :math:`x`. It is bounded between :math:`0` and a given :math:`\rho_{max} >0`. We assume that the pedestrian move with the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` following a unitary direction field :math:`\vec{V}(t,x) \in \mathcal{S}_1`.
+Then, if we write the conservation of the mass on pedestrian on each subdomain of :math:`\Omega`, we end up with the following scalar conservation law:
+.. math::
+  \partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.
 
-  In \cite{Hughes2002ACT}, Hughes proposed a mathematical model for the two-dimensional dynamics of pedestrian crowds. The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first equation models the flow of a density $\rho$. To be more precise  $\rho(t,x)$ represents the density of pedestrian at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{max} >0$. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
-  Then, if we write the conservation of the mass on pedestrian on each subdomain of $\Omega$, we end up with the following scalar conservation law:
-  \begin{equation}\label{eq:SCLHughes}
-  	\partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.
-  \end{equation}
-  In Hughes' model, we assume that the speed of agents $v(t,x)$ at time $t$ and location $x$ only depends on the density $\rho(t,x)$ and that this speed is decreasing with respect to the density.
-  Then, in the following we will denote the speed by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{max}]$ such that
-  $$v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.$$
-  A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR in the following) model for traffic flows (see \cite{lighthill1955kinematic,richards1956shock}).\\
-  
-  The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (we refer to Remark \ref{rem:eikoConstantTime} for a discussion on this modeling assumption).
-  Let $x \in \Omega$. For any $\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)$, we say that $X^\alpha_x(\cdot)$ is a trajectory controlled by $\alpha$ starting at $x$ if $X$ is a solution to the Cauchy problem:
-  \begin{equation}\label{eq:HugheseikonalDynamic}
-  	\left\lbrace \begin{matrix}
-  	\dot{X}^\alpha_x(s) = \alpha(s)v(\rho(t,X^\alpha_x(s))) \\
-  	X^\alpha_x(0) = x
-  	\end{matrix}\right.
-  \end{equation}
-  For any $x \in \Omega$, we denote by $\mathcal{A}_x = \{ X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \}$ the set of all controlled trajectories starting at $x$. We define $\phi(x)$ as the minimal exit time starting at location $x$, that is to say :
-  \begin{equation}\label{eq:ExitTimeHughes}
-  \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \d t.
-  \end{equation}
-  In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function $g(\rho)$ with respect to the density $\rho$. The function $g(\rho)$ can be interpreted as a running cost we are paying along a trajectory $X$ for being in high density regions. Then, equation \eqref{eq:ExitTimeHughes} becomes:
-  \begin{equation}\label{eq:ValueFunctionHughes}
+In Hughes' model, we assume that the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` only depends on the density :math:`\rho(t,x)` and that this speed is decreasing with respect to the density.
+Then, in the following we will denote the speed by :math:`v(\rho(t,x))` where :math:`v` is a decreasing function defined on :math:`[0,\rho_{max}]` such that
+.. math:: 
+  v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.
+A classical example of such a speed function is :math:`v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}`. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [LW55]_, [Ric56]_).
+
+The second equation of the model characterizes the unitary direction field :math:`\vec{V}(t,x)` depending on the density :math:`\rho` in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density :math:`\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)` stays constant in time (this assumption is quite controversial).
+Let :math:`x \in \Omega`. For any :math:`\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)`, we say that :math:`X^\alpha_x(\cdot)` is a trajectory controlled by :math:`\alpha` starting at :math:`x` if :math:`X` is a solution to the Cauchy problem:
+\begin{equation}\label{eq:HugheseikonalDynamic}
+  \left\lbrace \begin{matrix}
+  \dot{X}^\alpha_x(s) = \alpha(s)v(\rho(t,X^\alpha_x(s))) \\
+  X^\alpha_x(0) = x
+  \end{matrix}\right.
+\end{equation}
+For any :math:`x \in \Omega`, we denote by :math:`\mathcal{A}_x = \{ X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \}` the set of all controlled trajectories starting at :math:`x`. We define :math:`\phi(x)` as the minimal exit time starting at location :math:`x`, that is to say :
+\begin{equation}\label{eq:ExitTimeHughes}
+\phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \d t.
+\end{equation}
+In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function :math:`g(\rho)` with respect to the density :math:`\rho`. The function :math:`g(\rho)` can be interpreted as a running cost we are paying along a trajectory :math:`X` for being in high density regions. Then, the previous equatio becomes:
+.. math::
   \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \d t.
-  \end{equation}
-  A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman equations is that
-  solving this optimal control problem \eqref{eq:HugheseikonalDynamic}-\eqref{eq:ValueFunctionHughes} is in fact equivalent to solving the Eikonal equation \eqref{eq:EikonalHughes}:
-  \begin{equation}\label{eq:EikonalHughes}
+
+A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman (HJB) equations is that
+solving the optimal control problem above is in fact equivalent to solving the Eikonal equation:
+.. math::
   \left\lbrace \begin{matrix}
   |\nabla \phi (x) | = \frac{g(\rho(x))}{v(\rho(x))} && x \in \Omega\\
   \phi(x) = 0 && x \in \partial\Omega
   \end{matrix}\right.
-  \end{equation}
-  \begin{remark}
-  Here, we chose to present the Hughes' model without any wall around or inside the domain. The walls are not relevant for the one-dimensional version of the problem. We discuss the complexity introduced by the walls in Chapter \ref{chap:Hughes2D}.
-  \end{remark}
-  We now claim that the direction field $\vec{V}(t,x)$ should be the unitary descending gradient of $\phi$. If we suppose that there exists $X^*_x$ an optimal trajectory, i.e. $\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))\d t$, then we have
-  $$\vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
-  Then the complete Hughes' model introduced in \cite{Hughes2002ACT} was the following:
-  \begin{equation}\label{eq:Hughes2DsansMur}
+
+.. note::
+  Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
+
+We now claim that the direction field :math:`\vec{V}(t,x)` should be the unitary descending gradient of :math:`\phi`. If we suppose that there exists :math:`X^*_x` an optimal trajectory, i.e. :math:`\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))\d t`, then we have
+.. math::
+  \vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.
+Then the complete Hughes' model introduced in [Hug02]_ was the following:
+.. math:: 
   \left\lbrace \begin{matrix}
   \partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
   \vec{V}(t,x) = -\frac{\nabla \phi}{|\nabla \phi|} \\
   |\nabla \phi (t,x) | = \frac{g(\rho(t,x))}{v(\rho(t,x))} && x \in \Omega\\
   \phi(t,x) = 0 && x \in \partial\Omega.
   \end{matrix}\right.
-  \end{equation}
 
-Colombo-Garavello-
+For a deep overview of the mathematical results regarding Hughes' model we defer to [AADF+23]_.
+
+Colombo-Garavello-Lécureux-Mercier
 ------------------
 
 Bibliography
@@ -79,4 +80,9 @@ Bibliography
 
 .. [CGLM11] Rinaldo M. Colombo, Mauro Garavello, and Magali Lécureux-Mercier. A class of nonlocal models for pedestrian traffic. Mathematical Models and Methods in Applied Sciences, 22:1150023, 2011.
 
+.. [LW55] Michael J Lighthill and Gerald Beresford Whitham. On kinematic waves. II. A theory of traffic flow on long crowded roads. Proceedings of the Royal Society of London A: Mathematical, Physical and Engineering Sciences, 229(1178):317–345, 1955.
+
 .. [Hug02] Roger L. Hughes. A continuum theory for the flow of pedestrians. Transportation Research Part B-methodological, 36:507–535, 2002.
+
+.. [Ric56] Paul I Richards. Shock waves on the highway. Operations research, 4(1):42–51,
+1956.
