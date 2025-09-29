@@ -13,10 +13,10 @@ version = '0.1.0'
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path('..', '..', 'src', 'hughes2d').resolve()))
+#sys.path.insert(0, str(Path('..', '..', 'src', 'hughes2d').resolve()))
 sys.path.insert(0, str(Path('..', '..', 'src').resolve()))
 sys.path.insert(0, str(Path('..', '..').resolve()))
-import hughes2d
+
 
 # -- General configuration
 extensions = [
