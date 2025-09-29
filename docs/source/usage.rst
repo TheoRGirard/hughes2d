@@ -100,11 +100,3 @@ Compiling and running this code should create 3 .csv files, 1 .json file and 1 .
 
 .. image:: gettingStartedVid.gif
 
-.. image:: gettingStartedVid.gif
-   :width: 200px
-   :height: 100px
-   :scale: 50 %
-   :alt: alternate text
-   :align: right
-
-Test
