@@ -7,6 +7,7 @@ Macroscopic pedestrian models
 -----------------------------
 
 The mathematical models for pedestrian crowds can be catyegorized in three main categories.
+
 - The **microscopic** models use a huge number of agents interacting with each other to model a crowd of pedestrian. This type of model often relies on the use of a system coupling many Ordinary Differential Equation (ODE).
 
 - The **mesoscopic** models deal with an infinite number of agents characterized by an artificial parameter. This type of model mainly consists in kinetic partial differential equations and uses the formalism of statistic physics.
@@ -59,7 +60,7 @@ For any :math:`x \in \Omega`, we denote by :math:`\mathcal{A}_x = \{ X^\alpha_x,
 In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function :math:`g(\rho)` with respect to the density :math:`\rho`. The function :math:`g(\rho)` can be interpreted as a running cost we are paying along a trajectory :math:`X` for being in high density regions. Then, the previous equation becomes:
 
 .. math::
-  \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) 	extrm{d} t.
+  \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \textrm{d} t.
 
 A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman (HJB) equations is that
 solving the optimal control problem above is in fact equivalent to solving the Eikonal equation:
@@ -70,7 +71,7 @@ solving the optimal control problem above is in fact equivalent to solving the E
   \phi(x) = 0 && x \in \partial\Omega
   \end{matrix}\right.
 
-We now claim that the direction field :math:`\vec{V}(t,x)` should be the unitary descending gradient of :math:`\phi`. If we suppose that there exists :math:`X^*_x` an optimal trajectory, i.e. :math:`\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))	extrm{d} t`, then we have
+We now claim that the direction field :math:`\vec{V}(t,x)` should be the unitary descending gradient of :math:`\phi`. If we suppose that there exists :math:`X^*_x` an optimal trajectory, i.e. :math:`\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))\textrm{d} t`, then we have
 
 .. math::
   \vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.
@@ -118,11 +119,11 @@ Let :math:`T>0`. Let :math:`J \in \mathbb{N}^*`. We discretize the interval :mat
 
 We suppose that :math:`\Omega` is a polygonal domain. Let :math:`\Delta x > 0`.
 
-Let :math:`\underline{\textrm{\raisebox{0pt}[1pt][0.5pt]{$\triangle$}}}, |\triangle| > 0`, we denote :math:`\Delta x := (\underline{\textrm{\raisebox{0pt}[1pt][0.5pt]{$\triangle$}}}, |\triangle|)`.
+Let :math:`\underline{\textrm{$\triangle$}}, |\triangle| > 0`, we denote :math:`\Delta x := (\underline{\textrm{$\triangle$}}, |\triangle|)`.
 We consider a triangular mesh defined by a set of open triangles :math:`M_\Delta := (\mathcal{T}_n)_{1 \leq n \leq N}` such that
 
 1. for all :math:`1\leq n \leq N`, the area of the triangle :math:`\mathcal{T}_n` denoted by :math:`|\mathcal{T}_n|` satisfies :math:`0 < |\mathcal{T}_n| \leq |\triangle|`.
-2. for all :math:`1\leq n \leq N`, if we denote :math:`\mathcal{T}_n = A_nB_nC_n` then :math:`\max \{ |A_n B_n|, |A_n C_n|, |C_n B_n|\} \leq \underline{\textrm{\raisebox{0pt}[1pt][0.5pt]{$\triangle$}}}`.
+2. for all :math:`1\leq n \leq N`, if we denote :math:`\mathcal{T}_n = A_nB_nC_n` then :math:`\max \{ |A_n B_n|, |A_n C_n|, |C_n B_n|\} \leq \underline{\textrm{$\triangle$}}`.
 3. for any :math:`1 \leq i,j \leq N`, we have :math:`\mathcal{T}_i \bigcap \mathcal{T}_j = \emptyset` and
 
 .. math::
@@ -140,7 +141,7 @@ We use the following notations:
 - for any :math:`P \in V_\Delta`, we denote by :math:`\mathcal{V}(P)` the set of neighbours of :math:`P`.
 - we denote by :math:`T_\Delta(P)` the set of all the triangles of :math:`M_\Delta` having :math:`P` as one of its vertices.
 
-We also denote :math:`N := \bold{Card}(M_{\Delta x})` i.e.
+We also denote :math:`N := \mathbf{Card}(M_{\Delta x})` i.e.
 :math:`M_{\Delta x} = (\mathcal{T}_n)_{1\leq n \leq N}`.
 
 General overview of the scheme
@@ -151,13 +152,13 @@ Let the initial datum :math:`\rho_0` be lower semi-continuous (so that the Eikon
 .. math::
   \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x), \;\; \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.
 
-Let :math:`\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}` be constant on the triangles of :math:`M_{\Delta x}` i.e. :math:`\forall n \in \llbracket 1, N \rrbracket, \; \exists \rho_n \in \mathbb{R},` such that :math:`\forall x \in \mathcal{T}_n, \;\; \rho_\Delta(x) = \rho_n`.
+Let :math:`\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}` be constant on the triangles of :math:`M_{\Delta x}` i.e. :math:`\forall n \in [\![ 1, N ]\!], \; \exists \rho_n \in \mathbb{R},` such that :math:`\forall x \in \mathcal{T}_n, \;\; \rho_\Delta(x) = \rho_n`.
 Then, we define the lower semi-continuous envelope of :math:`\rho_\Delta` by:
 
 .. math::
-  \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in \llbracket 1, N \rrbracket, \\ \textrm{ s.t. } x \in \widebar{\mathcal{T}_n}\end{matrix}} \rho_n.
+  \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in [\![ 1, N ]\!], \\ \textrm{ s.t. } x \in \widebar{\mathcal{T}_n}\end{matrix}} \rho_n.
 
-Then, we will apply the following procedure iteratively for any :math:`j \in \llbracket 0 , J \rrbracket`.
+Then, we will apply the following procedure iteratively for any :math:`j \in [\![ 0 , J ]\!]`.
 
 1. We compute a numerical approximation :math:`\phi^j_\Delta` of the solution to the eikonal equation
 
@@ -167,7 +168,7 @@ Then, we will apply the following procedure iteratively for any :math:`j \in \ll
 
 We use either a :math:`\mathbf{FMT}`, a :math:`\mathbf{FME}` (see [Gir25]_) or a third algorithm (detailled below) named the :math:`\mathbf{FMTC}` algorithm.
 
-2. We compute :math:`V^j_\Delta` corresponding to the unit vector opposite to the gradient of :math:`\phi_\Delta^j` on each triangle :math:`(\mathcal{T}_n)_{1\leq n \leq N}`. In order to compute :math:`V^j_\Delta`, we denote :math:`\mathcal{T}_n = ABC`. As :math:`\phi_\Delta^j` is affine on :math:`ABC`, the gradient is constant and, for any :math:`n \in \llbracket 1, N \rrbracket`, we set:
+2. We compute :math:`V^j_\Delta` corresponding to the unit vector opposite to the gradient of :math:`\phi_\Delta^j` on each triangle :math:`(\mathcal{T}_n)_{1\leq n \leq N}`. In order to compute :math:`V^j_\Delta`, we denote :math:`\mathcal{T}_n = ABC`. As :math:`\phi_\Delta^j` is affine on :math:`ABC`, the gradient is constant and, for any :math:`n \in [\![ 1, N ]\!]`, we set:
 
 .. math::
   V_n^j := \frac{1}{\mathcal{H}_{ABC}(\phi(A),\phi(B),\phi(C))}\times \frac{(\phi(B) - \phi(A))\vec{AB}^\bot - (\phi(C) - \phi(A))\vec{AC}^\bot}{\det(\vec{AC},\vec{AB})}.
@@ -199,30 +200,30 @@ We introduce a few additional notations.
 
 
 - Let :math:`M \in \mathbb{N}` be the number of distinct edges in the mesh :math:`M_\Delta`. We denote by :math:`E_\Delta := (e_m)_{1\leq m \leq M}` the set of all the edges of the triangles of :math:`M_\Delta`.
-- For any :math:`n \in \llbracket 1, N \rrbracket`, we denote by :math:`E_n` the set of all the edges of :math:`\mathcal{T}_n`.
-- For any :math:`m \in \llbracket 1, M \rrbracket`, we denote by :math:`\mathcal E^m` the set of all triangles of :math:`M_\Delta` that admit :math:`e_m` as one of its edges. Notice that :math:`\bold{Card}(\mathcal{E}^m) \in \{1,2\}`.
-- For any :math:`m \in \llbracket 1, M \rrbracket`, we denote by :math:`|e_m|` the geometrical length of the edge :math:`|e_m|`.
-- For any :math:`m \in \llbracket 1, M \rrbracket`, for any :math:`\mathcal{T} \in \mathcal{E}^m`, we denote by :math:`\vec{n}_m(\mathcal{T})` the unit normal vector to :math:`e_m` that is pointing outward of :math:`\mathcal{T}`.
+- For any :math:`n \in [\![ 1, N ]\!]`, we denote by :math:`E_n` the set of all the edges of :math:`\mathcal{T}_n`.
+- For any :math:`m \in [\![ 1, M ]\!]`, we denote by :math:`\mathcal E^m` the set of all triangles of :math:`M_\Delta` that admit :math:`e_m` as one of its edges. Notice that :math:`\mathbf{Card}(\mathcal{E}^m) \in \{1,2\}`.
+- For any :math:`m \in [\![ 1, M ]\!]`, we denote by :math:`|e_m|` the geometrical length of the edge :math:`|e_m|`.
+- For any :math:`m \in [\![ 1, M ]\!]`, for any :math:`\mathcal{T} \in \mathcal{E}^m`, we denote by :math:`\vec{n}_m(\mathcal{T})` the unit normal vector to :math:`e_m` that is pointing outward of :math:`\mathcal{T}`.
 - For any :math:`\mathcal{T} \in M_\Delta` we denote :math:`\rho^j_{\mathcal{T}} := \rho^j_n` where :math:`\mathcal{T}_n = \mathcal{T}`. Analogously, we denote :math:`V^j_{\mathcal{T}} := V^j_n` where :math:`\mathcal{T}_n = \mathcal{T}`.
 
 We also recall that, for any :math:`f:\mathbb{R} \rightarrow \mathbb{R}`, for any :math:`a,b \in \mathbb{R}`, the Godunov numerical flux is defined by:
 
 .. math::
-  \bold{God}_f(a,b) := \left\{ \begin{matrix} \min_{c \in [a,b]} f(c) &\textrm{if } a \leq b \\
+  \mathbf{God}_f(a,b) := \left\{ \begin{matrix} \min_{c \in [a,b]} f(c) &\textrm{if } a \leq b \\
   \max_{c \in [b,a]} f(c) &\textrm{if } b < a. \end{matrix}  \right.
 
 
-The finite volume scheme corresponds to the following algorithm for any fixed :math:`j \in \llbracket 0, J \rrbracket`.
+The finite volume scheme corresponds to the following algorithm for any fixed :math:`j \in [\![ 0, J ]\!]`.
 
-1. For any :math:`m \in \llbracket 1, M \rrbracket`, we denote
+1. For any :math:`m \in [\![ 1, M ]\!]`, we denote
 
   .. math::
-    \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =1,
-    \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =2.
+    \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =1,
+    \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =2.
 
   We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`e_m` coming from :math:`\mathcal T`. We distinguish between the two following cases.
   
-  - If :math:`\bold{Card}(\mathcal E^m) = 2`, we propose two different methods to compute :math:`f^j_m(\mathcal{T})`.
+  - If :math:`\mathbf{Card}(\mathcal E^m) = 2`, we propose two different methods to compute :math:`f^j_m(\mathcal{T})`.
   
     - The **discontinuous flux** method: we use a dichotomy method to find :math:`k \in [0,1]` such that:
     
@@ -232,7 +233,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
       Then we set:
     
       .. math::
-        f^j_m(\mathcal{T}) := \bold{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k).
+        f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k).
     
     - The \textbf{weighted flux} method: first, if :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} \neq \vec{0}`, we define
     
@@ -243,21 +244,21 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
       Then we set:
     
       .. math::
-        f^j_m(\mathcal{T}) :=  \bold{God}_{\vec{v}_m(\mathcal{T})\cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}).
+        f^j_m(\mathcal{T}) :=  \mathbf{God}_{\vec{v}_m(\mathcal{T})\cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}).
     
-  - Else if :math:`\bold{Card}(\mathcal E^m) = 1`, we have that :math:`e_m \in \partial \Omega`. Then, once again we distinguish between two cases.
+  - Else if :math:`\mathbf{Card}(\mathcal E^m) = 1`, we have that :math:`e_m \in \partial \Omega`. Then, once again we distinguish between two cases.
   
     - If :math:`e_m \in \mathcal{E}`, we set:
     
     .. math::
-      f^j_m(\mathcal{T}) := \bold{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},0).
+      f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},0).
     
     - Else if :math:`e_m \in \mathcal{W}`, we set:
     
     .. math::
       f^j_m(\mathcal{T}) := 0.
   
-2. For any :math:`n \in \llbracket 1, N \rrbracket`, we set
+2. For any :math:`n \in [\![ 1, N ]\!]`, we set
 
   .. math::
     \rho^{j+1}_n := \rho^{j}_n - \frac{\Delta t}{|\mathcal{T}_n|} \sum_{e_m \in E_n} f_m^j(\mathcal{T}_n)  |e_m|.
@@ -269,7 +270,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   If :math:`V_\Delta^j` is constant across the edge :math:`e_m` then the **discontinuous flux** method is equivalent to setting
   
   .. math::
-    f^j_m(\mathcal{T}) := \bold{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),
+    f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),
   
   which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity :math:`k \mapsto k` ``transmission map'', in the terminology of \cite{CancesAndreianov2015}.
 
@@ -307,7 +308,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
 Scheme the eikonal equation: the :math:`\mathbf{FMTC}` algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this paragraph, we fix :math:`j \in \llbracket 0, j \rrbracket`. Then, for any :math:`n \in \llbracket 0, N\rrbracket`, we set:
+In this paragraph, we fix :math:`j \in [\![ 0, j ]\!]`. Then, for any :math:`n \in [\![ 0, N]\!]`, we set:
 
 .. math::
   c_n := c(\rho^j_n).
