@@ -14,7 +14,42 @@ The hughes2d package dependencies are managed using uv (see uv). If uv is instal
    cd hughes2d |
    uv sync
 
-If you don't have uv installed, you can see a list of the dependencies in the pyproject.toml file.
+If you don't have uv installed, you can see a list of the dependencies in the pyproject.toml file or below.
+
+hughes2d v0.1.0
+├── numpy v2.2.2
+├── triangle v20250106
+│   └── numpy v2.2.2
+├── ezdxf v1.3.5 (extra: file-formats)
+│   ├── fonttools v4.55.8
+│   ├── numpy v2.2.2
+│   ├── pyparsing v3.2.1
+│   └── typing-extensions v4.12.2
+├── meshio v5.3.5 (extra: file-formats)
+│   ├── numpy v2.2.2
+│   └── rich v13.9.4
+│       ├── markdown-it-py v3.0.0
+│       │   └── mdurl v0.1.2
+│       └── pygments v2.19.1
+├── matplotlib v3.10.0 (extra: plot)
+│   ├── contourpy v1.3.1
+│   │   └── numpy v2.2.2
+│   ├── cycler v0.12.1
+│   ├── fonttools v4.55.8
+│   ├── kiwisolver v1.4.8
+│   ├── numpy v2.2.2
+│   ├── packaging v24.2
+│   ├── pillow v11.1.0
+│   ├── pyparsing v3.2.1
+│   └── python-dateutil v2.9.0.post0
+│       └── six v1.17.0
+├── plotly v6.0.0 (extra: plot)
+│   ├── narwhals v1.24.1
+│   └── packaging v24.2
+├── pyqt6 v6.8.1 (extra: plot)
+│   ├── pyqt6-qt6 v6.8.2
+│   └── pyqt6-sip v13.10.0
+
 
 
 Getting Started
@@ -22,7 +57,7 @@ Getting Started
 
 You can find a file named getting_started.py in /examples. We rewrite below the content of this file.
 
-.. code-block:
+::
 
    from hughes2d import *
    
