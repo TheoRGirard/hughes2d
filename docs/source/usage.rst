@@ -16,7 +16,8 @@ The hughes2d package dependencies are managed using uv (see uv). If uv is instal
 
 If you don't have uv installed, you can see a list of the dependencies in the pyproject.toml file or below.
 
-.. code-block:: console
+::
+
    hughes2d v0.1.0
    ├── numpy v2.2.2
    ├── triangle v20250106
@@ -57,7 +58,7 @@ If you don't have uv installed, you can see a list of the dependencies in the py
 Getting Started
 ----------------
 
-You can find a file named getting_started.py in /examples. We rewrite below the content of this file.
+You can find a file named *getting_started.py* in */examples*. We rewrite below the content of this file.
 
 ::
 
@@ -97,4 +98,13 @@ You can find a file named getting_started.py in /examples. We rewrite below the 
 
 Compiling and running this code should create 3 .csv files, 1 .json file and 1 .mp4 file. The .mp4 file should look like the video below:
 
-.. image: gettingStartedVid.gif
+.. image:: gettingStartedVid.gif
+
+.. image:: gettingStartedVid.gif
+   :width: 200px
+   :height: 100px
+   :scale: 50 %
+   :alt: alternate text
+   :align: right
+
+Test
