@@ -5,8 +5,8 @@ Complete reference
 Non-convex domain object
 ---------------------------
 
-.. autoclass:: Mesh2D::NonConvexDomain
+.. autoclass:: hughes2d::NonConvexDomain
 
-.. autoclass:: Mesh2D::NonConvexDomain
+.. autoclass:: hughes2d::Mesh2D.Mesh
   :members:
 
