@@ -15,7 +15,7 @@ from pathlib import Path
 
 #sys.path.insert(0, str(Path('..', '..', 'src', 'hughes2d').resolve()))
 sys.path.insert(0, str(Path('..', '..', 'src').resolve()))
-sys.path.insert(0, str(Path('..', '..').resolve()))
+#sys.path.insert(0, str(Path('..', '..').resolve()))
 
 
 # -- General configuration
