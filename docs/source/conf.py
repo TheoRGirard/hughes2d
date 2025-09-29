@@ -33,3 +33,9 @@ html_theme = 'sphinx_rtd_theme'
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
+
+# enabling the path to sources for sphinx autodoc
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path('..', 'src', 'hughes2d').resolve()))
