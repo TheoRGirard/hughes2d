@@ -22,12 +22,14 @@ In [Hug02]_, Hughes proposed a mathematical model for the two-dimensional dynami
 Then, if we write the conservation of the mass on pedestrian on each subdomain of :math:`\Omega`, we end up with the following scalar conservation law:
 
 .. math::
-  \partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.
+  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.
 
 In Hughes' model, we assume that the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` only depends on the density :math:`\rho(t,x)` and that this speed is decreasing with respect to the density.
 Then, in the following we will denote the speed by :math:`v(\rho(t,x))` where :math:`v` is a decreasing function defined on :math:`[0,\rho_{max}]` such that
+
 .. math:: 
   v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.
+
 A classical example of such a speed function is :math:`v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}`. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [LW55]_, [Ric56]_).
 
 The second equation of the model characterizes the unitary direction field :math:`\vec{V}(t,x)` depending on the density :math:`\rho` in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density :math:`\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)` stays constant in time (this assumption is quite controversial).
@@ -43,12 +45,14 @@ For any :math:`x \in \Omega`, we denote by :math:`\mathcal{A}_x = \{ X^\alpha_x,
 \begin{equation}\label{eq:ExitTimeHughes}
 \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \d t.
 \end{equation}
-In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function :math:`g(\rho)` with respect to the density :math:`\rho`. The function :math:`g(\rho)` can be interpreted as a running cost we are paying along a trajectory :math:`X` for being in high density regions. Then, the previous equatio becomes:
+In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function :math:`g(\rho)` with respect to the density :math:`\rho`. The function :math:`g(\rho)` can be interpreted as a running cost we are paying along a trajectory :math:`X` for being in high density regions. Then, the previous equation becomes:
+
 .. math::
   \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \d t.
 
 A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman (HJB) equations is that
 solving the optimal control problem above is in fact equivalent to solving the Eikonal equation:
+
 .. math::
   \left\lbrace \begin{matrix}
   |\nabla \phi (x) | = \frac{g(\rho(x))}{v(\rho(x))} && x \in \Omega\\
@@ -59,9 +63,12 @@ solving the optimal control problem above is in fact equivalent to solving the E
   Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
 
 We now claim that the direction field :math:`\vec{V}(t,x)` should be the unitary descending gradient of :math:`\phi`. If we suppose that there exists :math:`X^*_x` an optimal trajectory, i.e. :math:`\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))\d t`, then we have
+
 .. math::
   \vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.
+
 Then the complete Hughes' model introduced in [Hug02]_ was the following:
+
 .. math:: 
   \left\lbrace \begin{matrix}
   \partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
