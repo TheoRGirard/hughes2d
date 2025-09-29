@@ -20,6 +20,7 @@ Hughes' model
 
 In [Hug02]_, Hughes proposed a mathematical model for the two-dimensional dynamics of pedestrian crowds. The model consists in a system of two equations set on a bounded domain :math:`\Omega \subset \mathbb{R}^2`. The first equation models the flow of a density :math:`\rho`. To be more precise  :math:`\rho(t,x)` represents the density of pedestrian at time :math:`t` and location :math:`x`. It is bounded between :math:`0` and a given :math:`\rho_{max} >0`. We assume that the pedestrian move with the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` following a unitary direction field :math:`\vec{V}(t,x) \in \mathcal{S}_1`.
 Then, if we write the conservation of the mass on pedestrian on each subdomain of :math:`\Omega`, we end up with the following scalar conservation law:
+
 .. math::
   \partial_t \rho + \div(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.
 
@@ -31,12 +32,13 @@ A classical example of such a speed function is :math:`v(\rho) = v_{max}\frac{\r
 
 The second equation of the model characterizes the unitary direction field :math:`\vec{V}(t,x)` depending on the density :math:`\rho` in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density :math:`\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)` stays constant in time (this assumption is quite controversial).
 Let :math:`x \in \Omega`. For any :math:`\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)`, we say that :math:`X^\alpha_x(\cdot)` is a trajectory controlled by :math:`\alpha` starting at :math:`x` if :math:`X` is a solution to the Cauchy problem:
-\begin{equation}\label{eq:HugheseikonalDynamic}
+
+.. math::
   \left\lbrace \begin{matrix}
   \dot{X}^\alpha_x(s) = \alpha(s)v(\rho(t,X^\alpha_x(s))) \\
   X^\alpha_x(0) = x
   \end{matrix}\right.
-\end{equation}
+
 For any :math:`x \in \Omega`, we denote by :math:`\mathcal{A}_x = \{ X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \}` the set of all controlled trajectories starting at :math:`x`. We define :math:`\phi(x)` as the minimal exit time starting at location :math:`x`, that is to say :
 \begin{equation}\label{eq:ExitTimeHughes}
 \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \d t.
