@@ -9,8 +9,13 @@ author = 'Girard Théo'
 release = '0.1'
 version = '0.1.0'
 
-# -- General configuration
+# enabling the path to sources for sphinx autodoc
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path('..', '..', 'src', 'hughes2d').resolve()))
+
+# -- General configuration
 extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
@@ -27,6 +32,8 @@ intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
 
+autodoc_mock_imports = ['numpy', 'triangle', 'ezdxf', 'meshio', 'matplotlib', 'plotly']
+
 # -- Options for HTML output
 
 html_theme = 'sphinx_rtd_theme'
@@ -34,8 +41,4 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
 
-# enabling the path to sources for sphinx autodoc
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path('..', 'src', 'hughes2d').resolve()))
