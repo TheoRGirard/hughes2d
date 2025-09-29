@@ -305,7 +305,7 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in :math:`M_\Delta`. The numerical experiments with the present package must be done under the above CFL condition !
 
 
-Scheme the eikonal equation: the :math:`\mathbf{FMTC}` algorithm
+Scheme for the eikonal equation: the FMTC algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this paragraph, we fix :math:`j \in [\![ 0, j ]\!]`. Then, for any :math:`n \in [\![ 0, N]\!]`, we set:
