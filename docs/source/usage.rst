@@ -100,3 +100,5 @@ Compiling and running this code should create 3 .csv files, 1 .json file and 1 .
 
 .. image:: gettingStartedVid.gif
 
+Simulations' options
+---------------------
