@@ -216,34 +216,34 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
 
 1. For any :math:`m \in \llbracket 1, M \rrbracket`, we denote
 
-.. math::
-  \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =1,
-  \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =2.
+  .. math::
+    \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =1,
+    \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \bold{Card}(\mathcal{E}^m) =2.
 
-We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`e_m` coming from :math:`\mathcal T`. We distinguish between the two following cases.
-
+  We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`e_m` coming from :math:`\mathcal T`. We distinguish between the two following cases.
+  
   - If :math:`\bold{Card}(\mathcal E^m) = 2`, we propose two different methods to compute :math:`f^j_m(\mathcal{T})`.
   
     - The **discontinuous flux** method: we use a dichotomy method to find :math:`k \in [0,1]` such that:
     
-    .. math::
-      \mathbf{God}_{V^j_{\mathcal{T} } \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k)-\mathbf{God}_{V^j_{\mathcal{T'} } \cdot \vec{n}_m(\mathcal{T})f}(k,\rho^j_{\mathcal T'}) = 0.
+      .. math::
+        \mathbf{God}_{V^j_{\mathcal{T} } \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k)-\mathbf{God}_{V^j_{\mathcal{T'} } \cdot \vec{n}_m(\mathcal{T})f}(k,\rho^j_{\mathcal T'}) = 0.
     
-    Then we set:
+      Then we set:
     
-    .. math::
-      f^j_m(\mathcal{T}) := \bold{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k).
+      .. math::
+        f^j_m(\mathcal{T}) := \bold{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k).
     
     - The \textbf{weighted flux} method: first, if :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} \neq \vec{0}`, we define
     
-    .. math::
-      \vec{v}_m(\mathcal{T}) := \frac{V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}}{\left|V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}\right|}.
+      .. math::
+        \vec{v}_m(\mathcal{T}) := \frac{V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}}{\left|V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}\right|}.
     
-    If :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} = \vec{0}`, we set :math:`\vec{v}_m(\mathcal{T}) = \vec{0}`.
-    Then we set:
+      If :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} = \vec{0}`, we set :math:`\vec{v}_m(\mathcal{T}) = \vec{0}`.
+      Then we set:
     
-    .. math::
-      f^j_m(\mathcal{T}) :=  \bold{God}_{\vec{v}_m(\mathcal{T})\cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}).
+      .. math::
+        f^j_m(\mathcal{T}) :=  \bold{God}_{\vec{v}_m(\mathcal{T})\cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}).
     
   - Else if :math:`\bold{Card}(\mathcal E^m) = 1`, we have that :math:`e_m \in \partial \Omega`. Then, once again we distinguish between two cases.
   
@@ -257,12 +257,10 @@ We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`
     .. math::
       f^j_m(\mathcal{T}) := 0.
   
-
-
 2. For any :math:`n \in \llbracket 1, N \rrbracket`, we set
 
-.. math::
-  \rho^{j+1}_n := \rho^{j}_n - \frac{\Delta t}{|\mathcal{T}_n|} \sum_{e_m \in E_n} f_m^j(\mathcal{T}_n)  |e_m|.
+  .. math::
+    \rho^{j+1}_n := \rho^{j}_n - \frac{\Delta t}{|\mathcal{T}_n|} \sum_{e_m \in E_n} f_m^j(\mathcal{T}_n)  |e_m|.
 
 
 
@@ -279,7 +277,9 @@ We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`
   The **weighted flux** method corresponds to the following procedure: we define :math:`\vec{v}_m(\mathcal{T})` as a weighted mean of the two vectors :math:`V^j_{\mathcal{T}}` and :math:`V^j_{\mathcal{T}'}`;
   then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had :math:`V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})`.\\
   The heuristics for this method comes from the following situation.
+
   .. image:: assets/MidVectorSchema.png
+
   Notice that, here, we have:
   
   .. math::
