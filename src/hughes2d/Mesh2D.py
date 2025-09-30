@@ -54,14 +54,8 @@ class NonConvexDomain(object):
     """Object corresponding to the geometry of a domain. The domain can have walls and exits on its boundary as well as walls inside the domain.
 
     Examples:
-        Creating a square domain::
-            >>>MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
-
-        Adding an exit::
-            >>>MyDomain.addExit([[0,1],[0,2]])
-
-        Creating a hole in the center of the domain::
-            >>>MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
+        Creating a square domain
+            
 
     Attributes:
         outerVertices (List[List[float]]): The list of the coordinates of the vertices located on the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
