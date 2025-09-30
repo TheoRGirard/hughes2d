@@ -54,7 +54,14 @@ class NonConvexDomain(object):
     """Object corresponding to the geometry of a domain. The domain can have walls and exits on its boundary as well as walls inside the domain.
 
     Examples:
-        Creating a square domain
+        Creating a square domain::
+            >>>MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
+
+        Adding an exit::
+            >>>MyDomain.addExit([[0,1],[0,2]])
+
+        Creating a hole in the center of the domain::
+            >>>MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
             
 
     Attributes:
@@ -66,6 +73,7 @@ class NonConvexDomain(object):
         exitList (List[int]): The list of the edges corresponding to exits of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
         self.zones (dict):
 
+    Methods:
     """
 
     def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:
@@ -83,12 +91,19 @@ class NonConvexDomain(object):
     def importFromDXF(self, filename: str) -> int:
         """
         Import from a .dxf file. The dxf file can contain three layers :
+        
         - a "domain" layer (mandatory) that contain the outer boundary
         - an "innerWalls" layer that contains all the inner structures of the domain.
         - an "exits" layer that contains all the exits of the domain.
         - (optional) "zone_<zone_name>" layers defining the zones with zone name.
 
         The package ezdxf must be installed in order to use this method.
+
+        Args:
+            filename (str): the path to the .dxf file to import.
+
+        Returns:
+            int: Error code
         """
         if(ezdxf):
             try:
