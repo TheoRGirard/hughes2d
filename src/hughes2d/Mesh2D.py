@@ -55,12 +55,15 @@ class NonConvexDomain(object):
 
     Examples:
         Creating a square domain::
+        
             >>>MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
 
         Adding an exit::
+        
             >>>MyDomain.addExit([[0,1],[0,2]])
 
         Creating a hole in the center of the domain::
+        
             >>>MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
             
 
@@ -71,7 +74,7 @@ class NonConvexDomain(object):
         wallEdges (List[List[int]]): The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
         wallHolesPoint (List[List[float]]): The list of the coordinates of points located inside the holes of the domains. A point is represented as a pair of floats i.e. [float,float].
         exitList (List[int]): The list of the edges corresponding to exits of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
-        self.zones (dict):
+        zones (dict):
 
     Methods:
     """
@@ -215,7 +218,12 @@ class NonConvexDomain(object):
     def __contains__(self, point: PointType):
         """
         This method tests if the point passed as a parameter is inside the convex hull of the domain.
-        It takes a PointType as parameter i.e. [float, float]
+        
+        Args:
+            point (List[float]): The coordinates of the point to test respresented as [float, float].
+
+        Return:
+            bool
         """
         for i in range(1,len(self.outerVertices) - 1):
             if(belongTriangle(point, [self.outerVertices[0],self.outerVertices[i],self.outerVertices[i+1]])):
@@ -227,11 +235,15 @@ class NonConvexDomain(object):
         Add a given point of the boundary to the list of points of the domain.
         This is typically used in order to guarantee that the given point will be included as a vertex of the mesh generated from this domain.
         If the point is already in outerVertices, the method returns the index of the point without adding it.
-        ERRORS:
+
+        Args:
+            point (List[float]): The point to add to the boundary respresented as [float, float].
+            
+        Errors:
         The method raises a value error if the given point is not in the boundary of the domain.
 
-        RETURNS:
-        The method returns the index corresponding to the added point in the outerVertices list.
+        Returns:
+            int: The method returns the index corresponding to the added point in the outerVertices list.
         """
         if point not in self.outerVertices:
             for index, edge in enumerate(self.outerBoundary):
