@@ -14,9 +14,9 @@ Geometry reference
 .. autoclass:: hughes2d::Mesh2D.VertexValueMap
   :members:
 
-==================
-Equation solvers
-==================
+===========================
+Equation solvers reference
+===========================
 
 .. autoclass:: hughes2d::EikoSolver
   :members:
