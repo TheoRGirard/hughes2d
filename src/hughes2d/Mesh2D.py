@@ -56,17 +56,19 @@ class NonConvexDomain(object):
     Examples:
         Creating a square domain::
         
-            >>>MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
+            MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
 
         Adding an exit::
         
-            >>>MyDomain.addExit([[0,1],[0,2]])
+            MyDomain.addExit([[0,1],[0,2]])
 
         Creating a hole in the center of the domain::
         
-            >>>MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
+            MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
             
-
+    Attributes
+    -----------
+    
     Attributes:
         outerVertices (List[List[float]]): The list of the coordinates of the vertices located on the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
         wallVertices (List[List[float]]): The list of the coordinates of the vertices located on walls inside the domain. A vertex is represented as a pair of floats i.e. [float,float].
@@ -76,7 +78,8 @@ class NonConvexDomain(object):
         exitList (List[int]): The list of the edges corresponding to exits of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
         zones (dict):
 
-    Methods:
+    Methods
+    --------
     """
 
     def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:
