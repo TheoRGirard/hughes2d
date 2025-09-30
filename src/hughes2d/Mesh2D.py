@@ -51,20 +51,32 @@ except ImportError:
 
 
 class NonConvexDomain(object):
-    """Domain object, it contains :
-    - The list of the outer vertices
-    - The list of the outer eges
-    - The lists of edges and vertices corresponding to the holes inside the domain
-    - The list of exit edges
-    methods :
-    - show : plot the domain
-    - addWall/addExit : domain editing tools
-    - contains/hasBoundaryPoint : boolean tests for points inside the domain (resp. boundary)
+    """Object corresponding to the geometry of a domain. The domain can have walls and exits on its boundary as well as walls inside the domain.
+
+    Examples:
+        Creating a square domain::
+            >>>MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
+
+        Adding an exit::
+            >>>MyDomain.addExit([[0,1],[0,2]])
+
+        Creating a hole in the center of the domain::
+            >>>MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
+
+    Attributes:
+        outerVertices (List[List[float]]): The list of the coordinates of the vertices located on the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
+        wallVertices (List[List[float]]): The list of the coordinates of the vertices located on walls inside the domain. A vertex is represented as a pair of floats i.e. [float,float].
+        outerBoundary (List[List[int]]): The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
+        wallEdges (List[List[int]]): The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
+        wallHolesPoint (List[List[float]]): The list of the coordinates of points located inside the holes of the domains. A point is represented as a pair of floats i.e. [float,float].
+        exitList (List[int]): The list of the edges corresponding to exits of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
+        self.zones (dict):
+
     """
 
-    def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:
+    def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
         #print([vertexList[edge[0]] for edge in convexHull ])
-        self.listOuterVertex = outerVerticesList
+        self.outerVertices = outerVerticesList
         self.outerBoundary = []
         for i in range(len(outerVerticesList)):
             self.outerBoundary.append([i,(i+1)%(len(outerVerticesList))])
@@ -102,7 +114,7 @@ class NonConvexDomain(object):
             #    print("start point: %s\n" % e.dxf.start)
             #    print("end point: %s\n" % e.dxf.end)
 
-            self.listOuterVertex = []
+            self.outerVertices = []
             self.outerBoundary = []
             self.wallVertices = []
             self.wallEdges = []
@@ -115,22 +127,22 @@ class NonConvexDomain(object):
             for e in msp.query("LINE"):
                 if(e.dxf.layer == "0" or e.dxf.layer == "domain"):
                     P = [np.round(e.dxf.start[0],5),np.round(e.dxf.start[1],5)]
-                    if P not in self.listOuterVertex:
-                        numP = len(self.listOuterVertex)
-                        self.listOuterVertex.append(P)
+                    if P not in self.outerVertices:
+                        numP = len(self.outerVertices)
+                        self.outerVertices.append(P)
                     else:
                         numP = self.addBoundaryPoint(P)
 
                     Q = [np.round(e.dxf.end[0],5),np.round(e.dxf.end[1],5)]
-                    if Q not in self.listOuterVertex:
-                        numQ = len(self.listOuterVertex)
-                        self.listOuterVertex.append(Q)
+                    if Q not in self.outerVertices:
+                        numQ = len(self.outerVertices)
+                        self.outerVertices.append(Q)
                     else:
                         numQ = self.addBoundaryPoint(Q)
 
                     self.outerBoundary.append([numP, numQ])
 
-            if([len(self.listOuterVertex)-1, 0] not in self.outerBoundary ):
+            if([len(self.outerVertices)-1, 0] not in self.outerBoundary ):
                 raise ValueError("Corrupted domain : domain not closed.")
             wallVert = []
             for e in msp.query("LINE"):
@@ -197,8 +209,8 @@ class NonConvexDomain(object):
         This method tests if the point passed as a parameter is inside the convex hull of the domain.
         It takes a PointType as parameter i.e. [float, float]
         """
-        for i in range(1,len(self.listOuterVertex) - 1):
-            if(belongTriangle(point, [self.listOuterVertex[0],self.listOuterVertex[i],self.listOuterVertex[i+1]])):
+        for i in range(1,len(self.outerVertices) - 1):
+            if(belongTriangle(point, [self.outerVertices[0],self.outerVertices[i],self.outerVertices[i+1]])):
                 return True
         return False
 
@@ -206,23 +218,23 @@ class NonConvexDomain(object):
         """
         Add a given point of the boundary to the list of points of the domain.
         This is typically used in order to guarantee that the given point will be included as a vertex of the mesh generated from this domain.
-        If the point is already in listouterVertex, the method returns the index of the point without adding it.
+        If the point is already in outerVertices, the method returns the index of the point without adding it.
         ERRORS:
         The method raises a value error if the given point is not in the boundary of the domain.
 
         RETURNS:
-        The method returns the index corresponding to the added point in the listOuterVertex list.
+        The method returns the index corresponding to the added point in the outerVertices list.
         """
-        if point not in self.listOuterVertex:
+        if point not in self.outerVertices:
             for index, edge in enumerate(self.outerBoundary):
-                if(NonConvexDomain.belongSegment(point, [self.listOuterVertex[edge[i]] for i in [0,1]])):
-                    numPoint = len(self.listOuterVertex)
-                    self.listOuterVertex.append(point)
+                if(NonConvexDomain.belongSegment(point, [self.outerVertices[edge[i]] for i in [0,1]])):
+                    numPoint = len(self.outerVertices)
+                    self.outerVertices.append(point)
                     self.outerBoundary = self.outerBoundary[:index] + [[edge[0],numPoint],[numPoint, edge[1]]] + self.outerBoundary[(index+1):]
                     return numPoint
             raise ValueError("The point given is not in the outer boundary.")
         else:
-            for i, point2 in enumerate(self.listOuterVertex):
+            for i, point2 in enumerate(self.outerVertices):
                 if point2 == point:
                     return i
 
@@ -231,9 +243,9 @@ class NonConvexDomain(object):
         Returns the extremal coordinates of the domain as a list of two two-elements lists
         i.e. [[x_min,x_max],[y_min,y_max]].
         """
-        x_min, x_max = self.listOuterVertex[0][0],self.listOuterVertex[0][0]
-        y_min, y_max = self.listOuterVertex[0][1],self.listOuterVertex[0][1]
-        for P in self.listOuterVertex:
+        x_min, x_max = self.outerVertices[0][0],self.outerVertices[0][0]
+        y_min, y_max = self.outerVertices[0][1],self.outerVertices[0][1]
+        for P in self.outerVertices:
             if P[0] > x_max:
                 x_max = P[0]
             if P[1] > y_max:
@@ -352,7 +364,7 @@ class NonConvexDomain(object):
             if len(exitPath) == 0:
                 raise ValueError("Impossible exit for this domain boundary")
             else:
-                exitEdges = [ [self.listOuterVertex[exitPath[i]],self.listOuterVertex[exitPath[i+1]]] for i in range(len(exitPath) - 1)]
+                exitEdges = [ [self.outerVertices[exitPath[i]],self.outerVertices[exitPath[i+1]]] for i in range(len(exitPath) - 1)]
                 self.exitList += exitEdges
         else:
             raise ValueError("The exit is not inside an inner wall nor in an outer oboundary.")
@@ -374,7 +386,7 @@ class NonConvexDomain(object):
         The index of the first edge found in the boundary that contains P; returns -1 if no such edge is found.
         """
         for i,edge in enumerate(self.outerBoundary):
-            if NonConvexDomain.belongSegment(P, [self.listOuterVertex[edge[0]], self.listOuterVertex[edge[1]]]):
+            if NonConvexDomain.belongSegment(P, [self.outerVertices[edge[0]], self.outerVertices[edge[1]]]):
                 return i
         return -1
 
@@ -492,8 +504,8 @@ class NonConvexDomain(object):
         outerIndices = [self.findBoundaryPoint(edge[0]), self.findBoundaryPoint(edge[1])]
         if outerIndices[0] == -1 or outerIndices[1] == -1:
             return False
-        outer1Coord = [self.listOuterVertex[self.outerBoundary[outerIndices[0]][0]],self.listOuterVertex[self.outerBoundary[outerIndices[0]][1]]]
-        outer2Coord = [self.listOuterVertex[self.outerBoundary[outerIndices[1]][0]],self.listOuterVertex[self.outerBoundary[outerIndices[1]][1]]]
+        outer1Coord = [self.outerVertices[self.outerBoundary[outerIndices[0]][0]],self.outerVertices[self.outerBoundary[outerIndices[0]][1]]]
+        outer2Coord = [self.outerVertices[self.outerBoundary[outerIndices[1]][0]],self.outerVertices[self.outerBoundary[outerIndices[1]][1]]]
         if NonConvexDomain.belongSegment(edge[0],outer2Coord) or NonConvexDomain.belongSegment(edge[1],outer1Coord):
             return True
         if NonConvexDomain.belongSegment(outer1Coord[0], outer2Coord) or NonConvexDomain.belongSegment(outer1Coord[1], outer2Coord):
@@ -538,14 +550,14 @@ class NonConvexDomain(object):
         plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ): #plotly version of the plot
-            startPoint = self.listOuterVertex[self.outerBoundary[0][0]]
+            startPoint = self.outerVertices[self.outerBoundary[0][0]]
             orderedOuterVertices = [startPoint]
-            endPoint = self.listOuterVertex[self.outerBoundary[0][1]]
+            endPoint = self.outerVertices[self.outerBoundary[0][1]]
             while(endPoint != startPoint):
                 orderedOuterVertices.append(endPoint)
                 for edge in self.outerBoundary:
-                    if(self.listOuterVertex[edge[0]] == endPoint):
-                        endPoint = self.listOuterVertex[edge[1]]
+                    if(self.outerVertices[edge[0]] == endPoint):
+                        endPoint = self.outerVertices[edge[1]]
                         break
 
             fig.add_trace(go.Scatter(x=[P[0] for P in orderedOuterVertices]+[orderedOuterVertices[0][0]],
@@ -572,14 +584,14 @@ class NonConvexDomain(object):
                             width=2,
                         ))
         elif(plt): #matplotlib version of the plot
-            startPoint = self.listOuterVertex[self.outerBoundary[0][0]]
+            startPoint = self.outerVertices[self.outerBoundary[0][0]]
             orderedOuterVertices = [startPoint]
-            endPoint = self.listOuterVertex[self.outerBoundary[0][1]]
+            endPoint = self.outerVertices[self.outerBoundary[0][1]]
             while(endPoint != startPoint):
                 orderedOuterVertices.append(endPoint)
                 for edge in self.outerBoundary:
-                    if(self.listOuterVertex[edge[0]] == endPoint):
-                        endPoint = self.listOuterVertex[edge[1]]
+                    if(self.outerVertices[edge[0]] == endPoint):
+                        endPoint = self.outerVertices[edge[1]]
                         break
 
             domain_polygon = patches.Polygon([(P[0],P[1]) for P in orderedOuterVertices], edgecolor='black', facecolor='white')
@@ -996,7 +1008,7 @@ class Mesh(object):
         """
         domainVertices = []
         domainSpecialEdges = []
-        domainVertices += domain.listOuterVertex
+        domainVertices += domain.outerVertices
         domainSpecialEdges += domain.outerBoundary
 
         N = len(domainVertices)
@@ -1311,7 +1323,7 @@ class Mesh(object):
         MeshDico["edges"] = self.edges
         MeshDico["triangles"] = self.triangles.tolist()
 
-        MeshDico["listOuterVertex"] = [self.vertices[i].tolist() for i in self.boundaryPoints]
+        MeshDico["outerVertices"] = [self.vertices[i].tolist() for i in self.boundaryPoints]
 
         MeshDico["exitVertices"] = self.exitVertices.tolist()
         MeshDico["exitEdges"] = self.exitEdges.tolist() #Liste des edges d'exit par indice d'edge
@@ -1343,7 +1355,7 @@ class Mesh(object):
         MeshDico["edges"] = self.edges.tolist()
         MeshDico["triangles"] = self.triangles.tolist()
 
-        MeshDico["listOuterVertex"] = [self.vertices[i].tolist() for i in self.boundaryPoints]
+        MeshDico["outerVertices"] = [self.vertices[i].tolist() for i in self.boundaryPoints]
 
         MeshDico["exitVertices"] = self.exitVertices.tolist()
         MeshDico["exitEdges"] = self.exitEdges.tolist() #Liste des edges d'exit par indice d'edge
@@ -1889,7 +1901,7 @@ class VertexValueMap(object):
 
 def ComputeOuterNormalUnitVect(A,B,C):
     N = np.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
-    x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N) 
+    x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N)
     H = [ A[0] + (B[0]-A[0])*x/N, A[1] + (B[1]-A[1])*x/N ]
     Sign = (C[0]-H[0])*(B[1]-A[1]) + (C[1]-H[1])*(A[0]-B[0])
     if(Sign > 0):
