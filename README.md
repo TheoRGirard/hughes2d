@@ -53,6 +53,7 @@ Compiling and running this code should create 3 .csv files, 1 .json file and 1 .
 
 [![Getting started with hughes2d](https://i.makeagif.com/media/5-02-2025/oBBLmJ.gif)](https://youtu.be/jk6qBHxYFz4)
 
+![Getting started with hughes2d](docs/source/gettingStartedVid.gif)
 .. image:: docs/source/gettingStartedVid.gif
 
 
