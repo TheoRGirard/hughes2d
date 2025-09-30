@@ -65,6 +65,9 @@ class NonConvexDomain(object):
         Creating a hole in the center of the domain::
         
             MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
+
+    Args:
+        outerVerticesList (List[List[float]): The ordered list of the coordinates of the vertices defining the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
             
     Attributes
     -----------
@@ -242,8 +245,8 @@ class NonConvexDomain(object):
         Args:
             point (List[float]): The point to add to the boundary respresented as [float, float].
             
-        Errors:
-        The method raises a value error if the given point is not in the boundary of the domain.
+        Raises:
+            ValueError: The method raises a value error if the given point is not in the boundary of the domain.
 
         Returns:
             int: The method returns the index corresponding to the added point in the outerVertices list.
