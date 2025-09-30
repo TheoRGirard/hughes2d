@@ -68,8 +68,7 @@ class NonConvexDomain(object):
 
     """
 
-    def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
-        #print([vertexList[edge[0]] for edge in convexHull ])
+    def __init__(self, outerVerticesList: List[PointType]=[[0,0],[1,0],[0,1]] ) -> None:
         self.outerVertices = outerVerticesList
         self.outerBoundary = []
         for i in range(len(outerVerticesList)):
