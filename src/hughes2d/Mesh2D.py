@@ -79,7 +79,7 @@ class NonConvexDomain(object):
         wallEdges (List[List[int]]): The list of the edges of the outer boundary of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
         wallHolesPoint (List[List[float]]): The list of the coordinates of points located inside the holes of the domains. A point is represented as a pair of floats i.e. [float,float].
         exitList (List[int]): The list of the edges corresponding to exits of the domain. An edge is represented as a pair of indices of the vertices of outerVertices i.e. [int,int].
-        zones (dict):
+        zones (dict): dictionary containing all the zones defined on the mesh.
 
     Methods
     --------
@@ -776,7 +776,7 @@ class Mesh(object):
     Attributes
     -----------
 
-    Attributes :
+    Attributes:
         dx (float): maximal area of a triangle in the mesh
         vertices (ArrayLike): array of all the vertices TriangleEdgeCoordinates
         edges (ArrayLike): array of all the edges as [vertexIndex, vertexIndex]
@@ -792,7 +792,7 @@ class Mesh(object):
         outerNormalVectByTriangles (ArrayLike): array order as self.tringles containing the unit normal vectors corresponding to the three edges of each triangle. The normal vectors are directed towards the exterior of  the triangle.
         cellAreas (ArrayLike): array ordered as self.triangles containing the area of each triangle of the mesh.
         edgeLength (ArrayLike):array ordered as self.edges containing the length of each edge.
-        zones (dict):
+        zones (dict): dictionary containing all the zones defined on the mesh.
 
 
     Methods
@@ -1368,7 +1368,7 @@ class Mesh(object):
             if(Sign > 0):
                 return [(A[1]-B[1])/N,(B[0]-A[0])/N]
             return [(B[1]-A[1])/N,(A[0]-B[0])/N]
-            
+
         for index, triangle in enumerate(self.trianglesWithEdges):
             L = []
             for edgeindex in triangle:
