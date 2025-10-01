@@ -55,23 +55,23 @@ class NonConvexDomain(object):
 
     Examples:
         Creating a square domain::
-        
+
             MyDomain = NonConvexDomain([[0,0],[0,3],[3,3],[3,0]])
 
         Adding an exit::
-        
+
             MyDomain.addExit([[0,1],[0,2]])
 
         Creating a hole in the center of the domain::
-        
+
             MyDomain.addWall([[1,1],[1,2],[2,2],[2,1]], cycle=True)
 
     Args:
         outerVerticesList (List[List[float]): The ordered list of the coordinates of the vertices defining the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
-            
+
     Attributes
     -----------
-    
+
     Attributes:
         outerVertices (List[List[float]]): The list of the coordinates of the vertices located on the boundary of the domain. A vertex is represented as a pair of floats i.e. [float,float].
         wallVertices (List[List[float]]): The list of the coordinates of the vertices located on walls inside the domain. A vertex is represented as a pair of floats i.e. [float,float].
@@ -100,7 +100,7 @@ class NonConvexDomain(object):
     def importFromDXF(self, filename: str) -> int:
         """
         Import from a .dxf file. The dxf file can contain three layers :
-        
+
         - a "domain" layer (mandatory) that contain the outer boundary
         - an "innerWalls" layer that contains all the inner structures of the domain.
         - an "exits" layer that contains all the exits of the domain.
@@ -224,7 +224,7 @@ class NonConvexDomain(object):
     def __contains__(self, point: PointType):
         """
         This method tests if the point passed as a parameter is inside the convex hull of the domain.
-        
+
         Args:
             point (List[float]): The coordinates of the point to test respresented as [float, float].
 
@@ -244,7 +244,7 @@ class NonConvexDomain(object):
 
         Args:
             point (List[float]): The point to add to the boundary respresented as [float, float].
-            
+
         Raises:
             ValueError: The method raises a value error if the given point is not in the boundary of the domain.
 
@@ -266,8 +266,10 @@ class NonConvexDomain(object):
 
     def getLimits(self):
         """
-        Returns the extremal coordinates of the domain as a list of two two-elements lists
-        i.e. [[x_min,x_max],[y_min,y_max]].
+        Computes and return the extremal bounds of the domain
+
+        Returns:
+            List[List[float]]: the extremal coordinates of the domain as a list of two two-elements lists i.e. [[x_min,x_max],[y_min,y_max]].
         """
         x_min, x_max = self.outerVertices[0][0],self.outerVertices[0][0]
         y_min, y_max = self.outerVertices[0][1],self.outerVertices[0][1]
@@ -285,13 +287,14 @@ class NonConvexDomain(object):
 
     def addZone(self, zoneName:str, zoneVertices:List[PointType]) -> None:
         """
-        Adds a zone to the list of zones of the domain.
-        PARAMETERS:
-        -zoneName (str) : the name to be given to the new zone.
-        -zoneVertices (List[PointType]) : list of the vertex of the boundary of the zone.
+        Adds a zone to the dict of zones of the domain.
 
-        ERRORS:
-        Raises a name error if the zone name is already taken.
+        Args:
+            zoneName (str): the name to be given to the new zone.
+            zoneVertices (List[List[float]]): list of the vertex of the boundary of the zone.
+
+        Raises:
+            NameError: raises a name error if the zone name is already taken.
         """
         if(zoneName in self.zones.keys()):
             raise NameError("The zone name is already used.")
@@ -303,11 +306,15 @@ class NonConvexDomain(object):
         Add a given point of the boundary to the list of points of the inner walls of the domain.
         This is typically used in order to guarantee that the given point will be included as a vertex of the mesh generated from this domain.
         If the point is already in wallVertices, the method returns the index of the point without adding it.
-        ERRORS:
-        The method raises a value error if the given point is not in the inner walls of the domain.
 
-        RETURNS:
-        The method returns the index corresponding to the added point in the wallVertices list.
+        Args:
+            point (List[float]): the point to add on an inner wall of the domain.
+
+        Raises:
+            ValueError: the method raises a value error if the given point is not in the inner walls of the domain.
+
+        Returns:
+            int: the method returns the index corresponding to the added point in the wallVertices list.
         """
         if point not in self.wallVertices:
             for index, edge in enumerate(self.wallEdges):
@@ -326,12 +333,16 @@ class NonConvexDomain(object):
         """
         Adds a wall in the domain. If cycle is set to True, the wall is considered as an area to exclude from the domain.
         If not, only the edges defined by the coordWall are excluded from the domain.
-        PARAMETERS:
-        - coordWall (List[PointType]) : List of the vertices defining the walls.
-        - cycle (bool) : A boolean switching between a hole to exclude from the domain and only walls of zero thickness to exclude from the domain.
 
-        ERRORS:
-        Raises a Value Error if the points of wallCoord are not inside the convex hull of the domain.
+        Note:
+            The cycle=True works properly only with convex holes in the domain. In fact, the barycenters of all the points of the walls to add must be inside the hole for the exclusion to work properly.
+
+        Args:
+            coordWall (List[PointType]) : List of the vertices defining the walls.
+            cycle (bool) : A boolean switching between a hole to exclude from the domain and only walls of zero thickness to exclude from the domain.
+
+        Raises:
+            ValueError: raises a Value Error if the points of wallCoord are not inside the convex hull of the domain.
         """
         for P in coordWall:
             if(P not in self):
@@ -361,13 +372,15 @@ class NonConvexDomain(object):
     def addExit(self, exitEdge: List[PointType]):
         """
         Adds an exit passed in parameter. If the two exit points are on different edges, the shortest path (in number of vertices crossed) following the wall is added as an exit.
-        PARAMETERS:
+
+        Args:
         - exitEdge (List[PointType]) : an exit defined by two extremal points.
 
-        ERRORS:
-        Raises a ValueError if:
-            - at least one of the extremal points is not in a wall edge or a boundary edge;
-            - there exists no path staying either in the walls or in the boundary that links the two extremal points of the exit.
+        Raises:
+            ValueError: raises an error if:
+
+                - at least one of the extremal points is not in a wall edge or a boundary edge;
+                - there exists no path staying either in the walls or in the boundary that links the two extremal points of the exit.
 
         """
         VertexIndex = [0,0]
@@ -398,90 +411,100 @@ class NonConvexDomain(object):
     def addExits(self, ListOfExits: List[List[PointType]]):
         """
         Call the method addExit multiple times.
+
+        Args:
+            ListOfExits (List[List[PointType]]): a list of the exits to add.
         """
         for exitEdge in ListOfExits:
             self.addExit(exitEdge)
 
-    def findBoundaryPoint(self, P: PointType) -> int :
+    def findBoundaryPoint(self, point: PointType) -> int :
         """
         Searches an edge of the boundary containing P.
-        PARAMETERS:
-        - P (PointType): the point the should be in the researched edge.
 
-        RETURNS:
-        The index of the first edge found in the boundary that contains P; returns -1 if no such edge is found.
+        Args:
+            point (PointType): the point the should be in the researched edge.
+
+        Returns:
+            int: the index of the first edge found in the boundary that contains P; returns -1 if no such edge is found.
         """
         for i,edge in enumerate(self.outerBoundary):
-            if NonConvexDomain.belongSegment(P, [self.outerVertices[edge[0]], self.outerVertices[edge[1]]]):
+            if NonConvexDomain.belongSegment(point, [self.outerVertices[edge[0]], self.outerVertices[edge[1]]]):
                 return i
         return -1
 
-    def findWallPoint(self, P: PointType) -> int :
+    def findWallPoint(self, point: PointType) -> int :
         """
-        Searches an edge of the inner walls containing P.
-        PARAMETERS:
-        - P (PointType): the point the should be in the researched edge.
+        Searches an edge of the inner walls containing a given point.
 
-        RETURNS:
-        The index of the first edge found in the inner walls that contains P; returns -1 if no such edge is found.
+        Args:
+            point (List[float]): the point the should be in the researched edge.
+
+        Returns:
+            int: the index of the first edge found in the inner walls that contains the point; returns -1 if no such edge is found.
         """
         for i, edge in enumerate(self.wallEdges):
-            if NonConvexDomain.belongSegment(P, [self.wallVertices[edge[0]], self.wallVertices[edge[1]]]):
+            if NonConvexDomain.belongSegment(point, [self.wallVertices[edge[0]], self.wallVertices[edge[1]]]):
                 return i
         return -1
 
-    def findExitPoint(self, P: PointType) -> int:
+    def findExitPoint(self, point: PointType) -> int:
         """
-        Searches an edge of the exits containing P.
-        PARAMETERS:
-        - P (PointType): the point the should be in the researched edge.
+        Searches an edge of the exits containing a given point.
 
-        RETURNS:
-        The index of the first edge found in the exits that contains P; returns -1 if no such edge is found.
+        Args:
+            point (List[float]): the point the should be in the researched edge.
+
+        Returns:
+            int: the index of the first edge found in the exits that contains the point; returns -1 if no such edge is found.
         """
         for i, exit in enumerate(self.exitList):
-            if NonConvexDomain.belongSegment(P, exit):
+            if NonConvexDomain.belongSegment(point, exit):
                 return i
         return -1
 
-    def hasBoundaryPoint(self, P: PointType) -> bool :
+    def hasBoundaryPoint(self, point: PointType) -> bool :
         """
-        Checks that the point P passed as a parameter belongs to the outer boundary.
-        PARAMETERS:
-        - P (PointType): the point to test.
+        Checks that the point passed as a parameter belongs to the outer boundary.
+        Args:
+            point (List[float]): the point to test.
 
-        RETURNS:
-        A boolean that is True if P is in the outer boundary.
+        Returns:
+            bool: A boolean that is True if the point is in the outer boundary.
         """
-        return (self.findBoundaryPoint(P) != -1)
+        return (self.findBoundaryPoint(point) != -1)
 
-    def hasWallPoint(self, P: PointType) -> bool :
+    def hasWallPoint(self, point: PointType) -> bool :
         """
-        Checks that the point P passed as a parameter belongs to the inner walls.
-        PARAMETERS:
-        - P (PointType): the point to test.
+        Checks that the point passed as a parameter belongs to the inner walls.
+        Args:
+            point (List[float]): the point to test.
 
-        RETURNS:
-        A boolean that is True if P is in the inner walls.
+        Returns:
+            bool: A boolean that is True if the point is in the inner walls.
         """
-        return (self.findWallPoint(P) != -1)
+        return (self.findWallPoint(point) != -1)
 
-    def hasExitPoint(self, P: PointType) -> bool:
+    def hasExitPoint(self, point: PointType) -> bool:
         """
-        Checks that the point P passed as a parameter belongs to the exits.
-        PARAMETERS:
-        - P (PointType): the point to test.
+        Checks that the point passed as a parameter belongs to the exits.
+        Args:
+            point (List[float]): the point to test.
 
-        RETURNS:
-        A boolean that is True if P is in the exits.
+        Returns:
+            bool: A boolean that is True if the point is in the exits.
         """
-        return (self.findExitPoint(P) != -1)
+        return (self.findExitPoint(point) != -1)
 
     def hasExitEdge(self, edge : List[PointType]) -> bool:
         """
         Tests if the segment defined by the pair of points passed as a parameter is inside an exit.
-        PARAMETERS:
-        - edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Args:
+            edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Returns:
+            bool
         """
         exitIndices = [self.findExitPoint(edge[0]), self.findExitPoint(edge[1])]
         if exitIndices[0] == -1 or exitIndices[1] == -1:
@@ -496,8 +519,12 @@ class NonConvexDomain(object):
     def hasWallEdge(self, edge : List[PointType]) -> bool:
         """
         Tests if the segment defined by the pair of points passed as a parameter is inside an inner wall.
-        PARAMETERS:
-        - edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Args:
+            edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Returns:
+            bool
         """
         wallIndices = [self.findWallPoint(edge[0]), self.findWallPoint(edge[1])]
         if wallIndices[0] == -1 or wallIndices[1] == -1:
@@ -524,8 +551,12 @@ class NonConvexDomain(object):
     def hasOuterEdge(self, edge : List[PointType]) -> bool:
         """
         Tests if the segment defined by the pair of points passed as a parameter is inside the outer boundary.
-        PARAMETERS:
-        - edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Args:
+            edge (List[PointType]) :  a pair of points defining a segment to test.
+
+        Returns:
+            bool
         """
         outerIndices = [self.findBoundaryPoint(edge[0]), self.findBoundaryPoint(edge[1])]
         if outerIndices[0] == -1 or outerIndices[1] == -1:
@@ -542,10 +573,12 @@ class NonConvexDomain(object):
     def show(self, preference ="plotly") -> None:
         """
         Plotting method for the domain object. The method opens either a new window or a default navigator tab.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        Args:
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed for this method to work. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
@@ -570,10 +603,14 @@ class NonConvexDomain(object):
     def addPlot(self, fig, ax=None, preference="plotly") -> None:
         """
         Non-blocking plotting method for the domain object. The method does not show the graph.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        Args:
+            fig (matplotlib.Figure or plotly.graph_objects.Figure): the instance of Figure to which the plot must be added. Depends on the library used.
+            ax (matplotlib.Axes or None): the instance of Axes to use if matplotlib is used.
+            preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed for this method to work. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ): #plotly version of the plot
             startPoint = self.outerVertices[self.outerBoundary[0][0]]
@@ -641,13 +678,14 @@ class NonConvexDomain(object):
         """
         Computes the shortest path between Istart and Iend (in number of vertices) on the network defined by the integers as vertice and the edges of listEdges.
         The method uses a Breadth First Search algorithm with memory of the pathes explored.
-        PARAMETERS:
-        - Istart (int) : the starting vertex of the searched path.
-        - Iend (int) : the ending vertex of the searched path.
-        - listEdges (List[List[int]]) : a list of the edges of the network symbolized by a list of two integers.
-        RETURNS:
-        The shortest path found as a list of integers i.e. the list of the successive vertices defining the path.
-        If no path is found the method returns an empty list.
+
+        Args:
+            Istart (int) : the starting vertex of the searched path.
+            Iend (int) : the ending vertex of the searched path.
+            listEdges (List[List[int]]) : a list of the edges of the network symbolized by a list of two integers.
+
+        Returns:
+            List[int]: The shortest path found as a list of integers i.e. the list of the successive vertices defining the path. If no path is found the method returns an empty list.
         """
         visited = []
         Pathes = [[Istart]]
@@ -670,9 +708,13 @@ class NonConvexDomain(object):
     def belongSegment(P: PointType,AB: List[PointType]) -> bool:
         """
         Checks that a point belongs to a segment within an error margin of float(1e-10).
-        PARAMETERS:
-        - P (PointType) : the point to test.
-        - AB (List[PointType]) : the segment to test.
+
+        Args:
+            P (PointType) : the point to test.
+            AB (List[PointType]) : the segment to test.
+
+        Returns:
+            bool
         """
         A = AB[0]
         B = AB[1]
@@ -685,9 +727,13 @@ class NonConvexDomain(object):
 def belongTriangle(M: PointType,T: List[PointType]) -> bool:
     """
     Checks that a point belongs to a triangle.
-    PARAMETERS:
-    - M (PointType) : the point to test.
-    - T (List[PointType]) : the triangle to test.
+
+    Args:
+        M (PointType) : the point to test.
+        T (List[PointType]) : the triangle to test.
+
+    Returns:
+        bool
     """
     det = (T[1][0]-T[0][0])*(T[2][1]-T[0][1]) - (T[1][1]-T[0][1])*(T[2][0]-T[0][0])
     if det == 0:
@@ -703,35 +749,54 @@ def belongTriangle(M: PointType,T: List[PointType]) -> bool:
 
 class Mesh(object):
     """
-    Mesh Object : object generating a triangular mesh of a given grain for a given domain object;
-    It contains all the useful lists of edges, triangles and vertices (detailled in the init function)
+    The Mesh Object is an object representing a triangular mesh of a given grain for a given domain object;
+    It contains all the useful lists of edges, triangles and vertices for optimized computations of the numerical scheme involved in the hughes2d package.
+
+    Examples:
+        The mesh can be generated by using a NonConvexDomain as the basis of computations::
+
+            MyDomain = NonConvexDomain([[0,0],[0,1],[1,1],[1,0]])
+            MyMesh = Mesh()
+            MyMesh.generateMeshFromDomain(MyDomain,0.1)
+
+        It is also possible to import a mesh from a .msh file::
+
+            MyMesh = Mesh()
+            MyMesh.importMeshFromMsh("filename.msh")
+
+        See also *importMeshFromMshFreeFem* and *importFromLists* for different import methods. The mesh can then be exported (see *exportMeshMsh* and *exportMeshMshFreeFem*) or saved as a .json file::
+
+            MyMesh.saveToJson("filename")
+
+        And can be loaded from this .json file::
+
+            MyMesh2 = Mesh()
+            MyMesh2.loadFromJson("filename.json")
+
+    Attributes
+    -----------
+
     Attributes :
-    - self.dx : float                                 # maximal area of a triangle in the mesh
-
-    - self.vertices : ArrayLike                       # array of all the vertices TriangleEdgeCoordinates
-    - self.edges : ArrayLike                          # array of all the edges as [vertexIndex, vertexIndex]
-    - self.triangles : ArrayLike                      # array of all the triangles as [vertexIndex, vertexIndex, vertexIndex]
-
-    - self.exitVertices : ArrayLike                   # array of the vertices index that belong to an exit.
-    - self.exitEdges : ArrayLike                      # array of the edges index where the edge belongs to an exit
-    - self.wallEdges : ArrayLike                      # array of the edges index where the edge belongs to an exit
-    - self.boundaryPoints : ArrayLike                #
-    - self.boundaryEdgesIndex : ArrayLike             #
-
-    - self.trianglesWithEdges : ArrayLike             # array of triangles ordered as self.triangles, elements as [edgeIndex, edgeIndex, edgeIndex]
-    - self.pairsOfTriangles : List[List[int]]         # nested list of length 1 or 2, ordered as self.edges, elements as [triangleIndex, triangleIndex] or [triangleIndex]
-    - self.trianglesPerVertex : List[list]            # nested list, ordered as self.vertices, an element is a list of (number of triangles containing the vertex) elements as [[triangle index, [otherVertex1, otherVertex2 ]], ...]
-
-    - self.outerNormalVectByTriangles : ArrayLike     #
-    - self.cellAreas : ArrayLike                      #
-    - self.edgeLength : ArrayLike                     #
+        dx (float): maximal area of a triangle in the mesh
+        vertices (ArrayLike): array of all the vertices TriangleEdgeCoordinates
+        edges (ArrayLike): array of all the edges as [vertexIndex, vertexIndex]
+        triangles (ArrayLike): array of all the triangles as [vertexIndex, vertexIndex, vertexIndex]
+        exitVertices (ArrayLike): array of the vertices index that belong to an exit.
+        exitEdges (ArrayLike): array of the edges index where the edge belongs to an exit
+        wallEdges (ArrayLike): array of the edges index where the edge belongs to a wall
+        boundaryPoints (ArrayLike): array of the indices of the vertices that belong to the outer boundary of the mesh
+        boundaryEdgesIndex (ArrayLike): array of the edges index where the edge belongs to the outer boundary
+        trianglesWithEdges (ArrayLike): array of triangles ordered as self.triangles, elements as [edgeIndex, edgeIndex, edgeIndex]
+        pairsOfTriangles (List[List[int]]): nested list of length 1 or 2, ordered as self.edges, elements as [triangleIndex, triangleIndex] or [triangleIndex]
+        trianglesPerVertex (List[list]): nested list, ordered as self.vertices, an element is a list of (number of triangles containing the vertex) elements as [[triangle index, [otherVertex1, otherVertex2 ]], ...]
+        outerNormalVectByTriangles (ArrayLike): array order as self.tringles containing the unit normal vectors corresponding to the three edges of each triangle. The normal vectors are directed towards the exterior of  the triangle.
+        cellAreas (ArrayLike): array ordered as self.triangles containing the area of each triangle of the mesh.
+        edgeLength (ArrayLike):array ordered as self.edges containing the length of each edge.
+        zones (dict):
 
 
-    Methods :
-    - get methods : classical get methods
-    - compute methods : triangulate, computeEdgeList/EdgeLength/OuterNormals...
-    correspond to all the redundant classical calculations related to the mesh
-    - show :  plot the mesh
+    Methods
+    --------
     """
 
 
@@ -763,17 +828,20 @@ class Mesh(object):
     def importMeshFromMsh(self, filename :str,verbose : bool = False, requirements : List[str] = ['all']):
         """
         Imports the data from a .msh file into the Mesh object.
-        PARAMETERS:
-        - filename (string) : the path to the file to import.
-        - verbose (bool, optional).
-        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
+        Args:
+            filename (string) : the path to the file to import.
+            verbose (bool, optional).
+            requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
                 - integrate : the mesh will be used in order to compute some integrals over the domain
                 - FreeFEM : the mesh will be used in order to import/export mesh file for FreeFEM
-        REQUIRES:
-        Requires the python library meshio.
+
+        Raises:
+            ImportError: requires the python library meshio.
         """
         if not meshio:
             raise ImportError("meshio must be installed in order to use .msh related methods.")
@@ -829,7 +897,7 @@ class Mesh(object):
         """
         Imports the data from a mesh file constructed in FreeFEM into the Mesh object.
         The specific structure (inner walls, exits...) can be specified by specifying different flags in FreeFEM.
-        PARAMETERS:
+        Args:
         - filename (str) : the path to the file to import.
         - flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number.
                     Must contain the keys domain, exit and wall.
@@ -901,12 +969,14 @@ class Mesh(object):
     def importFromLists(self, vertices:List[PointType], triangles:List[List[int]], domain:NonConvexDomain, verbose :bool = False, requirements : List[str] = ['all']):
         """
         Imports the lists passed as parameters into the Mesh object.
-        PARAMETERS:
-        - vertices (List[PointType]) : list of all the vertices coordinates.
-        - triangles (List[List[int]]) : list of the triangles symbolized by a triplet of the indices of the corresponding verttices in the vertices list.
-        - domain (NonConvexDomain) : a NonConvexDomain instance corresponding to the mesh imported.
-        - verbose (bool, optional).
-        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
+        Args:
+            vertices (List[PointType]) : list of all the vertices coordinates.
+            triangles (List[List[int]]) : list of the triangles symbolized by a triplet of the indices of the corresponding verttices in the vertices list.
+            domain (NonConvexDomain) : a NonConvexDomain instance corresponding to the mesh imported.
+            verbose (bool, optional): displaying progression in console.
+            requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
@@ -920,9 +990,10 @@ class Mesh(object):
     def addConvexZone(self, zoneName: str, zoneVertices: List[PointType]):
         """
         Adds a convex zone to the Mesh object.
-        PARAMETERS:
-        - zoneName (str) : the unique name designing the zone to add.
-        - zoneVertices (List[PointType]) :  the vertices of the outer boundary of the zone. The zone is supposed convex.
+
+        Args:
+            zoneName (str) : the unique name designing the zone to add.
+            zoneVertices (List[PointType]) :  the vertices of the outer boundary of the zone. The zone is supposed convex.
         """
         if(zoneName in self.zones.keys()):
             raise NameError("Zone name already in use.")
@@ -942,9 +1013,10 @@ class Mesh(object):
     def inZone(self, point, zoneName):
         """
         Tests if a given point is included in a given zone.
-        PARAMETERS:
-        - point (PointType) :  the point to test.
-        - zoneName (str) :  the name of the zone to test.
+
+        Args:
+            point (PointType) :  the point to test.
+            zoneName (str) :  the name of the zone to test.
         """
         if zoneName not in self.zones.keys():
             raise NameError("The name "+zoneName+" does not correspond to a zone of the Mesh.")
@@ -956,11 +1028,12 @@ class Mesh(object):
     def exportMeshMsh(self, filename):
         """
         Exports the data of the Mesh object in a .msh file.
-        PARAMETERS:
-        - filename (str) :  the complete path to the file.
 
-        REQUIRES:
-        Requires meshio to be installed to work properly.
+        Args:
+            filename (str) :  the complete path to the file.
+
+        Raises:
+            ImportError: requires meshio to be installed to work properly.
         """
         if not meshio:
             raise ImportError("meshio must be installed in order to use .msh related methods.")
@@ -995,8 +1068,9 @@ class Mesh(object):
     def exportMeshMshFreeFem(self, filename):
         """
         Exports the data of the Mesh object in a .msh file following the specific structure of the FreeFEM mesh files.
-        PARAMETERS:
-        - filename (str) :  the complete path to the file.
+
+        Args:
+            filename (str) :  the complete path to the file.
         """
         with open(filename, "w") as file:
             file.write("%d %d %d\n"% (len(self.vertices), len(self.triangles), len(self.exitEdges)+len(self.wallEdges)))
@@ -1020,12 +1094,13 @@ class Mesh(object):
         Compute a triangular mesh covering domain with the maximal length of an edge being set to dx.
         The computations are done using triangle (see https://www.cs.cmu.edu/~quake/triangle.html)
 
-        PARAMETERS:
-        - domain (NonConvexDomain): the domain object from which the mesh must be generated.
-        - dx (float): max area of a triangle (heavy computations when set low, computation time ~ 1/(dx)^2 ).
-        - da (float, optional): min angle inside a triangle (be careful, crash if set too high). Default = 30.
-        - verbose (bool, optional).
-        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+        Args:
+            domain (NonConvexDomain): the domain object from which the mesh must be generated.
+            dx (float): max area of a triangle (heavy computations when set low, computation time ~ 1/(dx)^2 ).
+            da (float, optional): min angle inside a triangle (be careful, crash if set too high). Default = 30.
+            verbose (bool, optional): displaying progression in console.
+            requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
@@ -1071,9 +1146,11 @@ class Mesh(object):
     def computations(self, domain: NonConvexDomain = None, verbose : bool = False, requirements : List[str] = ['all']) -> None:
         """
         Triggers all the computations required for the Mesh object.
-        PARAMETERS:
-        - verbose (bool, optional).
-        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+        Args:
+            domain (NonConvexDomain, optional): the domain object to use in order to recover the exits and the zones.
+            verbose (bool, optional): displaying progression in console.
+            requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
@@ -1129,13 +1206,16 @@ class Mesh(object):
     def computeEdgeList(self) -> None:
         """
         Fills two arrays :
+
         - self.edges : cointaining all the edges of the mesh as a pair of vertex index.
         - self.trianglesWithEdges : containing all the triangles of self.triangles, in the same order, represented as a triplet of edge index.
 
-        REQUIRED FOR:
-        - LWRSolver
-        - EikonalSolver
-        - setExitsFromDomain
+        Note:
+            Required for:
+
+                - LWRSolver
+                - EikonalSolver
+                - setExitsFromDomain
         """
         edges = [] #Liste des edges par paires d'indices de vertex
         TriangleWithEdgeList = [] #Liste des triangles par indice d'edge
@@ -1167,12 +1247,14 @@ class Mesh(object):
         """
         Configure the exits and the wall edges and vertices lists from the domain object passed in parameter.
 
-        PARAMETERS:
-        - domain (NonConvexDomain) the domain object containing information about the exits.
+        Args:
+            domain (NonConvexDomain): the domain object containing information about the exits.
 
-        REQUIRED FOR:
-        - LWRSolver
-        - EikonalSolver
+        Note:
+            Required for:
+
+                - LWRSolver
+                - EikonalSolver
         """
         exitVertices = []
         for i in range(len(self.vertices)):
@@ -1200,8 +1282,15 @@ class Mesh(object):
     def computeVertexFlags(self, domain : NonConvexDomain, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}) -> None:
         """
         Computation of the vertices flags necessary to export the Mesh as FreeFEM mesh file.
-        REQUIRED FOR:
-        - exportMeshMshFreeFem
+
+        Args:
+            domain (NonConvexDomain, optional): the domain object to use in order to recover the exits and the zones.
+            flag_dict (dict): dictionary prescribing the integer corresponding to the different types of vertex for an export as a FreeFEM .msh file.
+
+        Note:
+            Required for:
+
+                - exportMeshMshFreeFem
         """
         self.vertexFlags = []
         for point in self.vertices:
@@ -1217,9 +1306,11 @@ class Mesh(object):
         """
         Compute the self.trianglesPerVertex list.
 
-        REQUIRED FOR:
-        - EikonalSolver
-        - integrateOverSquareBall
+        Note:
+            Required for:
+
+                - EikonalSolver
+                - integrateOverSquareBall
         """
         self.trianglesPerVertex : list = []
 
@@ -1234,11 +1325,13 @@ class Mesh(object):
 
     def computePairOfTrianglesList(self) -> None:
         """
-        Compute the lists pairsOfTriangles and boundaryEdgesIndex;
+        Compute the lists pairsOfTriangles and boundaryEdgesIndex.
 
-        REQUIRED FOR:
-        - LWRSolver
-        - checkGradientValidity
+        Note:
+            Required for:
+
+                - LWRSolver
+                - checkGradientValidity
         """
         self.pairsOfTriangles=[] #Liste des triangles entourant les edges ordonnée comme la EdgeList par les indices des triangles.
         boundaryEdgesIndex = [] #Liste des indices des edges faisant le bord du domaine
@@ -1259,11 +1352,23 @@ class Mesh(object):
         """
         Compute the list outerNormalVectByTriangles.
 
-        REQUIRED FOR:
-        - LWRSolver
+        Note:
+            Required for:
+
+                - LWRSolver
         """
 
         outerNormalVectByTriangles = []
+
+        def ComputeOuterNormalUnitVect(A,B,C):
+            N = np.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
+            x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N)
+            H = [ A[0] + (B[0]-A[0])*x/N, A[1] + (B[1]-A[1])*x/N ]
+            Sign = (C[0]-H[0])*(B[1]-A[1]) + (C[1]-H[1])*(A[0]-B[0])
+            if(Sign > 0):
+                return [(A[1]-B[1])/N,(B[0]-A[0])/N]
+            return [(B[1]-A[1])/N,(A[0]-B[0])/N]
+            
         for index, triangle in enumerate(self.trianglesWithEdges):
             L = []
             for edgeindex in triangle:
@@ -1281,12 +1386,14 @@ class Mesh(object):
         Compute the areas of each triangular cell. Raises an error if a triangle is degenerated.
         Computes also the barycenter of each triangle.
 
-        RETURNS :
-        The minimal area of a triangle in the mesh.
+        Returns:
+            float: the minimal area of a triangle in the mesh.
 
-        REQUIRED FOR:
-        - integrate
-        - LWRSolver
+        Note:
+            Required for:
+
+                - integrate
+                - LWRSolver
         """
         barycenters = []
         cellAreas = []
@@ -1311,9 +1418,11 @@ class Mesh(object):
         """
         Compute the edgeLength array.
 
-        REQUIRED FOR:
-        - LWRSolver
-        - EikonalSolver
+        Note:
+            Required for:
+
+                - LWRSolver
+                - EikonalSolver
         """
         edgeLength = []
         for edge in self.edges:
@@ -1325,8 +1434,10 @@ class Mesh(object):
 
     def getLimits(self):
         """
-        Returns the extremal coordinates of the vertices of the mesh as a list of two two-elements lists
-        i.e. [[x_min,x_max],[y_min,y_max]].
+        Computes and returns the extremal coordinates of the vertices of the mesh.
+
+        Returns:
+            List[List[float]]: the extremal coordinates of the vertices of the mesh as a list of two two-elements lists i.e. [[x_min,x_max],[y_min,y_max]].
         """
         x_min, x_max = self.vertices[0][0],self.vertices[0][0]
         y_min, y_max = self.vertices[0][1],self.vertices[0][1]
@@ -1341,37 +1452,16 @@ class Mesh(object):
                 y_min = P[1]
         return [[x_min,x_max],[y_min,y_max]]
 
-    def appendDict(self, dico):
-
-        MeshDico = {"type": "triangular mesh"}
-        MeshDico["dx"] = self.dx
-        MeshDico["vertices"] = self.vertices.tolist()
-        MeshDico["edges"] = self.edges
-        MeshDico["triangles"] = self.triangles.tolist()
-
-        MeshDico["outerVertices"] = [self.vertices[i].tolist() for i in self.boundaryPoints]
-
-        MeshDico["exitVertices"] = self.exitVertices.tolist()
-        MeshDico["exitEdges"] = self.exitEdges.tolist() #Liste des edges d'exit par indice d'edge
-        MeshDico["wallEdges"] = self.wallEdges.tolist() #Liste des wall edges par indice d'edge
-        MeshDico["boundaryPoints"] = self.boundaryPoints.tolist()
-        MeshDico["vertexFlags"] = self.vertexFlags.tolist() #Liste des triangles entourant les edges ordonnée comme la EdgeList par les indices des triangles.
-        MeshDico["boundaryEdgesIndex"] = self.boundaryEdgesIndex.tolist() #Liste des indices des edges faisant le bord du domaine
-
-        MeshDico["trianglesWithEdges"] = self.trianglesWithEdges.tolist()
-        MeshDico["pairsOfTriangles"] = self.pairsOfTriangles
-        MeshDico["trianglesPerVertex"] = self.trianglesPerVertex
-
-        MeshDico["outerNormalVectByTriangles"] = self.outerNormalVectByTriangles.tolist() #Liste de triplets correspondants aux 3 vecteurs normaux unitaires dans le même ordre que les edges correspondant dans la TriangleWithEdgeList
-        MeshDico["cellAreas"] = self.cellAreas.tolist()
-        MeshDico["barycenters"] = self.barycenters.tolist()
-        MeshDico["edgeLength"] = self.edgeLength.tolist()
-
-        MeshDico["zones"] = self.zones
-
-        dico["mesh"] = MeshDico
-
     def saveToJson(self, filename):
+        """
+        Save the mesh object in a .json file.
+
+        Args:
+            filename (str): the name of the file where the mesh will be saved. The extension .json is not needed in the filename.
+
+        Raises:
+            ImportError: the json module must be installed.
+        """
         if not json:
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
 
@@ -1405,6 +1495,15 @@ class Mesh(object):
             json.dump(MeshDico, f, ensure_ascii=False, indent=4)
 
     def loadFromJson(self, filename):
+        """
+        Load the mesh object with the data from a .json file.
+
+        Args:
+            filename (str): the name of the file to load. The extension .json is needed in the filename.
+
+        Raises:
+            ImportError: the json module must be installed.
+        """
         if not json:
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
         with open(filename) as f:
@@ -1441,10 +1540,13 @@ class Mesh(object):
     def show(self, with_domain: NonConvexDomain=None, preference = "plotly") -> None:
         """
         Plotting method for the Mesh object.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        Args:
+            domain (NonConvexDomain, optional): domain object from which exits and walls can be recovered for plotting.
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
@@ -1508,11 +1610,14 @@ class Mesh(object):
     def addPlot(self, fig, ax = None, preference = "plotly"):
         """
         Non-blocking plotting method for the mesh object.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
 
+        Args:
+            fig (matplotlib.Figure or plotly.graph_objects.Figure): the instance of Figure to which the plot must be added. Depends on the library used.
+            ax (matplotlib.Axes or None): the instance of Axes to use if matplotlib is used.
+            preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed for this method to work. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             for T in self.triangles:
@@ -1536,8 +1641,17 @@ class Mesh(object):
 
 class CellValueMap(object):
     """
-    Cell Value map :
-    correspond to a function which is constant on the triangles of a mesh (ex : densities)
+    An object to represent a cell valued map that corresponds to a function which is constant on the triangles of a mesh (mostly densities).
+
+    Attributes
+    -----------
+
+    Attributes:
+        Mesh (Mesh): the corresponding Mesh object on which the map is defined.
+        values (List[float]): the values on each triangle as a list ordered in the same way as Mesh.triangles.
+
+    Methods
+    ---------
     """
 
     def __init__(self, Mesh: Mesh):
@@ -1548,9 +1662,10 @@ class CellValueMap(object):
         """
         Generates random values for the map on each triangle of the mesh.
         The random value follows a uniform law on [mean -variability/2, mean + variability/2].
-        PARAMETERS:
-        - variability (float): the length of the interval of random values.
-        - mean (float): the center of the interval of random values.
+
+        Args:
+            variability (float): the length of the interval of random values.
+            mean (float): the center of the interval of random values.
         """
         self.values = [ mean + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
 
@@ -1591,21 +1706,23 @@ class CellValueMap(object):
         else:
             raise TypeError("A CellValueMap can only be multiplied with another CellValueMap or a float or an integer.")
 
-    def integrate(self):
+    def integrate(self) -> float:
         """
         Computes the integral of the map over the whole domain.
-        RETURNS:
-        The integral of the CellValueMap over the whole domain.
+
+        Returns:
+            float: the integral of the CellValueMap over the whole domain.
         """
         return sum([self.values[i]*self.Mesh.cellAreas[i] for i in range(len(self.Mesh.triangles))])
 
-    def setConstantCircle(self, center:List[PointType], radius:float, value:float):
+    def setConstantCircle(self, center:List[PointType], radius:float, value:float) -> None:
         """
         Sets to the given value all the cells for which the barycenter is inside the disk of given center and radius.
-        PARAMETERS:
-        - center (List[PointType]): the center of the disk
-        - radius (float): the radius of the disk
-        - value (float): the value to set on the corresponding cells.
+
+        Args:
+            center (List[PointType]): the center of the disk
+            radius (float): the radius of the disk
+            value (float): the value to set on the corresponding cells.
         """
         for index in range(len(self.Mesh.triangles)):
             if((self.Mesh.barycenters[index][0] - center[0])**2 + (self.Mesh.barycenters[index][1] - center[1])**2 <= radius**2):
@@ -1614,12 +1731,13 @@ class CellValueMap(object):
     def convolutionOverSquareBall(self, radius:float, conv_func) -> list:
         """
         Computes the convolution of the CellValueMap with the conv_func function on the support defined by the square of given radius (infinity-norm ball).
-        PARAMETERS:
-        - radius (float): the radius of the convolution support.
-        - conv_func (function): the convolution function in the form  F(rho(y),|x_1-y_1|,|x_2,y_2|) where rho is the cellValueMap and x = (x_1,x_2) is the vertex where the convolution is computed.
-                The computed quantity is then, for any x = (x_1,x_2), iint_{[-radius/2, radius/2]^2} F(rho(x+y), |y_1|,|y_2|) d y_1 d y_2.
-        RETURNS:
-        A list containing the computed value of the convolution for each vertex of the mesh ordered in the same way as the vertices of the Mesh object.
+
+        Args:
+            radius (float): the radius of the convolution support.
+            conv_func (function: float -> float): the convolution function in the form  F(rho(y),|x_1-y_1|,|x_2,y_2|) where rho is the cellValueMap and x = (x_1,x_2) is the vertex where the convolution is computed. The computed quantity is then, for any x = (x_1,x_2), iint_{[-radius/2, radius/2]^2} F(rho(x+y), |y_1|,|y_2|) d y_1 d y_2.
+
+        Returns:
+            list: a list containing the computed value of the convolution for each vertex of the mesh ordered in the same way as the vertices of the Mesh object.
         """
         def recursiveIntegral(center, rad, visited, index) -> float:
             visited.append(index)
@@ -1638,9 +1756,10 @@ class CellValueMap(object):
 
     def fitAveragedMap(self, other):
         """
-        Fits a cellValueMap over another cellValueMap when the Mesh are different but the domains are the same by averaging over each triangle
-        PARAMETERS:
-        - other (CellValueMap): the other map to fit onto the self map.
+        Fits a cellValueMap over another cellValueMap when the Mesh are different but the domains are the same by averaging over each triangle.
+
+        Args:
+            other (CellValueMap): the other map to fit onto the self map.
         """
         for i in range(len(self.values)):
             LenCell = self.Mesh.points[i+1] - self.Mesh.points[i]
@@ -1662,10 +1781,12 @@ class CellValueMap(object):
     def show(self, preference = "plotly"):
         """
         Plotting method for the CellValueMap object.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        Args:
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
 
         """
         if( go and (not plt or preference == "plotly") ):
@@ -1705,10 +1826,12 @@ class CellValueMap(object):
     def getScatter(self, preference="plotly"):
         """
         Non-blocking plotting method for the cellValueMap object.
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+
+        Args:
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             L = []
@@ -1730,12 +1853,17 @@ class CellValueMap(object):
 
 class VertexValueMap(object):
     """
-    VertexValueMap
-    corresponds to a function which is affine on the triangles, defined by its values on the vertices
-    Methods :
-    - computeGradientFlow : return a list of normalized gradients by triangle.
-    - show : show the vertices values
-    - show vector fields : show the normalized gradients
+    An object to represent a vertex valued map that corresponds to a function which is affine on the triangles, defined by its values on the vertices (often a potential).
+
+    Attributes
+    -----------
+
+    Attributes:
+        Mesh (Mesh): the corresponding Mesh object on which the map is defined.
+        values (List[float]): the values on each vertex as a list ordered in the same way as Mesh.vertices.
+
+    Methods
+    ---------
     """
 
     def __init__(self, Mesh):
@@ -1743,6 +1871,12 @@ class VertexValueMap(object):
         self.values = np.array([0 for _ in self.Mesh.vertices])
 
     def generateRandom(self,variability = 0.5):
+        """
+        Generates random values for the maps distributed as 0.5 + variability*X where X is uniform on [-0.5,0.5].
+
+        Args:
+            variability (float, optional): the range of the uniform distribution.
+        """
         self.values = np.array([ 0.5 + variability*(alea.random()-0.5) for _ in self.Mesh.vertices])
 
     def __len__(self):
@@ -1762,34 +1896,24 @@ class VertexValueMap(object):
         return(str(self.values))
 
     def setInfinity(self):
+        """
+        Sets all values of the map to *float('inf')*.
+        """
         self.values = [float('inf') for _ in self.Mesh.vertices]
 
-    def checkGradientValidity(self):
-        Grads = self.computeGradientFlow()
-        for edgeIndex in self.Mesh.WallEdges:
-            indexTriangle = self.Mesh.pairsOfTriangles[edgeIndex][0]
-            Grad = Grads[indexTriangle]
-            for P in self.Mesh.triangles[indexTriangle]:
-                if P not in self.Mesh.EdgeList[edgeIndex]:
-                    OuterVect = ComputeOuterNormalUnitVect(self.Mesh.vertices[self.Mesh.EdgeList[edgeIndex][0]],
-                                                            self.Mesh.vertices[self.Mesh.EdgeList[edgeIndex][1]],
-                                                            self.Mesh.vertices[P])
-                    C = P
-            Scal = OuterVect[0]*Grad[0] + OuterVect[1]*Grad[1]
-            if(Scal > 0):
-                print("Vecteur non valide ! Emplacement du edge : ")
-                print(self.Mesh.vertices[self.Mesh.EdgeList[edgeIndex][0]], self.Mesh.vertices[self.Mesh.EdgeList[edgeIndex][1]])
-                print("Valeurs : ")
-                print(self.values[self.Mesh.EdgeList[edgeIndex][0]],self.values[self.Mesh.EdgeList[edgeIndex][1]], self.values[C])
-                print("Intensité de l'erreur : ")
-                print(Scal)
 
     def show3D(self, preference="plotly"):
         """
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        Displays a 3D plot of the vertex valued map.
+
+        Note:
+            Only available with plotly at the moment.
+
+        Args:
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
@@ -1804,10 +1928,18 @@ class VertexValueMap(object):
 
     def add3Dplot(self, fig, color=[244,22,100,0.6], preference ="plotly"):
         """
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        Non-blocking method that adds the 3D plot to a given `Figure` object.
+
+        Note:
+            Only available with plotly at the moment.
+
+        Args:
+            fig (matplotlib.pyplot.Figure or plotly.graph_objects.Figure): the instance of Figure to which the plot must be added. Depends on the library used.
+            color (List[float]): color of the plot, the RGBA code.
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
 
         """
         if( go and (not plt or preference == "plotly") ):
@@ -1822,10 +1954,18 @@ class VertexValueMap(object):
 
     def show(self, grid=False, colorscale_name = 'viridis', preference="plotly"):
         """
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        Displays the vertex valued map as a colorscale scatter plot in 2D.
+
+        Note:
+            Only available with plotly at the moment.
+
+        Args:
+            grid (bool, optional): determines if the mesh is plotted or not.
+            colorscale_name (str, optional): name of the colorscale to use for the plot.
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
 
         """
         if( go and (not plt or preference == "plotly") ):
@@ -1852,7 +1992,17 @@ class VertexValueMap(object):
 
     def computeGradientFlow(self,normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
         """
-        Compute the gradients of the affine by triangles function defined by the vertex valued map.
+        Computes and returns the gradients of the function defined by the vertex valued map. The gradient is computed on each triangle.
+
+        Args:
+            normalize (bool, optional): determines if the gradients should be renormalized.
+            normalization (function: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+
+        Raises:
+            ValueError: if at least one of the triangles is degenerated.
+
+        Returns:
+            ArrayLike: an array containing all the gradients ordered as the list Mesh.triangles.
         """
         LTrianglesGrad = []
 
@@ -1870,7 +2020,17 @@ class VertexValueMap(object):
 
     def computeVertexGradientFlow(self,normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2))):
         """
-        Compute the gradients as the mean gradient at each vertex.
+        Computes and returns the gradients of the function defined by the vertex valued map. The gradient is computed at each vertex as a weighted mean of the differences with the neighbouring vertices.
+
+        Note:
+            This method is less precise than `computeGradientFlow` in general. However due to its non-local construction, the gradient flow obtained with this method tends to be more regular.
+
+        Args:
+            normalize (bool, optional): determines if the gradients should be renormalized.
+            normalization (function: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+
+        Returns:
+            ArrayLike: an array containing all the gradients ordered as the list Mesh.triangles.
         """
         VertexTrianglesGrad = []
 
@@ -1893,10 +2053,18 @@ class VertexValueMap(object):
 
     def showVectorField(self, normalize:bool = True, normalization = (lambda x,y : np.sqrt(x**2 + y**2)), preference="plotly"):
         """
-        PARAMETERS:
-        - preference (str): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
-        REQUIRES:
-        plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
+        Displays the vector field corresponding to the gradient flow (obtained with `computeGradientFlow`) of the vertex valued map.
+
+        Note:
+            Only available with plotly at the moment.
+
+        Args:
+            normalize (bool, optional): determines if the gradients should be renormalized.
+            normalization (function: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
+
+        Raises:
+            ImportError: plotly or matplotlib should be installed. If both are installed and no preference is set, plotly is used.
         """
         if( go and (not plt or preference == "plotly") ):
             L = self.computeGradientFlow(normalize, normalization)
@@ -1921,15 +2089,3 @@ class VertexValueMap(object):
             fig.show()
         else:
             raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
-
-
-
-
-def ComputeOuterNormalUnitVect(A,B,C):
-    N = np.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
-    x = (N**2 + (C[0]-B[0])**2 + (C[1]-B[1])**2 - (C[0]-A[0])**2 - (C[1]-A[1])**2 )/(2*N)
-    H = [ A[0] + (B[0]-A[0])*x/N, A[1] + (B[1]-A[1])*x/N ]
-    Sign = (C[0]-H[0])*(B[1]-A[1]) + (C[1]-H[1])*(A[0]-B[0])
-    if(Sign > 0):
-        return [(A[1]-B[1])/N,(B[0]-A[0])/N]
-    return [(B[1]-A[1])/N,(A[0]-B[0])/N]
