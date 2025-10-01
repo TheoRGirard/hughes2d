@@ -831,7 +831,7 @@ class Mesh(object):
 
         Args:
             filename (string) : the path to the file to import.
-            verbose (bool, optional).
+            verbose (bool, optional): displays information in the console during the import.
             requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
 
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
@@ -897,12 +897,13 @@ class Mesh(object):
         """
         Imports the data from a mesh file constructed in FreeFEM into the Mesh object.
         The specific structure (inner walls, exits...) can be specified by specifying different flags in FreeFEM.
+
         Args:
-        - filename (str) : the path to the file to import.
-        - flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number.
-                    Must contain the keys domain, exit and wall.
-        - verbose (bool, optional).
-        - requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+            filename (str) : the path to the file to import.
+            flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number. Must contain the keys domain, exit and wall.
+            verbose (bool, optional): displays information in the console during the import.
+            requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
+            
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
