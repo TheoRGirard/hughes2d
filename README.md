@@ -11,7 +11,37 @@ git clone https://github.com/TheoRGirard/hughes2d |
 cd hughes2d |
 uv sync
 ```
+### Plots
+If you want to use plot functionnalities you should also add *matplotlib* or *plotly*:
+```
+uv add matplotlib
+```
+or install the extras:
+```
+uv sync --extra plot
+```
+### File format handling
+If you want to import *.dxf*, *.msh* or *FreeFEM* mesh files, you should include the file-format extra:
+```
+uv sync --extra file-formats
+```
+You can also include all the extras:
+```
+uv sync --all-extras
+```
+
+### Without uv
 If you don't have uv installed, you can see a list of the dependencies in the _pyproject.toml_ file.
+
+You can either install the dependencies with pip:
+```
+git clone https://github.com/TheoRGirard/hughes2d |
+cd hughes2d |
+pip install -r requirements.txt |
+pip install -e
+```
+
+or install the dependencies manually.
 
 ## Getting started
 You can find a file named _getting_started.py_ in /examples. We rewrite below the content of this file.
