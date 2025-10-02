@@ -136,13 +136,11 @@ def test_walls():
 #Tests for the CellValueMap object--------------------------------------------
 Map1 = CellValueMap(Mesh1)
 
-for i in range(len(Map1)):
-    Map1[i] = 0.1
+Map1.setConstant(0.1)
 
 def test_algebra_cellvaluemap():
     Map2 = CellValueMap(Mesh1)
-    for i in range(len(Map2)):
-        Map2[i] = 0.3
+    Map2.setConstant(0.3)
     Map3 = Map1*2 + Map2
     for i in range(len(Map3)):
         assert Map3[i] == 0.5
@@ -170,8 +168,7 @@ def test_convolutionOverSquareBall():
     Mesh2 = Mesh()
     Mesh2.generateMeshFromDomain(Domain1, 0.02,da=10)
     Map = CellValueMap(Mesh2)
-    for i in range(len(Map)):
-        Map[i] = 2
+    Map.setConstant(2)
     Result = Map.convolutionOverSquareBall(radius=0.2, conv_func = (lambda x,y,z:2))
     for i in range(len(Mesh2.vertices)):
         if (Mesh2.vertices[i][0] > 0.2 and Mesh2.vertices[i][0] < 4.8

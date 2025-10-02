@@ -1656,6 +1656,16 @@ class CellValueMap(object):
         """
         self.values = [ mean + variability*(alea.random()-0.5) for _ in self.Mesh.triangles]
 
+    def setConstant(self, value: float) -> None:
+        """
+        Set the value to 'value' on every triangle.
+
+        Args:
+            value (float): the value to set on each triangle.
+        """
+        for i in range(len(self.values)):
+            self.values[i] = value
+
     def __len__(self):
         return len(self.values)
 
