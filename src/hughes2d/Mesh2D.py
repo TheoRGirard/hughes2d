@@ -114,22 +114,9 @@ class NonConvexDomain(object):
         Returns:
             int: Error code
         """
-        if(ezdxf):
-            try:
-                doc = ezdxf.readfile(filename)
-            except IOError:
-                print(f"Not a DXF file or a generic I/O error.")
-                return 0
-            except ezdxf.DXFStructureError:
-                print(f"Invalid or corrupted DXF file.")
-                return 0
 
-            print("Extracting data from %s" % filename)
-            # helper function
-            #def print_entity(e):
-            #    print("LINE on layer: %s\n" % e.dxf.layer)
-            #    print("start point: %s\n" % e.dxf.start)
-            #    print("end point: %s\n" % e.dxf.end)
+        if(ezdxf):
+            doc = ezdxf.readfile(filename)
 
             self.outerVertices = []
             self.outerBoundary = []
@@ -216,7 +203,6 @@ class NonConvexDomain(object):
             for label in zoneDict.keys():
                 self.addZone(label, zoneDict[label])
 
-            print(self.zones)
         else:
             raise ImportError("ezdxf not or wrongly installed.")
 
@@ -582,7 +568,7 @@ class NonConvexDomain(object):
         """
         if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
-            self.addPlot(fig)
+            self.addPlot(fig,ax=None,preference=preference)
             fig.update_layout(yaxis=dict(
                 scaleanchor='x',
                 scaleratio=1))
@@ -827,7 +813,7 @@ class Mesh(object):
 
     def importMeshFromMsh(self, filename :str,verbose : bool = False, requirements : List[str] = ['all']):
         """
-        Imports the data from a .msh file into the Mesh object.
+        Imports the data from a .msh file into the Mesh object in the GMSH format.
 
         Args:
             filename (string) : the path to the file to import.
@@ -903,7 +889,7 @@ class Mesh(object):
             flag_dict (dict) : a dictionary describing the specific translation of the FreeFEM flag number. Must contain the keys domain, exit and wall.
             verbose (bool, optional): displays information in the console during the import.
             requirements (List[str], optional): a list containing the computations that will be done using the mesh. The possible values are:
-            
+
                 - EikonalSolver : the mesh will be used in order to solve an eikonal equation
                 - LWRSolver : the mesh will be used in order to solve a scalar conservation law
                 - all : all the possible computations will be done
@@ -1552,7 +1538,7 @@ class Mesh(object):
         if( go and (not plt or preference == "plotly") ):
             fig = go.Figure()
             if(with_domain):
-                with_domain.addPlot(fig)
+                with_domain.addPlot(fig,ax=None,preference=preference)
             for T in self.triangles:
                 fig.add_trace(go.Scatter(x=[self.vertices[i][0] for i in T]+[self.vertices[T[0]][0]],
                                         y=[self.vertices[i][1] for i in T]+[self.vertices[T[0]][1]],
@@ -1590,7 +1576,7 @@ class Mesh(object):
             fig.show()
         elif(plt):
             fig, ax = plt.subplots()
-            self.addPlot(fig,ax)
+            self.addPlot(fig,ax,preference)
             for edge in self.wallEdges:
                 path = [    (self.vertices[self.edges[edge][0]][0], self.vertices[self.edges[edge][0]][1]),
                             (self.vertices[self.edges[edge][1]][0], self.vertices[self.edges[edge][1]][1]) ]
@@ -1973,7 +1959,7 @@ class VertexValueMap(object):
             fig = go.Figure()
             #self.Mesh.domain.addPlot(fig)
             if(grid):
-                self.Mesh.addPlot(fig)
+                self.Mesh.addPlot(fig,ax=None,preference=preference)
             fig.add_trace(go.Scatter(x=[P[0] for P in self.Mesh.vertices],
                                     y = [P[1] for P in self.Mesh.vertices],
                             hoverinfo = "none",
