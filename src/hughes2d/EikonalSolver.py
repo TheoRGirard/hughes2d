@@ -20,7 +20,7 @@ class EikoSolver(object):
         mesh (Mesh): the mesh on which the solution to the eikonal equation will be approximated.
         density (CellValueMap): a function constant on the triangle of the mesh representing the density of pedestrians.
         fieldValues (VertexValueMap): the object corresponding to the approximated solution of the eikonal equation.
-        cost (Function, float -> float): the function *c* that must be applied to the density map. If we set :math:`c: \\rho \\mapsto 1` the solution of the eikonal equation will correspond to the length of the shortest path to the exits, without taking the density into account.
+        cost (function, float -> float): the function *c* that must be applied to the density map. If we set :math:`c: \\rho \\mapsto 1` the solution of the eikonal equation will correspond to the length of the shortest path to the exits, without taking the density into account.
         opt (dict): the dictionary containing all the parameters of computation:
 
             ================= ====== ================ ===================================================================================================================
@@ -30,7 +30,8 @@ class EikoSolver(object):
             'NarrowBandDepth'  int    1 or 2           the maximal degree of the neighbours explored at each iteration (only relevant if method="FMT")
             'constrained'      bool   True or False    determines if the gradient computed must be constrained inside the triangle or not (only relevant if method="FMT")
             'debugging'        bool   True or False    debugging option, for verbose outputs and detailled prints
-
+            ================= ====== ================ ===================================================================================================================
+            
     Note:
         The best combination of options with respect to the quality of the approximation appears to be::
 

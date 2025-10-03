@@ -1993,7 +1993,7 @@ class VertexValueMap(object):
 
         Args:
             normalize (bool, optional): determines if the gradients should be renormalized.
-            normalization (Function, float, float -> float): the norm to use for the renormalization if `normalize=True`.
+            normalization (function, (float, float) -> float): the norm to use for the renormalization if `normalize=True`.
 
         Raises:
             ValueError: if at least one of the triangles is degenerated.
