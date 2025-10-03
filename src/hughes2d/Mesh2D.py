@@ -1730,8 +1730,11 @@ class CellValueMap(object):
         Computes the convolution of the CellValueMap with the conv_func function on the support defined by the square of given radius (infinity-norm ball).
 
         Args:
-            radius (float): the radius of the convolution support.
-            conv_func (function, float -> float): the convolution function in the form  :math:`F(\\rho(y),|x_1-y_1|,|x_2,y_2|)` where :math:`rho` is the cellValueMap and :math:`x = (x_1,x_2)` is the vertex where the convolution is computed. The computed quantity is then, for any :math:`x = (x_1,x_2)`, :math:`\\iint_{[-r/2, r/2]^2} F(\\rho(x+y), |y_1|,|y_2|) d y_1 d y_2`.
+            radius (float): the radius :math:`r` of the convolution support.
+            conv_func (function, float -> float): the convolution function in the form  :math:`F(\\rho(y),|x_1-y_1|,|x_2-y_2|)` where :math:`\\rho` is the cellValueMap and :math:`x = (x_1,x_2)` is the vertex where the convolution is computed. The computed quantity is then, for any :math:`x = (x_1,x_2)`,
+
+                .. math::
+                    \\iint_{[-r/2, r/2]^2} F(\\rho(x+y), |y_1|,|y_2|) d y_1 d y_2.
 
         Returns:
             list: a list containing the computed value of the convolution for each vertex of the mesh ordered in the same way as the vertices of the Mesh object.

@@ -31,7 +31,7 @@ class EikoSolver(object):
             'constrained'      bool   True or False    determines if the gradient computed must be constrained inside the triangle or not (only relevant if method="FMT")
             'debugging'        bool   True or False    debugging option, for verbose outputs and detailled prints
             ================= ====== ================ ===================================================================================================================
-            
+
     Note:
         The best combination of options with respect to the quality of the approximation appears to be::
 
@@ -80,7 +80,7 @@ class EikoSolver(object):
         """
         self.density = density
 
-    def computeFieldUnconstrainedDep2(self):
+    def computeFieldUnconstrainedDep2(self) -> None:
         """
         Computes the approximated solution of the eikonal equation and stores the approximation in 'fieldValues'.
         The method used is the FMT algorithm with no constraint on the gradient and vertices at distance one or two are considered neighbour.
@@ -263,23 +263,25 @@ class EikoSolver(object):
                             self.fieldValues[triangleWithoutIndex[i]] = PotentialValue
                             Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[i])
 
-    def computeFieldConstrainedDep2(self):
+    def computeFieldConstrainedDep2(self) -> None:
+        """
+        Computes the approximated solution of the eikonal equation and stores the approximation in 'fieldValues'.
+        The method used is the FMT algorithm with constraints on the gradient and vertices at distance one or two are considered neighbour.
+        i.e. constrained = True and NarrowBandDepth = 2 see 'opt'
+        """
         StateMap = [0 for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
+
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
-
-        #On ajoute les dirichlet sortie libre
+        #Dirichlet free exit conditions
         for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
 
-
-        #Selection de la liste de la nouvelle generation a traiter
-
+        #Construction of the narrow band
         for index in Validated:
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
@@ -323,34 +325,28 @@ class EikoSolver(object):
                             Visited = self.addInOrderByFieldValue(Visited,otherIndex)
 
 
-
-        #print("Premier element : ", Validated[0])
-
-
-        #Boucle principale
+        #Main loop
         LastValidated = Validated[0]
         NumVertices = len(StateMap)
 
-
-
         while(len(Validated) < NumVertices):
 
-            #Valider le plus petit:
+            #Validation of a vertex
             if(len(Visited) == 0):
-                print("Fin prematuree.... Num Validated : ", len(Validated))
-            if(Visited[0] == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
+                if(self.opt['debugging']):
+                    print("Completion : ", len(Validated), "/", NumVertices)
+                raise ValueError("The fast marching ended too fast... Is the Mesh connected ?")
+            if(self.fieldValues[Visited[0]] == float('inf')):
+                if(self.opt['debugging']):
+                    print("Infinity value detected at vertex (",self.mesh.vertices[Visited[0]][0],",",self.mesh.vertices[Visited[0]][1], ")" )
+                raise ValueError("Gradient computation impossible.")
 
             Validated.append(Visited[0])
             LastValidated = Visited[0]
             Visited = Visited[1:]
             StateMap[LastValidated] = 1
 
-
-            #Ajout des nouveaux consider
+            #recomputation of the narrow band
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
@@ -392,22 +388,25 @@ class EikoSolver(object):
                             self.fieldValues[otherIndex] = PotentialValue
                             Visited = self.addInOrderByFieldValue(Visited,otherIndex)
 
-    def computeFieldUnconstrainedDep1(self):
+    def computeFieldUnconstrainedDep1(self) -> None:
+        """
+        Computes the approximated solution of the eikonal equation and stores the approximation in 'fieldValues'.
+        The method used is the FMT algorithm with constraints on the gradient and vertices at distance one or two are considered neighbour.
+        i.e. constrained = False and NarrowBandDepth = 1 see 'opt'
+        """
         StateMap = [0 for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
+
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
-        #On ajoute les dirichlet sortie libre
+        #Dirichlet free exit condition
         for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
 
-
-        #Selection de la liste de la nouvelle generation a traiter
-
+        #Computation of the narrow band
         for index in Validated:
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
@@ -440,30 +439,28 @@ class EikoSolver(object):
                         self.fieldValues[triangleWithoutIndex[0]] = PotentialValue
                         Visited = self.addInOrderByFieldValue(Visited,triangleWithoutIndex[0])
 
-        #Boucle principale
+        #Main loop
         LastValidated = Validated[0]
         NumVertices = len(StateMap)
 
-
-
         while(len(Validated) < NumVertices):
 
-            #Valider le plus petit:
+            #Validation of a vertex
             if(len(Visited) == 0):
-                print("Fin prematuree.... Num Validated : ", len(Validated))
-            if(Visited[0] == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
+                if(self.opt['debugging']):
+                    print("Completion : ", len(Validated), "/", NumVertices)
+                raise ValueError("The fast marching ended too fast... Is the Mesh connected ?")
+            if(self.fieldValues[Visited[0]] == float('inf')):
+                if(self.opt['debugging']):
+                    print("Infinity value detected at vertex (",self.mesh.vertices[Visited[0]][0],",",self.mesh.vertices[Visited[0]][1], ")" )
+                raise ValueError("Gradient computation impossible.")
 
             Validated.append(Visited[0])
             LastValidated = Visited[0]
             Visited = Visited[1:]
             StateMap[LastValidated] = 1
 
-
-            #Ajout des nouveaux consider
+            #Recomputation of the narrow band
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
@@ -498,22 +495,24 @@ class EikoSolver(object):
 
 
     def computeFieldConstrainedDep1(self):
+        """
+        Computes the approximated solution of the eikonal equation and stores the approximation in 'fieldValues'.
+        The method used is the FMT algorithm with constraints on the gradient and vertices at distance one or two are considered neighbour.
+        i.e. constrained = True and NarrowBandDepth = 1 see 'opt'
+        """
         StateMap = [0 for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
+
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
-
-        #On ajoute les dirichlet sortie libre
+        #Dirichlet free exit condition
         for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
 
-
-        #Selection de la liste de la nouvelle generation a traiter
-
+        #Computation of the narrow band
         for index in Validated:
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
 
@@ -556,35 +555,28 @@ class EikoSolver(object):
                             self.fieldValues[triangleWithoutIndex[i]] = PotentialValue
                             Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[i])
 
-
-
-        #print("Premier element : ", Validated[0])
-
-
-        #Boucle principale
+        #Main loop
         LastValidated = Validated[0]
         NumVertices = len(StateMap)
 
-
-
         while(len(Validated) < NumVertices):
 
-            #Valider le plus petit:
+            #Validation of a vertex
             if(len(Visited) == 0):
-                print("Fin prematuree.... Num Validated : ", len(Validated))
-            if(Visited[0] == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
+                if(self.opt['debugging']):
+                    print("Completion : ", len(Validated), "/", NumVertices)
+                raise ValueError("The fast marching ended too fast... Is the Mesh connected ?")
+            if(self.fieldValues[Visited[0]] == float('inf')):
+                if(self.opt['debugging']):
+                    print("Infinity value detected at vertex (",self.mesh.vertices[Visited[0]][0],",",self.mesh.vertices[Visited[0]][1], ")" )
+                raise ValueError("Gradient computation impossible.")
 
             Validated.append(Visited[0])
             LastValidated = Visited[0]
             Visited = Visited[1:]
             StateMap[LastValidated] = 1
 
-
-            #Ajout des nouveaux consider
+            #Recomputation of the narrow band
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 if(StateMap[triangleWithoutIndex[1]] == 0):
@@ -625,131 +617,26 @@ class EikoSolver(object):
                         if PotentialValue < self.fieldValues[triangleWithoutIndex[i]]:
                             self.fieldValues[triangleWithoutIndex[i]] = PotentialValue
                             Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[i])
-        """StateMap = [0 for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
-        Visited = []
-        Validated = []
-        self.fieldValues.setInfinity()
-
-        #On ajoute les dirichlet sortie libre
-        for index in self.mesh.exitVertices:
-            self.fieldValues[index] = 0
-            Validated.append(index)
-            StateMap[index] = 1
 
 
-        #Selection de la liste de la nouvelle generation a traiter
-
-        for index in Validated:
-            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
-
-                if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
-                    StateMap[triangleWithoutIndex[1]] = 2
-
-                if(StateMap[triangleWithoutIndex[0]] == 0 and StateMap[triangleWithoutIndex[1]] == 1):
-                    StateMap[triangleWithoutIndex[0]] = 2
-
-                if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
-                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
-                                                                            self.mesh.vertices[index],
-                                                                            self.fieldValues[triangleWithoutIndex[0]],
-                                                                            self.fieldValues[index],
-                                                                            self.cost(self.density[triangleindex]))
-                    if PotentialValue < self.fieldValues[triangleWithoutIndex[1]]:
-                        self.fieldValues[triangleWithoutIndex[1]] = PotentialValue
-                        Visited = self.addInOrderByFieldValue(Visited,triangleWithoutIndex[1])
-
-
-                elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
-                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
-                                                                            self.mesh.vertices[index],
-                                                                            self.fieldValues[triangleWithoutIndex[1]],
-                                                                            self.fieldValues[index],
-                                                                            self.cost(self.density[triangleindex]))
-                    if PotentialValue < self.fieldValues[triangleWithoutIndex[0]]:
-                        self.fieldValues[triangleWithoutIndex[0]] = PotentialValue
-                        Visited = self.addInOrderByFieldValue(Visited,triangleWithoutIndex[0])
-
-
-        #Boucle principale
-        LastValidated = Validated[0]
-        NumVertices = len(StateMap)
-
-
-
-        while(len(Validated) < NumVertices):
-
-            #Valider le plus petit:
-            if(len(Visited) == 0):
-                print("Fin prematuree.... Num Validated : ", len(Validated))
-            if(Visited[0] == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
-
-            Validated.append(Visited[0])
-            LastValidated = Visited[0]
-            Visited = Visited[1:]
-            StateMap[LastValidated] = 1
-
-
-            #Ajout des nouveaux consider
-            for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
-
-                if(StateMap[triangleWithoutIndex[1]] == 0 and StateMap[triangleWithoutIndex[0]] == 1):
-                    StateMap[triangleWithoutIndex[1]] = 2
-
-                if(StateMap[triangleWithoutIndex[0]] == 0 and StateMap[triangleWithoutIndex[1]] == 1):
-                    StateMap[triangleWithoutIndex[0]] = 2
-
-                if(StateMap[triangleWithoutIndex[0]] == 1 and StateMap[triangleWithoutIndex[1]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[1]],
-                                                                            self.mesh.vertices[triangleWithoutIndex[0]],
-                                                                            self.mesh.vertices[LastValidated],
-                                                                            self.fieldValues[triangleWithoutIndex[0]],
-                                                                            self.fieldValues[LastValidated],
-                                                                            self.cost(self.density[triangleindex]))
-                    if PotentialValue < self.fieldValues[triangleWithoutIndex[1]]:
-                        self.fieldValues[triangleWithoutIndex[1]] = PotentialValue
-                        Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[1])
-
-
-
-                elif(StateMap[triangleWithoutIndex[1]] == 1 and StateMap[triangleWithoutIndex[0]] == 2):
-                    PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangleWithoutIndex[0]],
-                                                                            self.mesh.vertices[triangleWithoutIndex[1]],
-                                                                            self.mesh.vertices[LastValidated],
-                                                                            self.fieldValues[triangleWithoutIndex[1]],
-                                                                            self.fieldValues[LastValidated],
-                                                                            self.cost(self.density[triangleindex]))
-                    if PotentialValue < self.fieldValues[triangleWithoutIndex[0]]:
-                        self.fieldValues[triangleWithoutIndex[0]] = PotentialValue
-                        Visited = self.addInOrderByFieldValue(Visited, triangleWithoutIndex[0])"""
-
-    def computeFieldByEdges(self):
+    def computeFieldByEdges(self) -> None:
         """
         Computes a numerical approximation of the solution to the eikonal equation using a FME algorithm.
         """
 
         StateMap = [0 for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
+
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
-
-        #On ajoute les dirichlet sortie libre
+        #Dirichlet free exit condition
         for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             StateMap[index] = 1
 
-
-        #Selection de la liste de la nouvelle generation a traiter
-
+        #Computation of the narrow band
         for index in Validated:
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[index]:
                 for otherIndex in triangleWithoutIndex:
@@ -763,29 +650,28 @@ class EikoSolver(object):
                         self.fieldValues[otherIndex] = PotentialValue
                         Visited = self.addInOrderByFieldValue(Visited,otherIndex)
 
-        #Boucle principale
+        #Main loop
         LastValidated = Validated[0]
         NumVertices = len(StateMap)
 
-
         while(len(Validated) < NumVertices):
 
-            #Valider le plus petit:
+            #Validation of a vertex
             if(len(Visited) == 0):
-                print("Fin prematuree.... Num Validated : ", len(Validated))
-            if(Visited[0] == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
+                if(self.opt['debugging']):
+                    print("Completion : ", len(Validated), "/", NumVertices)
+                raise ValueError("The fast marching ended too fast... Is the Mesh connected ?")
+            if(self.fieldValues[Visited[0]] == float('inf')):
+                if(self.opt['debugging']):
+                    print("Infinity value detected at vertex (",self.mesh.vertices[Visited[0]][0],",",self.mesh.vertices[Visited[0]][1], ")" )
+                raise ValueError("Gradient computation impossible.")
 
             Validated.append(Visited[0])
             LastValidated = Visited[0]
             Visited = Visited[1:]
             StateMap[LastValidated] = 1
 
-
-            #Ajout des nouveaux consider
+            #Recomputation of the narrow band
             for [triangleindex, triangleWithoutIndex] in self.mesh.trianglesPerVertex[LastValidated]:
 
                 for otherIndex in triangleWithoutIndex:
@@ -799,9 +685,11 @@ class EikoSolver(object):
                         self.fieldValues[otherIndex] = PotentialValue
                         Visited = self.addInOrderByFieldValue(Visited,otherIndex)
 
-
-
-    def computeField(self):
+    def computeField(self) -> None:
+        """
+        Computes the approximated solution of the eikonal equation and stores the approximation in 'fieldValues'.
+        The method used depends on the options set in the 'opt' dictionary.
+        """
         if(self.opt['method'] == "FMT"):
             if(self.opt['constrained'] and self.opt['NarrowBandDepth'] == 2):
                 self.computeFieldConstrainedDep2()
@@ -814,22 +702,26 @@ class EikoSolver(object):
         elif(self.opt['method'] == "FME"):
             self.computeFieldByEdges()
 
-    def showNarrowBandAfterStep(self, n):
+    def showNarrowBandAfterStep(self, n:int) -> None:
+        """
+        Computes the first `n` vertices of the approximation, then, displays the narrow band.
+
+        Args:
+            n (int): number of vertices to compute.
+        """
         NotVisited = [i for i in range(len(self.mesh.vertices))]
-        #print(len(self.mesh.vertices))
+
         Visited = []
         Validated = []
         self.fieldValues.setInfinity()
 
-        #On ajoute les dirichlet sortie libre
+        #Dirichlet free exit condition
         for index in self.mesh.exitVertices:
             self.fieldValues[index] = 0
             Validated.append(index)
             NotVisited.remove(index)
 
-
-        #Selection de la liste de la nouvelle generation a traiter
-
+        #Computation of the narrow band
         for index in Validated:
             for triangleindex, triangle in enumerate(self.mesh.triangles):
                 if index in triangle:
@@ -878,27 +770,17 @@ class EikoSolver(object):
                                 NotVisited.remove(i)
 
                             if(i not in Validated):
-                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[triangle[offsetValidatedPoint]][0],
-                                                                                                                self.mesh.vertices[triangle[offsetValidatedPoint]][1],
-                                                                                                                self.mesh.vertices[triangle[i]][0],
-                                                                                                                self.mesh.vertices[triangle[i]][1])"""
-
                                 PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[triangle[offsetValidatedPoint]],
                                                                                                                 self.mesh.vertices[triangle[(offsetValidatedPoint + 1)%3]],
                                                                                                                 self.mesh.vertices[triangle[(offsetValidatedPoint + 2)%3]])
                                 if PotentialValue < self.fieldValues[i]:
                                     self.fieldValues[i] = PotentialValue
 
-
-
-        #print("Premier element : ", Validated[0])
-
-
-        #Boucle principale
+        #Main loop
         LastValidated = Validated[0]
         for vide in range(n):
 
-            #Ajout des nouveaux consider
+            #Recomputation of the narrow band
             for triangleindex,triangle in enumerate(self.mesh.triangles):
                 if(LastValidated in triangle):
                     count = 0
@@ -945,18 +827,13 @@ class EikoSolver(object):
                                 NotVisited.remove(i)
 
                             if(i not in Validated):
-                                """PotentialValue = self.fieldValues[ValidatedPointindex] + self.cost(self.density[triangleindex])*EikoSolver.dist(self.mesh.vertices[triangle[offsetValidatedPoint]][0],
-                                                                                                                self.mesh.vertices[triangle[offsetValidatedPoint]][1],
-                                                                                                                self.mesh.vertices[triangle[i]][0],
-                                                                                                                self.mesh.vertices[triangle[i]][1])"""
-
                                 PotentialValue = self.fieldValues[triangle[offsetValidatedPoint]] + self.cost(self.density[triangleindex])*EikoSolver.computeHeightLength(self.mesh.vertices[triangle[offsetValidatedPoint]],
                                                                                                                 self.mesh.vertices[triangle[(offsetValidatedPoint + 1)%3]],
                                                                                                                 self.mesh.vertices[triangle[(offsetValidatedPoint + 2)%3]])
                                 if PotentialValue < self.fieldValues[i]:
                                     self.fieldValues[i] = PotentialValue
 
-            #Valider le plus petit:
+            #Validation:
             minIndex = Visited[0]
             minValue = self.fieldValues[minIndex]
             for index in Visited:
@@ -965,10 +842,9 @@ class EikoSolver(object):
                     minValue = self.fieldValues[index]
 
             if(minValue == float('inf')):
-                print("Impossible de calculer le gradient")
-                print(Visited)
-                print(NotVisited)
-                self.fieldValues[minIndex] = 1000000000
+                if(self.opt['debugging']):
+                    print("Infinity value detected at vertex (",self.mesh.vertices[Visited[0]][0],",",self.mesh.vertices[Visited[0]][1], ")" )
+                raise ValueError("Gradient computation impossible.")
 
             Validated.append(minIndex)
             LastValidated = minIndex
@@ -986,7 +862,36 @@ class EikoSolver(object):
 
         self.fieldValues.show(grid=True)
 
-    def addInOrderByFieldValue(self,L,index):
+    def addInOrderByFieldValue(self,L:List[int],index:int) -> List[int]:
+        """
+        Adds the index given as an argument to the given list. Returns the new list. The index is inserted such that the `fieldValues` corresponding to the vertices of the indices are increasing.
+
+        Example:
+            If we have the following lists::
+
+                MyMesh = Mesh()
+                MyMesh.vertices = [[0,0],[0,1],[1,1],[1,0]]
+                MySolver = EikoSolver(MyMesh)
+                MySolver.fieldValues.values = [0.5,4.5,2.0,3.0]
+                MyList = [0,3]
+
+            Then::
+
+                >>>MySolver.addInOrderByFieldValue(MyList,1)
+                [0,3,1]
+                >>>MySolver.addInOrderByFieldValue(MyList,2)
+                [0,2,3]
+
+        Note:
+            If an index is already present in the list, its position in the list is recomputed.
+
+        Args:
+            L (List[int]): the list in which the new index will be inserted.
+            index (int): the index to insert.
+
+        Returns:
+            List[int]: the new list containing the index.
+        """
         try:
             L.remove(index)
         except ValueError:
@@ -1004,17 +909,43 @@ class EikoSolver(object):
 
 
     @staticmethod
-    def computeHeightFromGradUnconstrained(C,B,A,Vb,Va,P): #Calcul de u(A) pour que grad du triangle ait la norme prescrite par P
+    def computeHeightFromGradUnconstrained(C:List[float],B:List[float],A:List[float],Vb:float,Va:float,P:float) -> float:
+        """
+        Computes and returns the value of Vc such that, if we denote by :math:`\\Phi_{ABC}(Va,Vb,Vc)` the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
+        .. math::
+
+            F(A) = Va, \\; F(B) = Vb, \\; F(C) = Vc
+
+        then we have
+        .. math::
+
+            \\left| \\nabla\\Phi_{ABC}(Va,Vb,Vc) \\right| = P.
+
+        Args:
+            C (List[float]): a point of the triangle.
+            B (List[float]): a point of the triangle.
+            A (List[float]): a point of the triangle.
+            Vb (float): the value of F at B.
+            Va (float): the value of F at A.
+            P (float): the norm of the gradient.
+
+        Returns:
+            float: the value Vc.
+        """
         if(Vb == float('inf') or Va == float('inf') or P < 0):
-            print("ERREUR ICI !!!!")
+            if self.opt["debugging"]:
+                print("Vb = ", Vb, ", Va = ", Va, ", P = ",P)
+            raise ValueError("Invalid values for the gradient constraint")
         AB2 = (A[0] - B[0])*(A[0] - B[0]) + (A[1] - B[1])*(A[1] - B[1])
 
 
         if(AB2*(P**2) - ( (Va - Vb)**2) <0):
-            print("Gros probleme, ca ne devrait pas être possible")
+            if self.opt["debugging"]:
+                print("Vb = ", Vb, ", Va = ", Va, ", P = ",P)
+            print("Warning - Given values are incompatible with the gradient constraint")
             AC2 = (A[0] - C[0])*(A[0] - C[0]) + (A[1] - C[1])*(A[1] - C[1])
-            return Va + np.sqrt(AC2)*P #valeur en longeant AC ?
-            #return float('inf')
+            return Va + np.sqrt(AC2)*P
+
 
         detCACB = abs((C[0] - A[0])*(C[1] - B[1]) - (C[1] - A[1])*(C[0] - B[0]))
         CBxCA = (B[0] - C[0])*(A[0] - C[0]) + (B[1] - C[1])*(A[1] - C[1])
@@ -1026,9 +957,35 @@ class EikoSolver(object):
             AC2 = (A[0] - C[0])*(A[0] - C[0]) + (A[1] - C[1])*(A[1] - C[1])
             return Va + (Vb-Va)*(AC2 - CBxCA)/AB2 + detCACB*np.sqrt(AB2*(P**2) - ( (Vb - Va)**2) )/AB2
 
-    def computeHeightFromGradConstrained(A,B,C,Vb,Vc,P): #Calcul de u(A) pour que grad du triangle ait la norme prescrite par P
+    def computeHeightFromGradConstrained(A:List[float],B:List[float],C:List[float],Vb:float,Vc:float,P:float) -> float:
+        """
+        Computes and returns the value of Va such that, if we denote by :math:`\\Phi_{ABC}(Va,Vb,Vc)` the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
+        .. math::
+
+            F(A) = Va, \\; F(B) = Vb, \\; F(C) = Vc
+
+        then we have
+        .. math::
+
+            \\left| \\nabla\\Phi_{ABC}(Va,Vb,Vc) \\right| = P.
+
+        If the gradient found is not inside the triangle, Va is taken as the smallest value found by following an edge of the triangle.
+
+        Args:
+            A (List[float]): a point of the triangle.
+            B (List[float]): a point of the triangle.
+            C (List[float]): a point of the triangle.
+            Vb (float): the value of F at B.
+            Vc (float): the value of F at C.
+            P (float): the norm of the gradient.
+
+        Returns:
+            float: the value Va.
+        """
         if(Vb == float('inf') or Vc == float('inf') or P < 0):
-            print("ERREUR ICI !!!!")
+            if self.opt["debugging"]:
+                print("Vb = ", Vb, ", Vc = ", Vc, ", P = ",P)
+            raise ValueError("Invalid values for the gradient constraint")
 
         if( Vb > Vc):
             s1 = Vc
@@ -1053,18 +1010,33 @@ class EikoSolver(object):
         BC2 = (B[0] - C[0])*(B[0] - C[0]) + (B[1] - C[1])*(B[1] - C[1])
 
         if(BC2*P**2 - ( (Vc - Vb)**2) <0):
-            print("ERREUR cas non traité !!!!!!!!!!!!")
-            return Vc + np.sqrt(AC2)*P #valeur en longeant AC ?
-            #return float('inf')
+            if self.opt["debugging"]:
+                print("Vb = ", Vb, ", Vc = ", Vc, ", P = ",P)
+            print("Warning - Given values are incompatible with the gradient constraint")
+            return Vc + np.sqrt(AC2)*P
 
         detABCB = abs((B[0] - A[0])*(B[1] - C[1]) - (B[1] - A[1])*(B[0] - C[0]))
 
         return Vb - (Vc-Vb)*(ABxBC)/BC2 + detABCB*np.sqrt(BC2*P**2 - ( (Vb - Vc)**2) )/BC2
 
-    def computeHeightLength(B,C,A): #calcul de la longueur de la hauteur issue de B
+    def computeHeightLength(B:float,C:float,A:float) -> float:
+        """
+        Computes and returns the length of the height of the triangle ABC passing through B.
+
+        Args:
+            B (List[float]): a point of the triangle.
+            C (List[float]): a point of the triangle.
+            A (List[float]): a point of the triangle.
+
+        Returns:
+            float: the length of the height.
+        """
         detABAC = abs((A[0] - C[0])*(A[1] - B[1]) - (A[1] - C[1])*(A[0] - B[0]))
         AC2 = (A[0] - C[0])*(A[0] - C[0]) + (A[1] - C[1])*(A[1] - C[1])
         return detABAC/np.sqrt(AC2)
 
-    def dist(x0,y0,x1,y1):
+    def dist(x0:float,y0:float,x1:float,y1:float) -> float:
+        """
+        Computes and returns the euclidian distance between (x0,y0) and (x1,y1).
+        """
         return(np.sqrt((x1-x0)**2 + (y1-y0)**2))
