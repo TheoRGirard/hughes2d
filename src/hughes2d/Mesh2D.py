@@ -1731,7 +1731,7 @@ class CellValueMap(object):
 
         Args:
             radius (float): the radius of the convolution support.
-            conv_func (function\: float -> float): the convolution function in the form  F(rho(y),|x_1-y_1|,|x_2,y_2|) where rho is the cellValueMap and x = (x_1,x_2) is the vertex where the convolution is computed. The computed quantity is then, for any x = (x_1,x_2), iint_{[-radius/2, radius/2]^2} F(rho(x+y), |y_1|,|y_2|) d y_1 d y_2.
+            conv_func (function, float -> float): the convolution function in the form  :math:`F(\\rho(y),|x_1-y_1|,|x_2,y_2|)` where :math:`rho` is the cellValueMap and :math:`x = (x_1,x_2)` is the vertex where the convolution is computed. The computed quantity is then, for any :math:`x = (x_1,x_2)`, :math:`\\iint_{[-r/2, r/2]^2} F(\\rho(x+y), |y_1|,|y_2|) d y_1 d y_2`.
 
         Returns:
             list: a list containing the computed value of the convolution for each vertex of the mesh ordered in the same way as the vertices of the Mesh object.
@@ -1993,7 +1993,7 @@ class VertexValueMap(object):
 
         Args:
             normalize (bool, optional): determines if the gradients should be renormalized.
-            normalization (function\: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+            normalization (Function, float, float -> float): the norm to use for the renormalization if `normalize=True`.
 
         Raises:
             ValueError: if at least one of the triangles is degenerated.
@@ -2024,7 +2024,7 @@ class VertexValueMap(object):
 
         Args:
             normalize (bool, optional): determines if the gradients should be renormalized.
-            normalization (function\: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+            normalization (function, float, float -> float): the norm to use for the renormalization if `normalize=True`.
 
         Returns:
             ArrayLike: an array containing all the gradients ordered as the list Mesh.triangles.
@@ -2057,7 +2057,7 @@ class VertexValueMap(object):
 
         Args:
             normalize (bool, optional): determines if the gradients should be renormalized.
-            normalization (function\: float, float -> float): the norm to use for the renormalization if `normalize=True`.
+            normalization (function, (float, float) -> float): the norm to use for the renormalization if `normalize=True`.
             preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
 
         Raises:
