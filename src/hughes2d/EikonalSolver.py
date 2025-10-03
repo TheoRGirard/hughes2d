@@ -801,14 +801,14 @@ class EikoSolver(object):
                             NotVisited.remove(selected)
 
                         if(self.opt['constrained']):
-                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.vertices[triangle[offset]],
+                            PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangle[offset]],
                                                                                 self.mesh.vertices[triangle[(offset + 1)%3]],
                                                                                 self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
                         else:
-                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.vertices[triangle[offset]],
+                            PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangle[offset]],
                                                                                 self.mesh.vertices[triangle[(offset + 1)%3]],
                                                                                 self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
