@@ -744,14 +744,14 @@ class EikoSolver(object):
                             NotVisited.remove(selected)
 
                         if(self.opt['constrained']):
-                            PotentialValue = EikoSolver.computeHeightFromGrad(self.mesh.vertices[triangle[offset]],
+                            PotentialValue = EikoSolver.computeHeightFromGradConstrained(self.mesh.vertices[triangle[offset]],
                                                                                 self.mesh.vertices[triangle[(offset + 1)%3]],
                                                                                 self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
                                                                                 self.fieldValues[triangle[(offset + 2)%3]],
                                                                                 self.cost(self.density[triangleindex]))
                         else:
-                            PotentialValue = EikoSolver.computeHeightFromGrad2(self.mesh.vertices[triangle[offset]],
+                            PotentialValue = EikoSolver.computeHeightFromGradUnconstrained(self.mesh.vertices[triangle[offset]],
                                                                                 self.mesh.vertices[triangle[(offset + 1)%3]],
                                                                                 self.mesh.vertices[triangle[(offset + 2)%3]],
                                                                                 self.fieldValues[triangle[(offset + 1)%3]],
@@ -912,13 +912,13 @@ class EikoSolver(object):
     def computeHeightFromGradUnconstrained(C:List[float],B:List[float],A:List[float],Vb:float,Va:float,P:float) -> float:
         """
         Computes and returns the value of Vc such that, if we denote by :math:`\\Phi_{ABC}(Va,Vb,Vc)` the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
-        .. math::
 
+        .. math::
             F(A) = Va, \\; F(B) = Vb, \\; F(C) = Vc
 
         then we have
-        .. math::
 
+        .. math::
             \\left| \\nabla\\Phi_{ABC}(Va,Vb,Vc) \\right| = P.
 
         Args:
@@ -960,13 +960,13 @@ class EikoSolver(object):
     def computeHeightFromGradConstrained(A:List[float],B:List[float],C:List[float],Vb:float,Vc:float,P:float) -> float:
         """
         Computes and returns the value of Va such that, if we denote by :math:`\\Phi_{ABC}(Va,Vb,Vc)` the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
-        .. math::
 
+        .. math::
             F(A) = Va, \\; F(B) = Vb, \\; F(C) = Vc
 
         then we have
-        .. math::
 
+        .. math::
             \\left| \\nabla\\Phi_{ABC}(Va,Vb,Vc) \\right| = P.
 
         If the gradient found is not inside the triangle, Va is taken as the smallest value found by following an edge of the triangle.
