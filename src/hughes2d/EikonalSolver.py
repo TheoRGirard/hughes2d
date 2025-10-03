@@ -10,6 +10,7 @@ class EikoSolver(object):
     We use the following notations for the eikonal equation:
 
     .. math::
+
         |\nalba u | = c(\rho).
 
 
@@ -20,7 +21,11 @@ class EikoSolver(object):
         mesh (Mesh): the mesh on which the solution to the eikonal equation will be approximated.
         density (CellValueMap): a function constant on the triangle of the mesh representing the density of pedestrians.
         fieldValues (VertexValueMap): the object corresponding to the approximated solution of the eikonal equation.
-        cost (function: float -> float): the function *c* that must be applied to the density map. If :math:`c: \rho \mapsto 1` the solution of the eikonal equation will correspond to the length of the shortest path to the exits, without taking the density into account.
+        cost (function: float -> float): the function *c* that must be applied to the density map. If we set:
+            .. math::
+                c: \rho \mapsto 1
+
+            the solution of the eikonal equation will correspond to the length of the shortest path to the exits, without taking the density into account.
         opt (dict): the dictionary containing all the parameters of computation:
 
             ================= ====== ================ ===================================================================================================================
