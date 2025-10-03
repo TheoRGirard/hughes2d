@@ -10,8 +10,7 @@ class EikoSolver(object):
     We use the following notations for the eikonal equation:
 
     .. math::
-
-        |\nalba u | = c(\rho).
+        `|\nalba u | = c(\rho).`
 
 
     Attributes
@@ -23,7 +22,7 @@ class EikoSolver(object):
         fieldValues (VertexValueMap): the object corresponding to the approximated solution of the eikonal equation.
         cost (function: float -> float): the function *c* that must be applied to the density map. If we set:
             .. math::
-                c: \rho \mapsto 1
+                `c: \rho \mapsto 1`
 
             the solution of the eikonal equation will correspond to the length of the shortest path to the exits, without taking the density into account.
         opt (dict): the dictionary containing all the parameters of computation:
