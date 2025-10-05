@@ -1427,9 +1427,8 @@ class Mesh(object):
             if Len > maxL:
                 maxL = Len
 
-        return maxL
-
         self.edgeLength = np.array(edgeLength)
+        return maxL
 
     def getLimits(self):
         """
