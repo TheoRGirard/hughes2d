@@ -18,7 +18,7 @@ class LWRSolver(object):
     .. math::
 
         \\left\\{ \\begin{matrix}
-        \\partial_t \\rho(t,x) + \\partial_x \\mathbf{div}[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
+        \\partial_t \\rho(t,x) + \\partial_x \\mathbf{div}\\left[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
         \\rho(0,x) = \\rho_0(x)
         \\end{matrix} \\right.
 
