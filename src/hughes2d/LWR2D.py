@@ -18,11 +18,11 @@ class LWRSolver(object):
     .. math::
 
         \\left\\{ \\begin{matrix}
-        \\partial_t \\rho(t,x) + \\partial_x \\mathbf{div}\\left[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
+        \\partial_t \\rho(t,x) + \\mathbf{div}\\left[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
         \\rho(0,x) = \\rho_0(x)
         \\end{matrix} \\right.
 
-    Args :
+    Args:
         Mesh (Mesh): a mesh object on which the equation will be approximated.
         previousDensity (CellValueMap or List[float]): initial density for the solver. Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
         directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
