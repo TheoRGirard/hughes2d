@@ -763,7 +763,8 @@ class Mesh(object):
     -----------
 
     Attributes:
-        dx (float): maximal area of a triangle in the mesh
+        minCellArea (float): minimal area of a triangle in the mesh
+        maxEdgeLength (float): maximal length of an edge in the mesh
         vertices (ArrayLike): array of all the vertices TriangleEdgeCoordinates
         edges (ArrayLike): array of all the edges as [vertexIndex, vertexIndex]
         triangles (ArrayLike): array of all the triangles as [vertexIndex, vertexIndex, vertexIndex]
@@ -787,7 +788,8 @@ class Mesh(object):
 
 
     def __init__(self):
-        self.dx : float = None
+        self.minCellArea : float = None
+        self.maxEdgeLength : float = None
 
         self.vertices : ArrayLike
         self.edges : ArrayLike #Liste des edges par paires d'indices de vertex
@@ -1155,21 +1157,21 @@ class Mesh(object):
 
             self.computePairOfTrianglesList()
             self.computeOuterNormals()
-            self.dx = self.computeCellAreas()
+            self.minCellArea = self.computeCellAreas()
             if(verbose):
-                print("Minimal area for a triangle in the mesh : ", self.dx)
+                print("Minimal area for a triangle in the mesh : ", self.minCellArea)
             self.computeEdgeLength()
             self.computeTrianglesPerVertex()
             self.computeZonesTriangles()
         else:
             if("EikonalSolver" in requirements or "LWRSolver" in requirements or "FreeFEM" in requirements):
                 self.computeEdgeList()
+                self.maxEdgeLength = self.computeEdgeLength()
 
             if("EikonalSolver" in requirements or "LWRSolver" in requirements):
                 self.setExitsFromDomain(domain)
                 for zoneName in domain.zones.keys():
                     self.addConvexZone(zoneName, domain.zones[zoneName])
-                self.computeEdgeLength()
 
             if("FreeFEM" in requirements):
                 self.computeVertexFlags(domain)
@@ -1179,9 +1181,9 @@ class Mesh(object):
                 self.computeOuterNormals()
 
             if("LWRSolver" in requirements or "integrate" in requirements):
-                self.dx = self.computeCellAreas()
+                self.minCellArea = self.computeCellAreas()
                 if(verbose):
-                    print("Minimal area for a triangle in the mesh : ", self.dx)
+                    print("Minimal area for a triangle in the mesh : ", self.minCellArea)
 
             if("EikonalSolver" in requirements or "integrate" in requirements):
                 self.computeTrianglesPerVertex()
@@ -1401,7 +1403,7 @@ class Mesh(object):
         self.barycenters = np.array(barycenters)
         return(min)
 
-    def computeEdgeLength(self) -> None:
+    def computeEdgeLength(self) -> float:
         """
         Compute the edgeLength array.
 
@@ -1410,13 +1412,23 @@ class Mesh(object):
 
                 - LWRSolver
                 - EikonalSolver
+
+        Returns:
+            float: the maximal length of an edge in the mesh.
         """
         edgeLength = []
+        maxL = 0
         for edge in self.edges:
             A = self.vertices[edge[0]]
             B = self.vertices[edge[1]]
 
-            edgeLength.append(np.sqrt( (B[0]-A[0])*(B[0]-A[0]) + (B[1]-A[1])*(B[1]-A[1])))
+            Len = np.sqrt( (B[0]-A[0])*(B[0]-A[0]) + (B[1]-A[1])*(B[1]-A[1]))
+            edgeLength.append(Len)
+            if Len > maxL:
+                maxL = Len
+
+        return maxL
+
         self.edgeLength = np.array(edgeLength)
 
     def getLimits(self):
@@ -1453,7 +1465,7 @@ class Mesh(object):
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
 
         MeshDico = {"type": "triangular mesh"}
-        MeshDico["dx"] = self.dx
+        MeshDico["dx"] = self.minCellArea
         MeshDico["vertices"] = self.vertices.tolist()
         MeshDico["edges"] = self.edges.tolist()
         MeshDico["triangles"] = self.triangles.tolist()
@@ -1495,8 +1507,8 @@ class Mesh(object):
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
         with open(filename) as f:
             data = json.load(f)
-            self.dx : float = data['dx']
-            print("Minimal area for a triangle in the mesh : ", self.dx)
+            self.minCellArea : float = data['dx']
+            print("Minimal area for a triangle in the mesh : ", self.minCellArea)
 
             self.vertices : ArrayLike = np.array(data['vertices'])
             self.edges : ArrayLike = np.array(data['edges']) #Liste des edges par paires d'indices de vertex

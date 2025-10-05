@@ -26,7 +26,7 @@ Methods:
 
 class PedestrianSolver(object):
 
-    def __init__(self, Mesh, dt, dx, initialDensity=[], speedFunction = (lambda x: 1-x), costFunction = (lambda x: 1+2*x), directions = [], options=dict(constantDirectionField = True, convexFlux = True, anNum = "dichotomy", method = "midVector")):
+    def __init__(self, Mesh, dt, initialDensity=[], speedFunction = (lambda x: 1-x), costFunction = (lambda x: 1+2*x), directions = [], options=dict(constantDirectionField = True, convexFlux = True, anNum = "dichotomy", method = "midVector")):
         self.mesh = Mesh #type Mesh
         self.timeStep = 0
 
@@ -40,7 +40,6 @@ class PedestrianSolver(object):
         self.numForgottenSteps = max(int(1/(self.dt*self.options['framerate'])), 1)
         print("Number of steps omitted for one frame : ", self.numForgottenSteps)
 
-        self.dx = dx
 
         self.speedFunction = speedFunction
         print(self.speedFunction(0))
@@ -133,7 +132,7 @@ class PedestrianSolver(object):
         if('max_density' in self.options['additional_computations'].keys()):
             self.maxDensity = [max(initialDensity.values)]
 
-        self.LWRsolver = LWRSolver(self.mesh, self.dt, self.dx, previousDensity = initialDensity, DirectionMap = self.directions, speedFunction = self.speedFunction, options = self.options['lwrSolver'])
+        self.LWRsolver = LWRSolver(self.mesh, self.dt, previousDensity = initialDensity, DirectionMap = self.directions, speedFunction = self.speedFunction, options = self.options['lwrSolver'])
 
     def computeStep(self):
         self.timeStep += 1

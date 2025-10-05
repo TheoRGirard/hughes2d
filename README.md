@@ -73,7 +73,7 @@ opt = dict(model = "hughes",
             )
 
 #Creating the solver and computing---------------------------------------------------
-Solver = Splitting.PedestrianSolver(MyMesh, 0.01,0.01, initialDensity = MyMap, options=opt)
+Solver = Splitting.PedestrianSolver(MyMesh, 0.01, initialDensity = MyMap, options=opt)
 Solver.computeUntilEmpty(100)
 
 #Converting the data to a mp4 video------------------------------------------

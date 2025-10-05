@@ -2,76 +2,129 @@
 """
 Solver for LWR-like 2D equations
 
-Last update : 29/08/25
-
 Girard Theo
 """
 
 
 from hughes2d.Mesh2D import *
 
-#import panda as pd
-#import plotly
 import copy
 import json
 
-
-
-"""
-Objet LWRSolver -uses a transmission map resolution at each edge-
-Take as an init parameter :
-- A direction map (vector field by triangle)
-- A Mesh object
-- A density map (cell value map object)
-- A speed function (lambda function)
-- An boolean optional parameter that tells if the flux function is convex. If this is the case, this parameter makes the computations much lighter.
-- An optional parameter prescribing the method of calculation of the approximations:
-    dichotomy or ...
-- An optional parameter prescribing the numerical method:
-    - tmap : transmission map
-    - midVector : classical godunov flux with the weighted average vector
-
-Methods :
-- computeNextStep : return the computed density for the next time step
-- update : set the computed density as a nex initial density, and a new direction field as parameter
-"""
-
 class LWRSolver(object):
+    """
+    A solver for LWR-type scalar conservation law directed by a vector field in two dimensions. We use the following notations:
 
-    def __init__(self, Mesh, dt, dx, previousDensity=[], DirectionMap = [], speedFunction = (lambda x: 1-x), options=dict(convexFlux = True, anNum = "dichotomy", method = "midVector")):
-        self.mesh = Mesh #type Mesh
+    .. math::
+
+        \\left\\{ \\begin{matrix}
+        \\partial_t \\rho(t,x) + \\partial_x \\mathbf{div}[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
+        \\rho(0,x) = \\rho_0(x)
+        \\end{matrix} \\right.
+
+    Args :
+        Mesh (Mesh): a mesh object on which the equation will be approximated.
+        previousDensity (CellValueMap or List[float]): initial density for the solver. Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
+        directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
+        speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
+        dt (float): the time division for the approximation.
+            Warning:
+                The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
+
+                .. math::
+                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+
+                where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+        opt (dict): an optional dictionary prescribing the numerical method.
+
+            ========================= ====== ====================== =========================================================================================
+            key                       type   possible values        description
+            ========================= ====== ====================== =========================================================================================
+            'method'                  str    "tmap" or "midvector"  determines of the conflict between non-colinear vectors are resolved
+            'anNum'                   str    "dichotomy"            only parameter available at the moment, numerical method to use for the approximations
+            'convexFlux'              bool   True or False          optimization of the computations when the flux is convex or concave
+            'ApproximationThreshold'  float  > 0                    the precision to use for the numerical approximations
+            'verbose'                 bool   True or False          determines if the solver will print informations in the console or not
+            ========================= ====== ====================== =========================================================================================
+
+    Attributes
+    -----------
+
+    Attributes:
+        mesh (Mesh): a mesh object on which the equation will be approximated.
+        densityt0 (ArrayLike): initial density for the solver. Of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
+        densityt1 (ArrayLike): density computed by the solver after one time step. Of the shape of `Mesh.triangles`. Represents :math:`\\rho(\\Delta t, x)`.
+        directions (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
+        fluxFunction (function, float -> float): a function respresenting the flux of agents depending on the local density. Represents :math:`\\rho \mapsto \\rho v(\\cdot)` in the equation above.
+        dt (float): the time division for the approximation.
+            Warning:
+                The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
+
+                .. math::
+                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+
+                where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+        opt (dict): an optional dictionary prescribing the numerical method.
+
+    Methods
+    -----------
+    """
+
+    def __init__(self, Mesh:Mesh, dt:float, previousDensity=[], directionMap:List[List[float]] = [], speedFunction = (lambda x: 1-x), opt:dict = dict(convexFlux = True, anNum = "dichotomy", method = "midVector")):
+        self.mesh:Mesh = Mesh
         if(previousDensity != []):
-            self.densityt0 = np.array(previousDensity) #type CellValueMap
+            self.densityt0:ArrayLike = np.array(previousDensity) #type CellValueMap
         else:
-            self.densityt0 = np.array([0.0 for t in self.mesh.triangles])
-        self.densityt1 = np.array([0.0 for t in self.mesh.triangles])
+            self.densityt0:ArrayLike = np.array([0.0 for t in self.mesh.triangles])
+        self.densityt1:ArrayLike = np.array([0.0 for t in self.mesh.triangles])
 
-        #print(self.exitVertices)
-        self.dt = dt
+        self.dt:float = dt
 
-        self.dx = dx
+        self.opt:dict = opt
 
-        self.options = options
+        self.directions:List[List[float]] = directionMap
 
-        self.directions = DirectionMap
+        if("ApproximationThreshold" not in self.opt.keys() ):
+            self.opt['ApproximationThreshold'] = 0.0001
 
-        if("ApproximationThreshold" not in self.options.keys() ):
-            self.options['ApproximationThreshold'] = 0.0001
-
+        if("verbose" not in self.opt.keys() ):
+            self.opt['verbose'] = False
 
         self.fluxFunction = lambda x: x*speedFunction(x)
 
-        if(self.options["convexFlux"]):
+        if(self.opt["convexFlux"]):
             if(self.fluxFunction == (lambda x: x*(1-x))):
                 self.maxFluxPoint = 0.5
-                print("point de max explicite")
+                if self.opt['verbose']:
+                    print("Explicit max point considered to be 0.5")
             else:
-                self.maxFluxPoint = argMax(self.fluxFunction,0,1,self.options['ApproximationThreshold'])
-                print("point de max trouvé : ", self.maxFluxPoint)
+                self.maxFluxPoint = argMax(self.fluxFunction,0,1,self.opt['ApproximationThreshold'])
+                if self.opt['verbose']:
+                    print("Maximal flux point found at p = ", self.maxFluxPoint)
+
+    def checkCFL(self, LipConstant:float = 1) -> bool:
+        """
+        Checks if the CFL condition is satisfied. Here the CFL condition is:
+
+        .. math::
+            \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+
+        where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+
+        Args:
+            LipConstant (float): the Lipschitz constant of the flux.
+
+        Returns:
+            bool: True if the CFL condition is verified.
+        """
+        if 3*self.dt*LipConstant*self.mesh.maxEdgeLength > self.mesh.minCellArea:
+            print("Warning - the CFL conditions might not be verified everywhere in the mesh.")
+            return False
+        return True
 
 
     def computeStepTmap(self):
-        if(self.options["convexFlux"]):
+        if(self.opt["convexFlux"]):
             for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
                 for edgeNumber, edgeIndex in enumerate(triangleCell):
@@ -97,7 +150,7 @@ class LWRSolver(object):
                             farDensity = self.densityt0[PairOfTriangles[0]]
                         farFlux = (farTriangleGrad[0]*Normal[0] + farTriangleGrad[1]*Normal[1])
 
-                    if(triangleFlux > 1 + self.options['ApproximationThreshold'] or farFlux > 1 + self.options['ApproximationThreshold']):
+                    if(triangleFlux > 1 + self.opt['ApproximationThreshold'] or farFlux > 1 + self.opt['ApproximationThreshold']):
                         print("ALERT : scalar product out of bonds...")
                         print("Norme farTriangleGrad :", farTriangleGrad[0]*farTriangleGrad[0] + farTriangleGrad[1]*farTriangleGrad[1])
                         print("Norme normal :", Normal[0]*Normal[0] + Normal[1]*Normal[1])
@@ -151,7 +204,7 @@ class LWRSolver(object):
                             farDensity = self.densityt0[PairOfTriangles[0]]
                         farFlux = (farTriangleGrad[0]*Normal[0] + farTriangleGrad[1]*Normal[1])
 
-                    if(triangleFlux > 1 + self.options['ApproximationThreshold'] or farFlux > 1 + self.options['ApproximationThreshold']):
+                    if(triangleFlux > 1 + self.opt['ApproximationThreshold'] or farFlux > 1 + self.opt['ApproximationThreshold']):
                         print("ALERT : scalar product out of bonds...")
                         print("Norme farTriangleGrad :", farTriangleGrad[0]*farTriangleGrad[0] + farTriangleGrad[1]*farTriangleGrad[1])
                         print("Norme normal :", Normal[0]*Normal[0] + Normal[1]*Normal[1])
@@ -163,15 +216,15 @@ class LWRSolver(object):
                     elif(triangleFlux >= 0 and farFlux <= 0):
                         Totalflux = 0
                     else:
-                        parametrizedFlux = lambda k : God(Outerflux, self.densityt0[triangleIndex], k,self.options['ApproximationThreshold']) - God(Innerflux,k, farDensity, self.options['ApproximationThreshold'])
-                        k = ApproZeroDichotomie(parametrizedFlux,0,1,self.options['ApproximationThreshold'])
-                        Totalflux = God(Outerflux, self.densityt0[triangleIndex], k,self.options['ApproximationThreshold'])
+                        parametrizedFlux = lambda k : God(Outerflux, self.densityt0[triangleIndex], k,self.opt['ApproximationThreshold']) - God(Innerflux,k, farDensity, self.opt['ApproximationThreshold'])
+                        k = ApproZeroDichotomie(parametrizedFlux,0,1,self.opt['ApproximationThreshold'])
+                        Totalflux = God(Outerflux, self.densityt0[triangleIndex], k,self.opt['ApproximationThreshold'])
                 Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
             self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
 
     def computeStepMidVector(self):
 
-        if(self.options["convexFlux"]):
+        if(self.opt["convexFlux"]):
             for triangleIndex, triangleCell in enumerate(self.mesh.trianglesWithEdges):
                 Modifdensity = 0
 
@@ -207,7 +260,7 @@ class LWRSolver(object):
                         #VectorFlux = [(TriangleGrad[0] + farTriangleGrad[0]), (TriangleGrad[1] + farTriangleGrad[1]) ]
                     normeVectorFlux = np.sqrt(VectorFlux[0]*VectorFlux[0] + VectorFlux[1]*VectorFlux[1])
 
-                    if(normeVectorFlux < self.options['ApproximationThreshold'] or Totalflux == 0):
+                    if(normeVectorFlux < self.opt['ApproximationThreshold'] or Totalflux == 0):
                         Totalflux = 0
                     else:
                         Scalar = (VectorFlux[0]*Normal[0] + VectorFlux[1]*Normal[1])
@@ -274,7 +327,7 @@ class LWRSolver(object):
                         VectorFlux = [(TriangleGrad[0]*self.densityt0[triangleIndex] + farTriangleGrad[0]*farDensity), (TriangleGrad[1]*self.densityt0[triangleIndex] + farTriangleGrad[1]*farDensity) ]
                     normeVectorFlux = np.sqrt(VectorFlux[0]*VectorFlux[0] + VectorFlux[1]*VectorFlux[1])
 
-                    if(normeVectorFlux < self.options['ApproximationThreshold'] or Totalflux == 0):
+                    if(normeVectorFlux < self.opt['ApproximationThreshold'] or Totalflux == 0):
                         Totalflux = 0
                     else:
                         ModifFluxFunc = lambda x : (VectorFlux[0]*Normal[0] + VectorFlux[1]*Normal[1])/normeVectorFlux *self.fluxFunction(x)
@@ -285,9 +338,9 @@ class LWRSolver(object):
             return self.densityt1
 
     def computeNextStep(self):
-        if(self.options["method"] == "tmap"):
+        if(self.opt["method"] == "tmap"):
             return self.computeStepTmap()
-        elif(self.options["method"] == "midVector"):
+        elif(self.opt["method"] == "midVector"):
             return self.computeStepMidVector()
 
     def update(self, newDirectionField):

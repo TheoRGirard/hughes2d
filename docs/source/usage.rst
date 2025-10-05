@@ -52,7 +52,7 @@ If you don't have uv installed, you can see a list of the dependencies in the py
    │   ├── pyqt6-qt6 v6.8.2
    │   └── pyqt6-sip v13.10.0
 
-.. note:: 
+.. note::
    The **pyqt6** module is used for Linux users using **matplotlib** in order to replace the default interactive backend as described here: https://github.com/astral-sh/uv/issues/6893
 
 Getting Started
@@ -63,35 +63,35 @@ You can find a file named *getting_started.py* in */examples*. We rewrite below 
 ::
 
    from hughes2d import *
-   
+
    #Construction of the domain--------------------------------
    MyDomain = Mesh2D.NonConvexDomain([[0,0],[0,1],[1,1],[1,0]])
    MyDomain.addExits([[[1,0],[1,1]]])
    MyDomain.show()
-   
+
    #Construction of the mesh--------------------------------------
    MyMesh = Mesh2D.Mesh()
    MyMesh.generateMeshFromDomain(MyDomain, 0.01)
    MyMesh.show()
    MyMesh.saveToJson("gettingStartedSimu")
-   
-   
+
+
    #Construction of a random initial datum---------------------------------------
    MyMap = Mesh2D.CellValueMap(MyMesh)
    MyMap.generateRandom()
    MyMap.show()
-   
+
    #Setting the options for the simulation-----------------------------------------
    opt = dict(model = "hughes",
                filename = "gettingStartedSimu",
                save = True,
                verbose = True
                )
-   
+
    #Creating the solver and computing---------------------------------------------------
-   Solver = Splitting.PedestrianSolver(MyMesh, 0.01,0.01, initialDensity = MyMap, options=opt)
+   Solver = Splitting.PedestrianSolver(MyMesh, 0.01, initialDensity = MyMap, options=opt)
    Solver.computeUntilEmpty(100)
-   
+
    #Converting the data to a mp4 video------------------------------------------
    Plotter.convertToMP4("gettingStartedSimu", limits=[[0,1],[0,1]])
 
