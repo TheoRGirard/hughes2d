@@ -32,9 +32,9 @@ class LWRSolver(object):
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
 
                 .. math::
-                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
 
-                where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
         opt (dict): an optional dictionary prescribing the numerical method.
 
             ========================= ====== ====================== =========================================================================================
@@ -61,9 +61,9 @@ class LWRSolver(object):
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
 
                 .. math::
-                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
 
-                where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
         opt (dict): an optional dictionary prescribing the numerical method.
 
     Methods
@@ -107,9 +107,9 @@ class LWRSolver(object):
         Checks if the CFL condition is satisfied. Here the CFL condition is:
 
         .. math::
-            \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
+            \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
 
-        where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length of the edges of the mesh.
+        where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
 
         Args:
             LipConstant (float): the Lipschitz constant of the flux.
