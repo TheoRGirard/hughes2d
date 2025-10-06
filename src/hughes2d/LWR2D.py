@@ -28,7 +28,7 @@ class LWRSolver(object):
         directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
         speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
         dt (float): the time division for the approximation.
-        
+
             Warning:
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
 
@@ -102,7 +102,7 @@ class LWRSolver(object):
                 if self.opt['debugging']:
                     print("Explicit max point considered to be 0.5")
             else:
-                self.maxFluxPoint = argMax(self.fluxFunction,0,1,self.opt['ApproximationThreshold'])
+                self.maxFluxPoint = LWRSolver.argMax(self.fluxFunction,0,1,self.opt['ApproximationThreshold'])
                 if self.opt['debugging']:
                     print("Maximal flux point found at p = ", self.maxFluxPoint)
 
@@ -228,9 +228,9 @@ class LWRSolver(object):
                     else:
                         Outerflux = lambda x: triangleFlux*self.fluxFunction(x)
                         Innerflux = lambda x: farFlux*self.fluxFunction(x)
-                        parametrizedFlux = lambda k : God(Outerflux, self.densityt0[triangleIndex], k,precision=self.opt['ApproximationThreshold']) - God(Innerflux,k, farDensity, precision=self.opt['ApproximationThreshold'])
-                        k = ApproZeroDichotomie(parametrizedFlux,0,1,self.opt['ApproximationThreshold'], hints=[self.densityt0[triangleIndex],farDensity])
-                        Totalflux = God(Outerflux, self.densityt0[triangleIndex], k,self.opt['ApproximationThreshold'])
+                        parametrizedFlux = lambda k : LWRSolver.God(Outerflux, self.densityt0[triangleIndex], k,precision=self.opt['ApproximationThreshold']) - LWRSolver.God(Innerflux,k, farDensity, precision=self.opt['ApproximationThreshold'])
+                        k = LWRSolver.ApproZeroDichotomie(parametrizedFlux,0,1,self.opt['ApproximationThreshold'], hints=[self.densityt0[triangleIndex],farDensity])
+                        Totalflux = LWRSolver.God(Outerflux, self.densityt0[triangleIndex], k,self.opt['ApproximationThreshold'])
                     Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
 
                 self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
@@ -342,7 +342,7 @@ class LWRSolver(object):
                         if((VectorFlux[0]*Normal[0] + VectorFlux[1]*Normal[1])/normeVectorFlux > 1 + float(1e-10)):
                             print("Warning : scalar product greater than the norm, perhaps the normal vector is not normalized")
                         ModifFluxFunc = lambda x : (VectorFlux[0]*Normal[0] + VectorFlux[1]*Normal[1])/normeVectorFlux *self.fluxFunction(x)
-                        Totalflux = God(ModifFluxFunc, self.densityt0[triangleIndex], farDensity, precision=self.opt['ApproximationThreshold'])
+                        Totalflux = LWRSolver.God(ModifFluxFunc, self.densityt0[triangleIndex], farDensity, precision=self.opt['ApproximationThreshold'])
 
                     Modifdensity -= (self.dt/self.mesh.cellAreas[triangleIndex]) * self.mesh.edgeLength[edgeIndex]* Totalflux
                 self.densityt1[triangleIndex] = min(1,max(self.densityt0[triangleIndex] + Modifdensity,0))
@@ -371,155 +371,160 @@ class LWRSolver(object):
         self.densityt0 = np.copy(self.densityt1)
         self.directions = newDirectionField
 
-def argMax(f,a:float,b:float, precision:float = 0.0001):
-    """
-    Numerically approximates the maximal point of the function `f` between `a` and `b` and returns the maximal argument.
+    @staticmethod
+    def argMax(f,a:float,b:float, precision:float = 0.0001):
+        """
+        Numerically approximates the maximal point of the function `f` between `a` and `b` and returns the maximal argument.
 
-    Args:
-        f (function, float -> float): the function `f` for which the armax will be computed.
-        a (float): one of the bounds for the search domain of the argmax.
-        b (float): one of the bounds for the search domain of the argmax.
-        precision (float): the error margin for the approximation.
+        Args:
+            f (function, float -> float): the function `f` for which the armax will be computed.
+            a (float): one of the bounds for the search domain of the argmax.
+            b (float): one of the bounds for the search domain of the argmax.
+            precision (float): the error margin for the approximation.
 
-    Returns:
-        float: the argmax computed.
-    """
-    NumSlice = int(1+1/precision)
-    Max = -float('inf')
-    Pas = abs(b-a)/NumSlice
-    xmax = min(a,b)
+        Returns:
+            float: the argmax computed.
+        """
+        NumSlice = int(1+1/precision)
+        Max = -float('inf')
+        Pas = abs(b-a)/NumSlice
+        xmax = min(a,b)
 
-    for i in range(NumSlice):
-        Test = f(min(a,b) + i*Pas)
-        if(Test > Max):
-            Max = Test
-            xmax = min(a,b) + i*Pas
-    return(xmax)
+        for i in range(NumSlice):
+            Test = f(min(a,b) + i*Pas)
+            if(Test > Max):
+                Max = Test
+                xmax = min(a,b) + i*Pas
+        return(xmax)
 
-def Max(f,a:float,b:float, precision:float = 0.0001):
-    """
-    Numerically approximates the maximum of the function `f` between `a` and `b` and returns the maximal value.
+    @staticmethod
+    def Max(f,a:float,b:float, precision:float = 0.0001):
+        """
+        Numerically approximates the maximum of the function `f` between `a` and `b` and returns the maximal value.
 
-    Args:
-        f (function, float -> float): the function `f` for which the max will be computed.
-        a (float): one of the bounds for the search domain of the max.
-        b (float): one of the bounds for the search domain of the max.
-        precision (float): the error margin for the approximation.
+        Args:
+            f (function, float -> float): the function `f` for which the max will be computed.
+            a (float): one of the bounds for the search domain of the max.
+            b (float): one of the bounds for the search domain of the max.
+            precision (float): the error margin for the approximation.
 
-    Returns:
-        float: the maximal value computed.
-    """
-    Max = -float('inf')
-    nbStep:int = int(np.ceil(np.abs(b-a)/precision))
-    if nbStep == 0:
-        print("Warning: precision is less than the difference between the bounds of the domain")
-        return (a+b)/2
+        Returns:
+            float: the maximal value computed.
+        """
+        Max = -float('inf')
+        nbStep:int = int(np.ceil(np.abs(b-a)/precision))
+        if nbStep == 0:
+            print("Warning: precision is less than the difference between the bounds of the domain")
+            return (a+b)/2
 
-    Pas = np.abs(b-a)/nbStep
+        Pas = np.abs(b-a)/nbStep
 
-    for i in range(nbStep):
-        Test = f(min(a,b) + i*Pas)
-        if(Test > Max):
-            Max = Test
-    return(Max)
+        for i in range(nbStep):
+            Test = f(min(a,b) + i*Pas)
+            if(Test > Max):
+                Max = Test
+        return(Max)
 
-def Min(f,a:float,b:float, precision:float = 0.0001):
-    """
-    Numerically approximates the minimum of the function `f` between `a` and `b` and returns the minimal value.
+    @staticmethod
+    def Min(f,a:float,b:float, precision:float = 0.0001):
+        """
+        Numerically approximates the minimum of the function `f` between `a` and `b` and returns the minimal value.
 
-    Args:
-        f (function, float -> float): the function `f` for which the min will be computed.
-        a (float): one of the bounds for the search domain of the min.
-        b (float): one of the bounds for the search domain of the min.
-        precision (float): the error margin for the approximation.
+        Args:
+            f (function, float -> float): the function `f` for which the min will be computed.
+            a (float): one of the bounds for the search domain of the min.
+            b (float): one of the bounds for the search domain of the min.
+            precision (float): the error margin for the approximation.
 
-    Returns:
-        float: the minimal value computed.
-    """
-    Min = float('inf')
-    nbStep:int = int(np.ceil(np.abs(b-a)/precision))
-    if nbStep == 0:
-        print("Warning: precision is less than the difference between the bounds of the domain")
-        return (a+b)/2
+        Returns:
+            float: the minimal value computed.
+        """
+        Min = float('inf')
+        nbStep:int = int(np.ceil(np.abs(b-a)/precision))
+        if nbStep == 0:
+            print("Warning: precision is less than the difference between the bounds of the domain")
+            return (a+b)/2
 
-    Pas = np.abs(b-a)/nbStep
+        Pas = np.abs(b-a)/nbStep
 
-    for i in range(nbStep):
-        Test = f(min(a,b) + i*Pas)
-        if(Test < Min):
-            Min = Test
-    return(Min)
+        for i in range(nbStep):
+            Test = f(min(a,b) + i*Pas)
+            if(Test < Min):
+                Min = Test
+        return(Min)
 
-def God(f,a:float,b:float, precision:float = 0.0001):
-    """
-    Numerically approximates the Godunov flux of the function `f` between `a` and `b` defined by the formula:
+    @staticmethod
+    def God(f,a:float,b:float, precision:float = 0.0001):
+        """
+        Numerically approximates the Godunov flux of the function `f` between `a` and `b` defined by the formula:
 
-    .. math::
+        .. math::
 
-        \\mathbf{God}_{f}(a,b) = \\left\\{ \\begin{matrix} \\mathbf{min}_{c \\in [a,b]} f(c) \\textrm{ if } a < b \\\\
-        \\mathbf{max}_{c \\in [b,a]} f(c) \\textrm{ if } a > b. \\end{matrix} \\right.
+            \\mathbf{God}_{f}(a,b) = \\left\\{ \\begin{matrix} \\mathbf{min}_{c \\in [a,b]} f(c) \\textrm{ if } a < b \\\\
+            \\mathbf{max}_{c \\in [b,a]} f(c) \\textrm{ if } a > b. \\end{matrix} \\right.
 
-    Args:
-        f (function, float -> float): the function `f` for which the Godunov flux will be computed.
-        a (float): one of the parameters for the Godunov flux.
-        b (float): one of the parameters for the Godunov flux.
-        precision (float): the error margin for the approximation.
+        Args:
+            f (function, float -> float): the function `f` for which the Godunov flux will be computed.
+            a (float): one of the parameters for the Godunov flux.
+            b (float): one of the parameters for the Godunov flux.
+            precision (float): the error margin for the approximation.
 
-    Returns:
-        float: the Godunov flux computed.
-    """
-    if np.abs(a - b) < precision:
-        return f((a+b)/2)
-    if(a < b):
-        return Min(f,a,b, precision)
-    else :
-        return Max(f,b,a, precision)
+        Returns:
+            float: the Godunov flux computed.
+        """
+        if np.abs(a - b) < precision:
+            return f((a+b)/2)
+        if(a < b):
+            return LWRSolver.Min(f,a,b, precision)
+        else :
+            return LWRSolver.Max(f,b,a, precision)
 
-def ApproZeroDichotomie(f,a:float,b:float, precision:float = 0.0001, hints=[]):
-    """
-    Numerically approximates the a root of the function `f` between `a` and `b` using a dichotomy method.
+    @staticmethod
+    def ApproZeroDichotomie(f,a:float,b:float, precision:float = 0.0001, hints=[]):
+        """
+        Numerically approximates the a root of the function `f` between `a` and `b` using a dichotomy method.
 
-    Args:
-        f (function, float -> float): the function `f` for which a root will be computed.
-        a (float): one of the bounds for the search domain of the root.
-        b (float): one of the bounds for the search domain of the root.
-        precision (float,optional): the error margin for the approximation.
-        hints (float,optional): possibles value to test before the dichotomy in order to optimize the computation time.
+        Args:
+            f (function, float -> float): the function `f` for which a root will be computed.
+            a (float): one of the bounds for the search domain of the root.
+            b (float): one of the bounds for the search domain of the root.
+            precision (float,optional): the error margin for the approximation.
+            hints (float,optional): possibles value to test before the dichotomy in order to optimize the computation time.
 
-    Returns:
-        float: the approximated root computed.
-    """
-    for x in hints:
-        if abs(f(x)) < precision:
-            return x
+        Returns:
+            float: the approximated root computed.
+        """
+        for x in hints:
+            if abs(f(x)) < precision:
+                return x
 
-    if abs(f(a)) < precision:
-        return a
-    if abs(f(b)) < precision:
-        return b
+        if abs(f(a)) < precision:
+            return a
+        if abs(f(b)) < precision:
+            return b
 
-    c = a+ (b-a)/2
-    while b-a > precision:
-        if abs(f(c)) < precision:
+        c = a+ (b-a)/2
+        while b-a > precision:
+            if abs(f(c)) < precision:
+                return c
+            if(f(a) > 0 and f(b) < -0):
+                if(f(c) >= 0):
+                    a = c
+                else:
+                    b = c
+            elif(f(b) > 0 and f(a) < -0):
+                if(f(c)>0):
+                    b = c
+                else:
+                    a = c
+            else:
+                raise ValueError("Dichotomy is impossible with the function and the domain given as parameters. You should check if the function change of sign exactly once in the domain.")
+
+            c = a+(b-a)/2
+
+        if abs(f(c)) < abs(f(a)) and abs(f(c)) < abs(f(b)):
             return c
-        if(f(a) > 0 and f(b) < -0):
-            if(f(c) >= 0):
-                a = c
-            else:
-                b = c
-        elif(f(b) > 0 and f(a) < -0):
-            if(f(c)>0):
-                b = c
-            else:
-                a = c
+        elif abs(f(a)) < abs(f(b)):
+            return a
         else:
-            raise ValueError("Dichotomy is impossible with the function and the domain given as parameters. You should check if the function change of sign exactly once in the domain.")
-
-        c = a+(b-a)/2
-
-    if abs(f(c)) < abs(f(a)) and abs(f(c)) < abs(f(b)):
-        return c
-    elif abs(f(a)) < abs(f(b)):
-        return a
-    else:
-        return b
+            return b

@@ -63,7 +63,7 @@ opt = dict(model = "hughes",
             eikoSolver = {  'constrained' : True,
                             'NarrowBandDepth' : 2})
 
-Solver = Splitting.PedestrianSolver(MyMesh, 0.01,0.01, initialDensity = MyMap, options=opt)
+Solver = Splitting.PedestrianSolver(MyMesh, 0.01, initialDensity = MyMap, options=opt)
 #for i in range(5):
 #Solver.computeStepsAndShow(2)
 #Solver.directions[-1].checkGradientValidity()

@@ -52,7 +52,6 @@ Opt3=dict(method = "FMT", constrained = True, NarrowBandDepth = 2)
 FMTCSolv = EikonalSolver.EikoSolver(MyMesh,DensityMap = MyEmptyMap,opt=Opt3)
 FMTCSolv.computeField()
 MyVectors = FMTCSolv.fieldValues.computeGradientFlow()
-#Plotter.plotVectorField(MyMesh.vertices,MyMesh.triangles,MyVectors2)
 
 MyVectors2 = [[1,0] for _ in MyMesh.triangles]
 
@@ -66,7 +65,7 @@ opt = dict(model = "constantDirectionField",
                             'ApproximationThreshold' : 0.0001}
                             )
 
-Solver = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors, options=opt)
+Solver = Splitting.PedestrianSolver(MyMesh, dt, initialDensity = MyMap, directions = MyVectors, options=opt)
 
 opt2 = dict(model = "constantDirectionField",
             filename = "data/HughesCouloirTmap",
@@ -78,7 +77,7 @@ opt2 = dict(model = "constantDirectionField",
                             'ApproximationThreshold' : 0.0001}
                             )
 
-Solver2 = Splitting.PedestrianSolver(MyMesh, dt,dx, initialDensity = MyMap, directions = MyVectors, options=opt2)
+Solver2 = Splitting.PedestrianSolver(MyMesh, dt, initialDensity = MyMap, directions = MyVectors, options=opt2)
 
 L1Diffs = [[],[]]
 for j in range(numStep):

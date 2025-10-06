@@ -27,7 +27,7 @@ opt = dict(constantDirectionField = False,
                             'NarrowBandDepth' : 2},
             additional_computations = { 'zones_mean_density' : True })
 
-Solver = Splitting.HughesScheme(MyMesh, 0.003,0.0025, initialDensity = MyMap, options=opt)
+Solver = Splitting.HughesScheme(MyMesh, 0.003, initialDensity = MyMap, options=opt)
 
 #for i in range(5):
 #Solver.computeStepsAndShow(2)
