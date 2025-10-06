@@ -881,7 +881,7 @@ class Mesh(object):
         print("Mesh imported. Contains %d triangles."% len(self.triangles))
         self.computations(verbose=verbose, requirements=requirements)
 
-    def importMeshFromMshFreeFem(self, filename : str, flag_dict : dict = {"domain" : 0, "exit" : 98, "wall" : 99}, verbose : bool = False, requirements : List[str] = ['all']) -> None:
+    def importMeshFromMshFreeFem(self, filename : str, flag_dict : dict = {"domain" : 0, "exit" : [98], "wall" : [99]}, verbose : bool = False, requirements : List[str] = ['all']) -> None:
         """
         Imports the data from a mesh file constructed in FreeFEM into the Mesh object.
         The specific structure (inner walls, exits...) can be specified by specifying different flags in FreeFEM.
@@ -908,9 +908,9 @@ class Mesh(object):
             for i in range(nb_vertices):
                 line = file.readline().split()
                 vertices.append([float(line[0]), float(line[1])])
-                if(int(line[2]) == flag_dict['exit']):
+                if(int(line[2]) in flag_dict['exit']):
                     exitVertices.append(i)
-                elif(int(line[2]) == flag_dict['wall']):
+                elif(int(line[2]) in flag_dict['wall']):
                     wallVertices.append(i)
             self.vertices = np.array(vertices)
             self.exitVertices = np.array(exitVertices)
@@ -931,9 +931,9 @@ class Mesh(object):
                 line = file.readline().split()
                 for index, edge in enumerate(self.edges):
                     if (edge[0] == int(line[0])-1 and edge[1] == int(line[1])-1 ) or (edge[0] == int(line[1])-1  and edge[1] == int(line[0])-1 ) :
-                        if(int(line[2]) == flag_dict['exit']):
+                        if(int(line[2]) in flag_dict['exit']):
                             exitEdges.append(index)
-                        elif(int(line[2]) == flag_dict['wall']):
+                        elif(int(line[2]) in flag_dict['wall']):
                             wallEdges.append(index)
                         else :
                             print("Warning : some special edges are neither wall nor exit")
@@ -1158,6 +1158,7 @@ class Mesh(object):
             self.computePairOfTrianglesList()
             self.computeOuterNormals()
             self.minCellArea = self.computeCellAreas()
+            self.maxEdgeLength = self.computeEdgeLength()
             if(verbose):
                 print("Minimal area for a triangle in the mesh : ", self.minCellArea)
             self.computeEdgeLength()
@@ -1166,10 +1167,10 @@ class Mesh(object):
         else:
             if("EikonalSolver" in requirements or "LWRSolver" in requirements or "FreeFEM" in requirements):
                 self.computeEdgeList()
-                self.maxEdgeLength = self.computeEdgeLength()
 
             if("EikonalSolver" in requirements or "LWRSolver" in requirements):
                 self.setExitsFromDomain(domain)
+                self.maxEdgeLength = self.computeEdgeLength()
                 for zoneName in domain.zones.keys():
                     self.addConvexZone(zoneName, domain.zones[zoneName])
 

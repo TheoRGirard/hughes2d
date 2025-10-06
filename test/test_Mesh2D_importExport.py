@@ -39,8 +39,8 @@ def test_import_msh():
 
 def test_import_msh_FF():
     if meshio:
-        MyMesh.importMeshFromMshFreeFem("test/ressources/test_mesh_FreeFEM.msh")
-        assert len(MyMesh.triangles) == 5038
+        MyMesh.importMeshFromMshFreeFem("test/ressources/test_mesh_FreeFEM.msh", flag_dict = {"domain" : 0, "exit" : [2], "wall" : [1,3,4]})
+        assert len(MyMesh.triangles) == 72
     else:
         with pytest.raises(ImportError):
             MyMesh.importMeshFromMsh("filename.msh")
