@@ -28,6 +28,7 @@ class LWRSolver(object):
         directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
         speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
         dt (float): the time division for the approximation.
+        
             Warning:
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
 
@@ -35,6 +36,7 @@ class LWRSolver(object):
                     \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
 
                 where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
+
         opt (dict): an optional dictionary prescribing the numerical method.
 
             ========================= ====== ====================== =========================================================================================
