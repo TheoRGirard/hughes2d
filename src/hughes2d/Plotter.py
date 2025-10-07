@@ -32,7 +32,7 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300)
         ImportError: if matplotlib is not installed.
     """
 
-    if not matplotlib:
+    if not plt:
         raise ImportError("matplotlib is required for this function.")
 
     with open(filename +"_mesh.json") as f:
@@ -93,7 +93,7 @@ def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[L
     Raises:
         ImportError: if matplotlib is not installed.
     """
-    if not matplotlib:
+    if not plt:
         raise ImportError("matplotlib is required for this function.")
 
     IntTimes = [int(times[i]*25) for i in range(len(times))]
