@@ -62,40 +62,44 @@ class PedestrianSolver(object):
         speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
         costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
         directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density. If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
-        options (dict,optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations.
+        options (dict,optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` below.
 
-            ========================== ===== ========================================================== ===========================================================================================================================
-            key                        type  possible values                                            description
-            ========================== ===== ========================================================== ===========================================================================================================================
-            'model'                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
-            'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
-            'filename'                 str   a valid path                                               sets the path and basename for the save files.
-            'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
-            'additional_computations'  dict  -                                                          adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
-            'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
-            'lwrSolver'                dict  -                                                          the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
-            'eikoSolver'               dict  -                                                          the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
-            'CGparameters'             dict  -                                                          the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
-            ========================== ===== ========================================================== ===========================================================================================================================
+    .. _options-pedestrian:
+    
+    options
 
-            .. _AdditionnalComputations:
+        ========================== ===== ========================================================== ===========================================================================================================================
+        key                        type  possible values                                            description
+        ========================== ===== ========================================================== ===========================================================================================================================
+        'model'                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
+        'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
+        'filename'                 str   a valid path                                               sets the path and basename for the save files.
+        'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
+        'additional_computations'  dict  -                                                          adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
+        'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
+        'lwrSolver'                dict  -                                                          the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
+        'eikoSolver'               dict  -                                                          the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
+        'CGparameters'             dict  -                                                          the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
+        ========================== ===== ========================================================== ===========================================================================================================================
 
-            additional_computations
-                This dictionary can contain 3 optional keys at the moment:
+        .. _AdditionnalComputations:
 
-                    - ``total_mass``: computes the total mass in the domain for each time step.
-                    - ``zones_mean_density``: computes the mean density in each zone of the mesh defined in ``Mesh.zones`` for each time step.
-                    - ``max_density``: computes the maximal density present in the domain for each time step.
+        additional_computations
+            This dictionary can contain 3 optional keys at the moment:
 
-            .. _CGparameters:
+                - ``total_mass``: computes the total mass in the domain for each time step.
+                - ``zones_mean_density``: computes the mean density in each zone of the mesh defined in ``Mesh.zones`` for each time step.
+                - ``max_density``: computes the maximal density present in the domain for each time step.
 
-            CGparameters
-                This dictionary contains two different keys:
+        .. _CGparameters:
 
-                    - ``radius`` (float): corresponds to the radius of the convolution.
-                    - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
+        CGparameters
+            This dictionary contains two different keys:
 
-                See :ref:`ColomboGaravelloModel` in the documention for more details.
+                - ``radius`` (float): corresponds to the radius of the convolution.
+                - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
+
+            See :ref:`ColomboGaravelloModel` in the documention for more details.
 
     Raises:
         ValueError: if the "model" key in the option dictionary is not set properly.
