@@ -44,57 +44,6 @@ class PedestrianSolver(object):
 
             MySolver.computeUntilEmpty()
 
-    Models
-    --------
-
-    At the moment, three models are available for simulations:
-
-        - Hughes' model: a model where the agents try to minimize their individual cost by avoiding high density regions.
-        - Colombo-Garavello-Lecureux-Mercier: a model where the agents try to take the shortest path to the exits but are deviated by high density regions.
-        - LWR with constant direction field: a model where the agents take the shortest path to the exits without taking the surrounding density into account.
-
-    See the :doc:`maths` section of the documentation for more details.
-
-    .. _options-pedestrian:
-
-    Options
-    --------
-
-    Options are passed as an optional dictionary as a parameter of the ``PedestrianSolver`` object.
-
-    ========================== ===== ========================================================== ===========================================================================================================================
-    key                        type  possible values                                            description
-    ========================== ===== ========================================================== ===========================================================================================================================
-    'model'                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
-    'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
-    'filename'                 str   a valid path                                               sets the path and basename for the save files.
-    'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
-    'additional_computations'  dict  -                                                          adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
-    'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
-    'lwrSolver'                dict  -                                                          the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
-    'eikoSolver'               dict  -                                                          the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
-    'CGparameters'             dict  -                                                          the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
-    ========================== ===== ========================================================== ===========================================================================================================================
-
-    .. _AdditionnalComputations:
-
-    additional_computations
-        This dictionary can contain 3 optional keys at the moment:
-
-            - ``total_mass``: computes the total mass in the domain for each time step.
-            - ``zones_mean_density``: computes the mean density in each zone of the mesh defined in ``Mesh.zones`` for each time step.
-            - ``max_density``: computes the maximal density present in the domain for each time step.
-
-    .. _CGparameters:
-
-    CGparameters
-        This dictionary contains two different keys:
-
-            - ``radius`` (float): corresponds to the radius of the convolution.
-            - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
-
-        See :ref:`ColomboGaravelloModel` in the documention for more details.
-
     Args:
         Mesh (Mesh): a mesh object on which the equation will be approximated.
         previousDensity (CellValueMap or List[float]): initial density for the solver. Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
