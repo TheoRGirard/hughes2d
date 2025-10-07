@@ -103,6 +103,7 @@ class PedestrianSolver(object):
         costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
         directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
             If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
+
         options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
 
     Raises:
@@ -123,7 +124,6 @@ class PedestrianSolver(object):
 
     Methods
     ----------
-
     """
 
     def __init__(self, Mesh:Mesh, dt:float, initialDensity:CellValueMap, speedFunction = (lambda x: 1-x), costFunction = (lambda x: 1+2*x), directions:List[List[float]] = [], options:dict=dict(model="hughes")):
