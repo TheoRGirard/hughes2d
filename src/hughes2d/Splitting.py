@@ -96,15 +96,32 @@ class PedestrianSolver(object):
         See :ref:`ColomboGaravelloModel` in the documention for more details.
 
     Args:
-        Mesh (Mesh): the mesh on which the approximations will be computed.
-        dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
-        initialDensity (CellValueMap): the initial density in the domain.
-        speedFunction (function, float -> float): the speed function corresponding to the speed of agents depending on the local density.
-        costFunction (function, float -> float): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
-        directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
-            If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
+        Mesh (Mesh): a mesh object on which the equation will be approximated.
+        previousDensity (CellValueMap or List[float]): initial density for the solver. Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
+        directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
+        speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
+        dt (float): the time division for the approximation.
 
-        options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
+            Warning:
+                The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
+
+                .. math::
+                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
+
+                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
+
+        opt (dict): an optional dictionary prescribing the numerical method.
+
+            ========================= ====== ====================== =========================================================================================
+            key                       type   possible values        description
+            ========================= ====== ====================== =========================================================================================
+            'method'                  str    "tmap" or "midvector"  determines of the conflict between non-colinear vectors are resolved
+            'anNum'                   str    "dichotomy"            only parameter available at the moment, numerical method to use for the approximations
+            'convexFlux'              bool   True or False          optimization of the computations when the flux is convex or concave
+            'ApproximationThreshold'  float  > 0                    the precision to use for the numerical approximations
+            'debugging'               bool   True or False          determines if the solver will print debugging informations in the console or not
+            ========================= ====== ====================== =========================================================================================
+
 
     Raises:
         ValueError: if the "model" key in the option dictionary is not set properly.
