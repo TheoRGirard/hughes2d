@@ -2,16 +2,16 @@
 Geometry reference
 ===================
 
-.. autoclass:: hughes2d::Mesh2D.NonConvexDomain
+.. autoclass:: hughes2d::NonConvexDomain
   :members:
 
-.. autoclass:: hughes2d::Mesh2D.Mesh
+.. autoclass:: hughes2d::Mesh
   :members:
 
-.. autoclass:: hughes2d::Mesh2D.CellValueMap
+.. autoclass:: hughes2d::CellValueMap
   :members:
 
-.. autoclass:: hughes2d::Mesh2D.VertexValueMap
+.. autoclass:: hughes2d::VertexValueMap
   :members:
 
 ===========================
@@ -27,5 +27,9 @@ Equation solvers reference
 .. autoclass:: hughes2d::PedestrianSolver
   :members:
 
+================
+Plot utilities
+================
 
-
+.. automodule:: hughes2d::Plotter
+   :members:
