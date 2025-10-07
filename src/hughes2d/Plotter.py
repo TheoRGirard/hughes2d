@@ -130,7 +130,19 @@ def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[L
 
 
 
-def plotVectorField(VertexList, TriangleList, VectorField, plotMesh=True):
+def plotVectorField(VertexList:List[List[float]], TriangleList:List[List[int]], VectorField:List[List[float]], plotMesh:bool=True) -> None:
+    """
+    Displays a vector field passed as a parameter with plotly.
+
+    Args:
+        VertexList (List[List[float]]): a list of the vertices of the mesh on which the vector field will be plotted.
+        TriangleList (List[List[int]]): a list of the triangles of the mesh on which the vector field will be plotted.
+        VectorField (List[List[float]]): the vector field to plot. Must be of the same shape as ``TriangleList``.
+        plotMesh (bool, optional): whether or not the mesh should be plotted in background.
+
+    Raises:
+        ImportError: if plotly is not installed.
+    """
     if not go:
         raise ImportError("plotly is required for this function.")
 

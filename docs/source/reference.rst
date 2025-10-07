@@ -18,8 +18,12 @@ Geometry reference
 Equation solvers reference
 ===========================
 
+.. _EikoSolver:
+
 .. autoclass:: hughes2d::EikoSolver
   :members:
+
+.. _LWRSolver:
 
 .. autoclass:: hughes2d::LWRSolver
   :members:
@@ -31,5 +35,8 @@ Equation solvers reference
 Plot utilities
 ================
 
-.. automodule:: hughes2d::Plotter
-   :members:
+.. autofunction:: hughes2d::convertToMP4
+
+.. autofunction:: hughes2d::saveTimeSlices
+
+.. autofunction:: hughes2d::plotVectorField
