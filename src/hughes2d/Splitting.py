@@ -106,9 +106,6 @@ class PedestrianSolver(object):
 
         options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
 
-    Raises:
-        ValueError: if the "model" key in the option dictionary is not set properly.
-
     Attributes
     ------------
 
