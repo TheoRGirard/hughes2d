@@ -3,6 +3,8 @@ import json
 import numpy as np
 import csv
 
+from typing import List
+
 try:
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
