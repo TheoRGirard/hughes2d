@@ -29,7 +29,7 @@ class LWRSolver(object):
         speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
         dt (float): the time division for the approximation.
 
-            .. _CFL-warning:
+            .. _CFLwarning:
 
             Warning:
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
