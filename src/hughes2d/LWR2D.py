@@ -29,6 +29,8 @@ class LWRSolver(object):
         speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
         dt (float): the time division for the approximation.
 
+            .. _CFL-warning:
+
             Warning:
                 The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
 
@@ -370,6 +372,26 @@ class LWRSolver(object):
         """
         self.densityt0 = np.copy(self.densityt1)
         self.directions = newDirectionField
+
+    def showDensity(self, t:int=1):
+        """
+        Displays the density map. If t = 0, it shows the initial datum else if t = 1 (default), it shows the density computed after one time step.
+
+        Args:
+            t (int, optional): the time at which the density should be dispayed (0 or 1).
+
+        Raises:
+            ValueError: if t is not 0 or 1.
+        """
+        Map = CellValueMap(self.mesh)
+        if t == 0:
+            Map.values = self.densityt0
+        elif t == 1:
+            Map.values = self.densityt1
+        else:
+            raise ValueError("Invalid value for t.")
+
+        Map.show()
 
     @staticmethod
     def argMax(f,a:float,b:float, precision:float = 0.0001):

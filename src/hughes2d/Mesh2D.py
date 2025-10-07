@@ -1465,7 +1465,8 @@ class Mesh(object):
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
 
         MeshDico = {"type": "triangular mesh"}
-        MeshDico["dx"] = self.minCellArea
+        MeshDico["minCellArea"] = self.minCellArea
+        MeshDico["maxEdgeLength"] = self.maxEdgeLength
         MeshDico["vertices"] = self.vertices.tolist()
         MeshDico["edges"] = self.edges.tolist()
         MeshDico["triangles"] = self.triangles.tolist()
@@ -1507,7 +1508,8 @@ class Mesh(object):
             raise ImportError("Module json not or wrongly installed. Needed for the json methods")
         with open(filename) as f:
             data = json.load(f)
-            self.minCellArea : float = data['dx']
+            self.minCellArea : float = data['minCellArea']
+            self.maxEdgeLength : float = data['maxEdgeLength']
             print("Minimal area for a triangle in the mesh : ", self.minCellArea)
 
             self.vertices : ArrayLike = np.array(data['vertices'])

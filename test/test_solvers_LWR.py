@@ -6,18 +6,16 @@ import pytest
 This file tests the LWR solver.
 """
 
-MyDomain = NonConvexDomain([[0,0],[10,0],[10,5],[0,5]])
-MyDomain.addExit([[10,0],[10,5]])
-
 MyMesh = Mesh()
 
 #Mesh generation
-MyMesh.generateMeshFromDomain(MyDomain, 0.2)
-print("Number of triangles : ", len(MyMesh.triangles))
-MyMesh.saveToJson("test/ressources/test_LWR")
+#MyDomain = NonConvexDomain([[0,0],[10,0],[10,5],[0,5]])
+#MyDomain.addExit([[10,0],[10,5]])
+#MyMesh.generateMeshFromDomain(MyDomain, 0.2)
+#MyMesh.saveToJson("test/ressources/test_LWR")
 
 #Mesh loading
-#MyMesh.loadFromJson("test/ressources/test_LWR_mesh.json")
+MyMesh.loadFromJson("test/ressources/test_LWR_mesh.json")
 
 VectorField = [[1,0] for _ in MyMesh.triangles]
 

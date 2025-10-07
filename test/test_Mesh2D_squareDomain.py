@@ -107,9 +107,9 @@ def test_generateMesh():
     assert max(Mesh1.cellAreas) <  0.1
 
 def test_saveLoadJson():
-    Mesh1.saveToJson("test/testMesh1")
+    Mesh1.saveToJson("test/ressources/test_Mesh2D")
     Mesh2 = Mesh()
-    Mesh2.loadFromJson("test/testMesh1_mesh.json")
+    Mesh2.loadFromJson("test/ressources/test_Mesh2D_mesh.json")
 
     for i in range(len(Mesh1.triangles)):
         for j in range(3):

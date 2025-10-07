@@ -1,0 +1,32 @@
+{
+    "type": "density field",
+    "dt": 0.1,
+    "options": {
+        "model": "constantDirectionField",
+        "save": true,
+        "filename": "test/test_pedestrian_outputs/test",
+        "additional_computations": {
+            "total_mass": true,
+            "max_density": true
+        },
+        "framerate": 25,
+        "verbose": false,
+        "eikoSolver": {
+            "constrained": true,
+            "NarrowBandDepth": 2,
+            "method": "FMT",
+            "debugging": false
+        },
+        "lwrSolver": {
+            "convexFlux": true,
+            "anNum": "dichotomy",
+            "method": "midVector",
+            "ApproximationThreshold": 0.0001,
+            "debugging": false
+        }
+    },
+    "finalTimeStep": 12,
+    "densities": "test/test_pedestrian_outputs/test_densities.csv",
+    "potential": "test/test_pedestrian_outputs/test_potential.csv",
+    "vectors": "test/test_pedestrian_outputs/test_vectors.csv"
+}

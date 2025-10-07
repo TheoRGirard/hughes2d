@@ -1,6 +1,7 @@
 {
     "type": "triangular mesh",
-    "dx": 0.027073813819986692,
+    "minCellArea": 0.027073813819986692,
+    "maxEdgeLength": 0.75,
     "vertices": [
         [
             0.0,

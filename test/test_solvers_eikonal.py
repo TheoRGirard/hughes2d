@@ -12,12 +12,11 @@ try:
 except ImportError:
     go = None
 
-MyDomain = NonConvexDomain([[0,0],[0,1],[1,1],[1,0]])
-MyDomain.addExit([[1,0],[1,1]])
-
 MyMesh = Mesh()
 
 #Mesh generation
+#MyDomain = NonConvexDomain([[0,0],[0,1],[1,1],[1,0]])
+#MyDomain.addExit([[1,0],[1,1]])
 #MyMesh.generateMeshFromDomain(MyDomain, 0.005)
 #MyMesh.saveToJson("test/ressources/test_Eiko")
 
