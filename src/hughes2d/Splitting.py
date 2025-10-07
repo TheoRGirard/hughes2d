@@ -14,6 +14,36 @@ class PedestrianSolver(object):
     """
     An object wrapping together different models for pedestrian flows.
 
+    Examples:
+        First, we need a `Mesh` object in order to create the solver::
+
+            MyMesh = Mesh()
+            MyMesh.loadFromJson("pathToMyMesh.json")
+
+        Then we need to declare the options in a dictionnary::
+
+            opt = dict( model = "hughes",
+                        filename = "pathForTheSavedFile",
+                        save = True,
+                        verbose = False,
+                        lwrSolver = {   'convexFlux' : True,
+                                        'method' : "midVector",
+                                        'ApproximationThreshold' : 0.0001},
+                        eikoSolver = {  'method' : "FMT",
+                                        'constrained' : True,
+                                        'NarrowBandDepth' : 2})
+
+        Eventually, we need to define an initial datum and we are in a position to instantiate the solver::
+
+            InitialDatum = Mesh2D.CellValueMap(MyMesh)
+            InitialDatum.generateRandom()
+
+            MySolver = PedestrianSolver(MyMesh, 0.01, initialDensity = InitialDatum, options=opt)
+
+        Now we can compute the approximation until the domain is empty::
+
+            MySolver.computeUntilEmpty()
+
     Models:
         At the moment, three models are available for simulations:
 
@@ -22,6 +52,17 @@ class PedestrianSolver(object):
           - LWR with constant direction field: a model where the agents take the shortest path to the exits without taking the surrounding density into account.
 
         See the :doc:`maths` section of the documentation for more details.
+
+    Args:
+        Mesh (Mesh): the mesh on which the approximations will be computed.
+        dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
+        initialDensity (CellValueMap): the initial density in the domain.
+        speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
+        costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
+        directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
+            If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
+
+        options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` below.
 
     Options:
         Options are passed as an optional dictionary as a parameter of the ``PedestrianSolver`` object.
@@ -58,47 +99,6 @@ class PedestrianSolver(object):
               - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
 
           See :ref:`ColomboGaravelloModel` in the documention for more details.
-
-    Examples:
-        First, we need a `Mesh` object in order to create the solver::
-
-            MyMesh = Mesh()
-            MyMesh.loadFromJson("pathToMyMesh.json")
-
-        Then we need to declare the options in a dictionnary::
-
-            opt = dict( model = "hughes",
-                        filename = "pathForTheSavedFile",
-                        save = True,
-                        verbose = False,
-                        lwrSolver = {   'convexFlux' : True,
-                                        'method' : "midVector",
-                                        'ApproximationThreshold' : 0.0001},
-                        eikoSolver = {  'method' : "FMT",
-                                        'constrained' : True,
-                                        'NarrowBandDepth' : 2})
-
-        Eventually, we need to define an initial datum and we are in a position to instantiate the solver::
-
-            InitialDatum = Mesh2D.CellValueMap(MyMesh)
-            InitialDatum.generateRandom()
-
-            MySolver = PedestrianSolver(MyMesh, 0.01, initialDensity = InitialDatum, options=opt)
-
-        Now we can compute the approximation until the domain is empty::
-
-            MySolver.computeUntilEmpty()
-
-    Args:
-        Mesh (Mesh): the mesh on which the approximations will be computed.
-        dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
-        initialDensity (CellValueMap): the initial density in the domain.
-        speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
-        costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
-        directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
-            If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
-
-        options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
 
     Raises:
         ValueError: if the "model" key in the option dictionary is not set properly.
