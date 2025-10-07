@@ -99,12 +99,15 @@ class PedestrianSolver(object):
         Mesh (Mesh): the mesh on which the approximations will be computed.
         dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
         initialDensity (CellValueMap): the initial density in the domain.
-        speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
-        costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
+        speedFunction (function, float -> float): the speed function corresponding to the speed of agents depending on the local density.
+        costFunction (function, float -> float): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
         directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
             If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
 
         options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
+
+    Raises:
+        ValueError: if the "model" key in the option dictionary is not set properly.
 
     Attributes
     ------------
