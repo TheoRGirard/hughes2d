@@ -64,6 +64,8 @@ class PedestrianSolver(object):
 
         options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` below.
 
+    .. _options-pedestrian:
+
     Options:
         Options are passed as an optional dictionary as a parameter of the ``PedestrianSolver`` object.
 
@@ -74,11 +76,11 @@ class PedestrianSolver(object):
         'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
         'filename'                 str   a valid path                                               sets the path and basename for the save files.
         'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
-        'additional_computations'  dict  -                                                          adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
+        'additional_computations'  dict                                                             adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
         'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
-        'lwrSolver'                dict  -                                                          the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
-        'eikoSolver'               dict  -                                                          the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
-        'CGparameters'             dict  -                                                          the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
+        'lwrSolver'                dict                                                             the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
+        'eikoSolver'               dict                                                             the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
+        'CGparameters'             dict                                                             the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
         ========================== ===== ========================================================== ===========================================================================================================================
 
         .. _AdditionnalComputations:

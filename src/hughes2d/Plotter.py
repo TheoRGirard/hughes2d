@@ -77,7 +77,20 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300)
     ani.save(filename+'.mp4', writer = FFwriter, dpi=dpi_set)
 
 
-def saveTimeSlices(times, filename, slicename, limits = [], dpi_set = 300):
+def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[List[float]] = [], dpi_set:int = 300) -> None:
+    """
+    Exports an image file from the data files of a simulation for each time slice required in the ``times`` parameter.
+
+    Args:
+        times (List[float]): a list of the timing (in seconds) when a picture should be extracted from the simulation.
+        filename (str): the path and basename for the data files.
+        slicename (str): the path and basename for the exported pictures.
+        limits (List[List[float]]): the scope of the simulation as [[x_min,x_max],[y_min,y_max]].
+        dpi_set (int): resolution of the video as dots per inches (dpi)
+
+    Raises:
+        ImportError: if matplotlib is not installed.
+    """
     if not matplotlib:
         raise ImportError("matplotlib is required for this function.")
 
