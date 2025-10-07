@@ -3,7 +3,7 @@ from hughes2d.EikonalSolver import *
 from hughes2d.Mesh2D import *
 from hughes2d.LWR2D import *
 from hughes2d.Splitting import *
-import Plotter
+import hughes2d.Plotter
 
 __all__ = [
         'EikonalSolver',
