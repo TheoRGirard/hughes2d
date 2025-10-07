@@ -1,18 +1,26 @@
 
 import json
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.collections as collections
-
-import matplotlib.animation as animation
-
-import plotly.figure_factory as ff
-import plotly.graph_objects as go
-
 import csv
 
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    import matplotlib.collections as collections
+    import matplotlib.animation as animation
+except ImportError:
+    plt = None
+
+try:
+    import plotly.figure_factory as ff
+    import plotly.graph_objects as go
+except ImportError:
+    go, ff = None, None
+
 def convertToMP4(filename, limits = [], dpi_set = 300):
+
+    if not matplotlib:
+        raise ImportError("matplotlib is required for this function.")
 
     with open(filename +"_mesh.json") as f:
         data = json.load(f)
@@ -59,6 +67,8 @@ def convertToMP4(filename, limits = [], dpi_set = 300):
 
 
 def saveTimeSlices(times, filename, slicename, limits = [], dpi_set = 300):
+    if not matplotlib:
+        raise ImportError("matplotlib is required for this function.")
 
     IntTimes = [int(times[i]*25) for i in range(len(times))]
 
@@ -97,45 +107,45 @@ def saveTimeSlices(times, filename, slicename, limits = [], dpi_set = 300):
 
 
 def plotVectorField(VertexList, TriangleList, VectorField, plotMesh=True):
-    if(go):
-        fig = go.Figure()
-        if(plotMesh):
-            for T in TriangleList:
-                fig.add_trace(go.Scatter(x=[VertexList[i][0] for i in T]+[VertexList[T[0]][0]],
-                                        y=[VertexList[i][1] for i in T]+[VertexList[T[0]][1]],
-                                fill="toself",
-                                fillcolor="White",
-                                mode="lines",
-                                line=dict(
-                                    color="Black",
-                                    width=1
-                                 )))
-            fig.update_layout(yaxis=dict(
-                scaleanchor='x',
-                scaleratio=1))
-        figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
-                                    [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
-                                    [V[0] for V in VectorField], [V[1] for V in VectorField])
-        fig.add_traces(figQuiv.data)
+    if not go:
+        raise ImportError("plotly is required for this function.")
+
+    fig = go.Figure()
+    if(plotMesh):
+        for T in TriangleList:
+            fig.add_trace(go.Scatter(x=[VertexList[i][0] for i in T]+[VertexList[T[0]][0]],
+                                    y=[VertexList[i][1] for i in T]+[VertexList[T[0]][1]],
+                            fill="toself",
+                            fillcolor="White",
+                            mode="lines",
+                            line=dict(
+                                color="Black",
+                                width=1
+                             )))
         fig.update_layout(yaxis=dict(
             scaleanchor='x',
             scaleratio=1))
-        fig.show()
-    else:
-        raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
+    figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
+                                [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
+                                [V[0] for V in VectorField], [V[1] for V in VectorField])
+    fig.add_traces(figQuiv.data)
+    fig.update_layout(yaxis=dict(
+        scaleanchor='x',
+        scaleratio=1))
+    fig.show()
 
 def addVectorFieldPlot(fig, VertexList, TriangleList, VectorField, color=[255,255,255,0.9]):
-    if(go):
-        #self.Mesh.domain.addPlot(fig)
-        figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
-                                    [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
-                                    [V[0] for V in VectorField], [V[1] for V in VectorField],
-                                    line=dict(
-                                        color='rgba('+str(color[0])+','+str(color[1])+','+str(color[2])+','+str(color[3])+')')
-                                    )
-        fig.add_traces(figQuiv.data)
-        fig.update_layout(yaxis=dict(
-            scaleanchor='x',
-            scaleratio=1))
-    else:
-        raise ImportError("No plotting module found. Try installing plotly or matplotlib if you want to use show methods")
+    if not go:
+        raise ImportError("plotly is required for this function.")
+
+    figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
+                                [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
+                                [V[0] for V in VectorField], [V[1] for V in VectorField],
+                                line=dict(
+                                    color='rgba('+str(color[0])+','+str(color[1])+','+str(color[2])+','+str(color[3])+')')
+                                )
+    fig.add_traces(figQuiv.data)
+    fig.update_layout(yaxis=dict(
+        scaleanchor='x',
+        scaleratio=1))
+    

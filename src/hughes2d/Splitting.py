@@ -14,11 +14,62 @@ class PedestrianSolver(object):
     """
     An object wrapping together different models for pedestrian flows.
 
+    Models
+    --------
+
+    At the moment, three models are available for simulations:
+
+      - Hughes' model: a model where the agents try to minimize their individual cost by avoiding high density regions.
+      - Colombo-Garavello-Lecureux-Mercier: a model where the agents try to take the shortest path to the exits but are deviated by high density regions.
+      - LWR with constant direction field: a model where the agents take the shortest path to the exits without taking the surrounding density into account.
+
+    See the :doc:`maths` section of the documentation for more details.
+
+    .. _options-pedestrian:
+
+    Options
+    --------
+
+    Options are passed as an optional dictionary as a parameter of the ``PedestrianSolver`` object.
+
+    ========================== ===== ========================================================== ===========================================================================================================================
+    key                        type  possible values                                            description
+    ========================== ===== ========================================================== ===========================================================================================================================
+    'model'                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
+    'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
+    'filename'                 str   a valid path                                               sets the path and basename for the save files.
+    'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
+    'additional_computations'  dict  -                                                          adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
+    'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
+    'lwrSolver'                dict  -                                                          the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
+    'eikoSolver'               dict  -                                                          the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
+    'CGparameters'             dict  -                                                          the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
+    ========================== ===== ========================================================== ===========================================================================================================================
+
+    .. _AdditionnalComputations:
+
+    additional_computations
+      This dictionary can contain 3 optional keys at the moment:
+
+          - ``total_mass``: computes the total mass in the domain for each time step.
+          - ``zones_mean_density``: computes the mean density in each zone of the mesh defined in ``Mesh.zones`` for each time step.
+          - ``max_density``: computes the maximal density present in the domain for each time step.
+
+    .. _CGparameters:
+
+    CGparameters
+      This dictionary contains two different keys:
+
+          - ``radius`` (float): corresponds to the radius of the convolution.
+          - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
+
+      See :ref:`ColomboGaravelloModel` in the documention for more details.
+
     Examples:
         First, we need a `Mesh` object in order to create the solver::
 
             MyMesh = Mesh()
-            Mesh.loadFromJson("pathToMyMesh.json")
+            MyMesh.loadFromJson("pathToMyMesh.json")
 
         Then we need to declare the options in a dictionnary::
 
@@ -45,32 +96,15 @@ class PedestrianSolver(object):
             MySolver.computeUntilEmpty()
 
     Args:
-        Mesh (Mesh): a mesh object on which the equation will be approximated.
-        previousDensity (CellValueMap or List[float]): initial density for the solver. Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
-        directionMap (List[List[float]]): a vector field represented by a list of vectors with the shape of `Mesh.triangles`. Typically this corresponds to the output of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)` in the equation above.
-        speedFunction (function, float -> float): a function respresenting the speed of the agents depending on the local density. Represents :math:`v(\\cdot)` in the equation above.
-        dt (float): the time division for the approximation.
+        Mesh (Mesh): the mesh on which the approximations will be computed.
+        dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
+        initialDensity (CellValueMap): the initial density in the domain.
+        speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
+        costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
+        directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
+            If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
 
-            Warning:
-                The CFL condition must be satisfied for the simulations to make sense. Here the CFL condition is:
-
-                .. math::
-                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
-
-                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length of the edges of the mesh.
-
-        opt (dict): an optional dictionary prescribing the numerical method.
-
-            ========================= ====== ====================== =========================================================================================
-            key                       type   possible values        description
-            ========================= ====== ====================== =========================================================================================
-            'method'                  str    "tmap" or "midvector"  determines of the conflict between non-colinear vectors are resolved
-            'anNum'                   str    "dichotomy"            only parameter available at the moment, numerical method to use for the approximations
-            'convexFlux'              bool   True or False          optimization of the computations when the flux is convex or concave
-            'ApproximationThreshold'  float  > 0                    the precision to use for the numerical approximations
-            'debugging'               bool   True or False          determines if the solver will print debugging informations in the console or not
-            ========================= ====== ====================== =========================================================================================
-
+        options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` above.
 
     Raises:
         ValueError: if the "model" key in the option dictionary is not set properly.
