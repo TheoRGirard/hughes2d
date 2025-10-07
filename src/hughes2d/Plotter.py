@@ -17,7 +17,18 @@ try:
 except ImportError:
     go, ff = None, None
 
-def convertToMP4(filename, limits = [], dpi_set = 300):
+def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300) -> None:
+    """
+    Creates a video file from the data files of a simulation.
+
+    Args:
+        filename (str): the path and basename for the data files.
+        limits (List[List[float]]): the scope of the simulation as [[x_min,x_max],[y_min,y_max]].
+        dpi_set (int): resolution of the video as dots per inches (dpi)
+
+    Raises:
+        ImportError: if matplotlib is not installed.
+    """
 
     if not matplotlib:
         raise ImportError("matplotlib is required for this function.")
@@ -148,4 +159,3 @@ def addVectorFieldPlot(fig, VertexList, TriangleList, VectorField, color=[255,25
     fig.update_layout(yaxis=dict(
         scaleanchor='x',
         scaleratio=1))
-    
