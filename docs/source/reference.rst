@@ -35,8 +35,8 @@ Equation solvers reference
 Plot utilities
 ================
 
-.. autofunction:: hughes2d::convertToMP4
+.. autofunction:: hughes2d::Plotter.convertToMP4
 
-.. autofunction:: hughes2d::saveTimeSlices
+.. autofunction:: hughes2d::Plotter.saveTimeSlices
 
-.. autofunction:: hughes2d::plotVectorField
+.. autofunction:: hughes2d::Plotter.plotVectorField
