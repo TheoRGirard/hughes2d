@@ -1,7 +1,8 @@
 
 [![Python package](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml/badge.svg)](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml)
-
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
+![Codecov](https://img.shields.io/codecov/c/github/TheoRGirard/hughes2d)
+
 
 
 # hughes2d
