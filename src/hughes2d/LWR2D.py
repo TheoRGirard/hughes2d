@@ -371,12 +371,13 @@ class LWRSolver(object):
         self.densityt0 = np.copy(self.densityt1)
         self.directions = newDirectionField
 
-    def showDensity(self, t:int=1):
+    def showDensity(self, t:int=1, preference="plotly"):
         """
         Displays the density map. If t = 0, it shows the initial datum else if t = 1 (default), it shows the density computed after one time step.
 
         Args:
             t (int, optional): the time at which the density should be dispayed (0 or 1).
+            preference (str, optional): set to "plotly" or "matplotlib" to chose the preferred plotting package. If only one package is installed the preference is ignored.
 
         Raises:
             ValueError: if t is not 0 or 1.
@@ -389,7 +390,7 @@ class LWRSolver(object):
         else:
             raise ValueError("Invalid value for t.")
 
-        Map.show()
+        Map.show(preference = preference)
 
     @staticmethod
     def argMax(f,a:float,b:float, precision:float = 0.0001):

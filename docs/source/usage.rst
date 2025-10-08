@@ -100,5 +100,6 @@ Compiling and running this code should create 3 .csv files, 1 .json file and 1 .
 
 .. image:: gettingStartedVid.gif
 
-Simulations' options
----------------------
+Note:
+  Check out the examples (https://github.com/TheoRGirard/hughes2d/tree/main/examples) on the repository for short demonstrations of further functionnalities.
+  Check out the :doc:`reference` for a complete reference of the classes and methods of the package.

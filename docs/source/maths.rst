@@ -23,7 +23,7 @@ Hughes' model
 
 In [Hug02]_, Hughes proposed a mathematical model for the two-dimensional dynamics of pedestrian crowds. The model consists in a system of two equations set on a bounded domain :math:`\Omega \subset \mathbb{R}^2`. The first PDE is a vector-directed *scalar conservation law* with discontinuous flux. The second is an *Eikonal equation* with discontinuous source term.
 
-The scalar conservation law 
+The scalar conservation law
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first equation models the flow of a density :math:`\rho`. To be more precise  :math:`\rho(t,x)` represents the density of pedestrian at time :math:`t` and location :math:`x`. It is bounded between :math:`0` and a given :math:`\rho_{max} >0`. We assume that the pedestrian move with the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` following a unitary direction field :math:`\vec{V}(t,x) \in \mathcal{S}_1`.
@@ -35,7 +35,7 @@ Then, if we write the conservation of the mass on pedestrian on each subdomain o
 In Hughes' model, we assume that the speed of agents :math:`v(t,x)` at time :math:`t` and location :math:`x` only depends on the density :math:`\rho(t,x)` and that this speed is decreasing with respect to the density.
 Then, in the following we will denote the speed by :math:`v(\rho(t,x))` where :math:`v` is a decreasing function defined on :math:`[0,\rho_{max}]` such that
 
-.. math:: 
+.. math::
   v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.
 
 A classical example of such a speed function is :math:`v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}`. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [LW55]_, [Ric56]_).
@@ -81,7 +81,7 @@ The Hughes model definition
 
 Then the complete Hughes' model introduced in [Hug02]_ was the following:
 
-.. math:: 
+.. math::
   \left\lbrace \begin{matrix}
   \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
   \vec{V}(t,x) = -\frac{\nabla \phi}{|\nabla \phi|} \\
@@ -94,10 +94,41 @@ Then the complete Hughes' model introduced in [Hug02]_ was the following:
 
 For a deep overview of the mathematical results regarding Hughes' model we defer to [AADF+23]_.
 
+.. ColomboGaravelloModel:
+
 Model of Colombo-Garavello-Lécureux-Mercier
 ------------------
 
 In [CGLM11]_, the authors introduced an alternative model for pedestrian flows.
+
+In this model, the agents chose the shortest path to the exits without taking the density into account. This corresponds to the Eikonal equation with constant source term:
+
+.. math::
+
+  |\nabla u (x)| = 1.
+
+Then the vector field prescribing the direction of the agents :math:`\vec{V}(x)` is a combination between the direction of the shortest path :math:`\frac{-\nabla u}{|\nabla u|}` and a non-local deviation operator :math:`\mathcal{I}[\rho](x)`.
+In [CGLM11]_, the authors propose the a definition for the non-local operator: let :math:`\eta_r(\cdot)` be a mollifier compactly supported in the ball of radius :math:`r > 0`; then we define:
+
+.. math::
+
+  \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.
+
+Note:
+  The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary ``CGparameters`` in the python package.
+
+In the present package, we denote by the Colombo-Garavello-Lecureux-Mercier model the following (slightly modified) system:
+
+.. math::
+
+  \left\{ \begin{matrix}
+  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
+  |\nabla \phi (t,x) | = 1 \\
+  \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
+  \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nablla \rho * \eta_r|^2}}\\
+  \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}[\rho](x) }{| \vec{\nu}(x) + \mathcal{I}[\rho](x) |} 
+  \end{matrix}\right.
+
 
 This model is also featured in the present python package.
 
@@ -107,7 +138,7 @@ Numerical schemes
 .. note::
   The presentation of the numerical schemes below is quoted from the introduction of Section 4.5.1 of [Gir25]_. It is recommanded reading it there as more detail are included.
 
-The numerical scheme we propose consists in two coupled algorithms, each of them approximating, at one time step, one of the equations of Hughes' model (:math:`\rho` or :math:`V=\nabla \phi`, respectively) given the solution of the other equation. 
+The numerical scheme we propose consists in two coupled algorithms, each of them approximating, at one time step, one of the equations of Hughes' model (:math:`\rho` or :math:`V=\nabla \phi`, respectively) given the solution of the other equation.
 
 Mesh definition
 ^^^^^^^^^^^^^^^^
@@ -222,42 +253,42 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
     \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =2.
 
   We want to compute the flux :math:`f^j_m(\mathcal{T})` crossing the edge :math:`e_m` coming from :math:`\mathcal T`. We distinguish between the two following cases.
-  
+
   - If :math:`\mathbf{Card}(\mathcal E^m) = 2`, we propose two different methods to compute :math:`f^j_m(\mathcal{T})`.
-  
+
     - The **discontinuous flux** method: we use a dichotomy method to find :math:`k \in [0,1]` such that:
-    
+
       .. math::
         \mathbf{God}_{V^j_{\mathcal{T} } \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k)-\mathbf{God}_{V^j_{\mathcal{T'} } \cdot \vec{n}_m(\mathcal{T})f}(k,\rho^j_{\mathcal T'}) = 0.
-    
+
       Then we set:
-    
+
       .. math::
         f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},k).
-    
+
     - The \textbf{weighted flux} method: first, if :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} \neq \vec{0}`, we define
-    
+
       .. math::
         \vec{v}_m(\mathcal{T}) := \frac{V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}}{\left|V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}}\right|}.
-    
+
       If :math:`V^j{\mathcal{T}} \rho^j_{\mathcal{T}} + V^j{\mathcal{T'}} \rho^j_{\mathcal{T'}} = \vec{0}`, we set :math:`\vec{v}_m(\mathcal{T}) = \vec{0}`.
       Then we set:
-    
+
       .. math::
         f^j_m(\mathcal{T}) :=  \mathbf{God}_{\vec{v}_m(\mathcal{T})\cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}).
-    
+
   - Else if :math:`\mathbf{Card}(\mathcal E^m) = 1`, we have that :math:`e_m \in \partial \Omega`. Then, once again we distinguish between two cases.
-  
+
     - If :math:`e_m \in \mathcal{E}`, we set:
-    
+
     .. math::
       f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T}) f}(\rho^j_{\mathcal T},0).
-    
+
     - Else if :math:`e_m \in \mathcal{W}`, we set:
-    
+
     .. math::
       f^j_m(\mathcal{T}) := 0.
-  
+
 2. For any :math:`n \in [\![ 1, N ]\!]`, we set
 
   .. math::
@@ -268,10 +299,10 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
 .. note::
   The **discontinuous flux** method correspond to the algorithm detailled in \cite{AbrahamPreprint}. Heuristically, we are solving the SCL while assuming there is a discontinuity of :math:`V^j_\Delta` at each edge of :math:`E_\Delta`.
   If :math:`V_\Delta^j` is constant across the edge :math:`e_m` then the **discontinuous flux** method is equivalent to setting
-  
+
   .. math::
     f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),
-  
+
   which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity :math:`k \mapsto k` "transmission map", in the terminology of \cite{CancesAndreianov2015}.
 
 .. note::
@@ -282,26 +313,26 @@ The finite volume scheme corresponds to the following algorithm for any fixed :m
   .. image:: assets/MidVectorSchema.png
 
   Notice that, here, we have:
-  
+
   .. math::
     V^j_{\mathcal{T}'}\cdot \vec{n}_m(\mathcal{T}) = 0.
-  
+
   Then, if we use the **discontinuous flux** method, for any :math:`\rho_{\mathcal{T}}^j, \rho_{\mathcal{T}'}^j  \in [0,1]` we have :math:`f_m^j(\mathcal{T}) = 0`. Then there is no flux exiting the cell :math:`\mathcal{T}` even if :math:`\rho_{\mathcal{T}'}^j = 0`.
   Heuristically, this means that the agents of cell :math:`\mathcal{T}` are prevented from moving in the direction :math:`V^j_{\mathcal{T}}` because the "phantom" agents of cell :math:`\mathcal{T}'` (since the cell is almost empty) should move in the incompatible direction :math:`V^j_{\mathcal{T}'}`.
   This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if :math:`\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j` then we have that :math:`\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j`.
   Then
-  
+
   .. math::
     f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.
-  
+
   This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
-  
+
 .. warning::
   Even if we do not provide any proof of convergence for the above finite volume scheme in [Gir25]_, we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
-  
+
   .. math::
     \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
-  
+
   where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle in :math:`M_\Delta`. The numerical experiments with the present package must be done under the above CFL condition !
 
 
@@ -327,7 +358,7 @@ For any :math:`m \in \mathbb{N}`, we introduce the following iterative :math:`\m
   We consider :math:`(\mathcal{T}_k)_{1\leq k \leq K}` the set of all triangles of :math:`M_\Delta` such that :math:`A` is one of the vertices of the triangle and at least one other vertex of the triangle is in :math:`P^m`. Denote by :math:`ABC` the triangle :math:`\mathcal{T}_k`.
 
   For each :math:`k` we compute :math:`V^k_A` distinguishing between three cases.
-    
+
   a. If only :math:`B` (resp. only :math:`C`) is in :math:`P_m`, then :math:`V_A^k = \phi_\Delta(B) + |AB| c_k` (resp. :math:`V_A^k = \phi_\Delta(C) + |AC| c_k` ).
 
   b. If :math:`B` and :math:`C` are both in :math:`P^m`, we suppose, up to renaming the vertices, that :math:`\phi_\Delta(B) \leq \phi_\Delta(C)`. We denote :math:`V_B := \phi_\Delta(B)` and :math:`V_C = \phi_\Delta(C)`. Then we set :math:`V_A^k = \tilde{V}_A` where :math:`\tilde{V}_A` is defined by \eqref{eq:defTildeVa} i.e.
@@ -340,8 +371,8 @@ For any :math:`m \in \mathbb{N}`, we introduce the following iterative :math:`\m
         &V_C + F|AC| \qquad\qquad\qquad\qquad \textrm{ if } c_k\; \vec{AC}\cdot\vec{BC} +(V_C -V_B)|AC| <0 \\
         \\
         &V_B + \frac{\vec{AB}\cdot\vec{CB}}{BC^2}(V_C-V_B) + |\det(\vec{AB},\vec{CB})| \frac{\sqrt{(c_k)^2 BC^2 - (V_C-V_B)^2}}{BC^2} \qquad \textrm{ else. }\end{matrix}\right.
-    
-  Then we set 
+
+  Then we set
 
   .. math::
     \mathcal{V}_A := \min_k \{ V_A^k \}.
