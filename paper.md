@@ -1,8 +1,8 @@
 ---
 title: "Hughes2d: approximating solutions of the Hughes'model"
 tags:
-  - Python
-  - non-linear PDE 
+  - python
+  - non-linear discontinuous PDE 
   - pedestrian evacuation
   - macroscopic crowd dynamics
   - finite volume scheme
@@ -16,19 +16,24 @@ affiliations:
   - name: Institut Denis Poisson, Université de Tours
     index: 1
     ror: 05djhd259
-date: 11 June 2025
+date: 09 October 2025
 bibliography: paper.bib
 ---
 
 # Summary
 
+`hughes2d` is an open-source python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of Hughes' model introduced in [Hug02]. The Hughes model is a macroscopic model -there is no agents here, the crowd is represented by a density function- coupling two non-linear partial differential equations. 
 
 
 # Statement of need
 
+The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([vadere],[JuPedSim],[UMANS],[Cromosim]) or not. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
+
+The Hughes model has been thoroughly studied during the last two decades (see [Survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [Goatin]) but in a slightly modified context.
+We hope that this package will help formulating conjectures in the future.
 
 
-# Mathematics
+# Short introduction to Hughes' model
 
 Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
@@ -72,3 +77,4 @@ Figure sizes can be customized by adding an optional second parameter:
 
 
 # References
+
