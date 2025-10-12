@@ -19,7 +19,7 @@ try:
 except ImportError:
     go, ff = None, None
 
-def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300) -> None:
+def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300, plot_scale:bool = True, pic_size = (8,6)) -> None:
     """
     Creates a video file from the data files of a simulation.
 
@@ -48,7 +48,7 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300)
             values.append(np.array([float(lines[i]) for i in range(len(lines))]))
 
 
-    fig, ax = plt.subplots(dpi=dpi_set)
+    fig, ax = plt.subplots(figsize= pic_size, dpi=dpi_set)
 
     col = collections.PolyCollection(Triangles)
     col.set_cmap(cm.viridis)
@@ -56,7 +56,8 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300)
     rgcol = col.set_array(values[0])
 
     ax.add_collection(col)
-    fig.colorbar(rgcol, ax=ax, label="density")
+    if plot_scale:
+        fig.colorbar(rgcol, ax=ax, label="density")
 
 
     if len(limits) > 0:
@@ -79,7 +80,7 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300)
     ani.save(filename+'.mp4', writer = FFwriter, dpi=dpi_set)
 
 
-def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[List[float]] = [], dpi_set:int = 300) -> None:
+def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[List[float]] = [], dpi_set:int = 300, plot_scale:bool = True, pic_size = (8,6)) -> None:
     """
     Exports an image file from the data files of a simulation for each time slice required in the ``times`` parameter.
 
@@ -111,24 +112,30 @@ def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[L
             values.append(np.array([float(lines[i]) for i in range(len(lines))]))
 
 
+
     for i,t in enumerate(times):
-        fig, ax = plt.subplots()
 
-        col = collections.PolyCollection(Triangles)
-        col.set_cmap(cm.viridis)
-        col.set_clim([0, 1])
-        rgcol = col.set_array(values[IntTimes[i]])
+        if IntTimes[i] < len(values):
+            fig, ax = plt.subplots(figsize= pic_size, dpi=dpi_set)
+
+            col = collections.PolyCollection(Triangles)
+            col.set_cmap(cm.viridis)
+            col.set_clim([0, 1])
+            rgcol = col.set_array(values[IntTimes[i]])
 
 
-        if len(limits) > 0:
-            ax.set_xlim(limits[0][0],limits[0][1])
-            ax.set_ylim(limits[1][0],limits[1][1])
-            plt.axis('equal')
+            if len(limits) > 0:
+                ax.set_xlim(limits[0][0],limits[0][1])
+                ax.set_ylim(limits[1][0],limits[1][1])
+                plt.axis('equal')
 
-        ax.add_collection(col)
-        ax.set_title("t = "+str(times[i])+"s")
-        fig.colorbar(rgcol, ax=ax, label="density")
-        plt.savefig(slicename + str(times[i]) +"s.png", dpi=dpi_set)
+            ax.add_collection(col)
+            ax.set_title("t = "+str(times[i])+"s")
+            if plot_scale:
+                fig.colorbar(rgcol, ax=ax, label="density")
+            plt.savefig(slicename + str(times[i]) +"s.png", dpi=dpi_set)
+        else:
+            print("Warning: time slice ", t, " ignored because the simulation is too short.")
 
 
 
