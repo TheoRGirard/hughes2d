@@ -1,4 +1,4 @@
-![![hughes2d logo](logo/logo.gif)](logo/logo.mp4)
+![hughes2d logo](logo/logo.gif)
 
 [![Python package](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml/badge.svg)](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml)
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
