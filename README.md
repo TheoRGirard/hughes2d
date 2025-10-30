@@ -14,8 +14,8 @@ Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
 ## Installation
 The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
 ```
-git clone https://github.com/TheoRGirard/hughes2d |
-cd hughes2d |
+git clone https://github.com/TheoRGirard/hughes2d 
+cd hughes2d 
 uv sync
 ```
 ### Plots
@@ -42,9 +42,9 @@ If you don't have uv installed, you can see a list of the dependencies in the _p
 
 You can either install the dependencies with pip:
 ```
-git clone https://github.com/TheoRGirard/hughes2d |
-cd hughes2d |
-pip install -r requirements.txt |
+git clone https://github.com/TheoRGirard/hughes2d 
+cd hughes2d 
+pip install -r requirements.txt 
 pip install -e
 ```
 
