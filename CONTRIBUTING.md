@@ -16,7 +16,7 @@ Below are a few information about how to contribute to this project.
 
 * [documentation](https://hughes2d.readthedocs.io/en/latest/index.html)
 * [bugs and known issues]
-* Contact: theo.girard\@\math.cnrs.fr
+* Contact: theo.girard\\@\math.cnrs.fr
 
 ## How to submit changes 
 If you want to, you're welcome to submit changes to the Hughes2d via a pull request. 
