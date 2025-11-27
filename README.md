@@ -14,8 +14,8 @@ Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
 ## Installation
 The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
 ```
-git clone https://github.com/TheoRGirard/hughes2d 
-cd hughes2d 
+git clone https://github.com/TheoRGirard/hughes2d
+cd hughes2d
 uv sync
 ```
 ### Plots
@@ -42,9 +42,9 @@ If you don't have uv installed, you can see a list of the dependencies in the _p
 
 You can either install the dependencies with pip:
 ```
-git clone https://github.com/TheoRGirard/hughes2d 
-cd hughes2d 
-pip install -r requirements.txt 
+git clone https://github.com/TheoRGirard/hughes2d
+cd hughes2d
+pip install -r requirements.txt
 pip install -e
 ```
 
@@ -90,8 +90,32 @@ Compiling and running this code should create 3 .csv files, 1 .json file and 1 .
 
 ![Getting started with hughes2d](docs/source/gettingStartedVid.gif)
 
+## Licence
 
-## The **opt** dictionary
+The Hughes2d package is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+
+The Hughes2d package is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with the
+Hughes2d package. If not, see <https://www.gnu.org/licenses/>.
+
+## Basic usage
+
+### Constructing a domain
+
+### Generating a mesh
+
+### Loading a mesh
+
+### Basic simulation
+
+### Plotting the results
+
+### The **opt** dictionary
 
 We detail here the different options available in the **opt** dictionary passed as a parameter to the **PedestrianSolver** object:
 ```

@@ -1,8 +1,18 @@
 """
-2D Mesh utils for triangular meshes on non-convex domains
-Last update : 29/08/25
-Girard Théo
-mail : theo.girard@univ-tours.fr
+© Copyright 2025 Girard Théo
+
+This file is part of the Hughes2d package.
+
+The Hughes2d package is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+
+The Hughes2d package is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with the
+Hughes2d package. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import random as alea

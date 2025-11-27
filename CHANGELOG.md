@@ -1,5 +1,5 @@
-# Change log 
+# Change log
 
-## [1.0.0] (soon)
+## [1.0.0] - (27/10/2025)
 
-Initial version
+_First release._
