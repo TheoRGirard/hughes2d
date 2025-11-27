@@ -1,9 +1,10 @@
-from hughes2d import *
 import random as alea
-import plotly
+
 import matplotlib.pyplot as plt
 import numpy as np
+import plotly
 
+from hughes2d import *
 
 #Parameters of the simulation
 dt = 0.025

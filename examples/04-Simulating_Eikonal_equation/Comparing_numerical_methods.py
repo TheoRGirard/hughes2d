@@ -1,8 +1,9 @@
-from hughes2d import *
 import random as alea
+
 import numpy as np
 import plotly.graph_objects as go
 
+from hughes2d import *
 
 #Loading the mesh ---------------------------
 MyMesh = Mesh2D.Mesh()

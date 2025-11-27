@@ -1,7 +1,5 @@
 from hughes2d import *
 
-
-
 MyMesh = Mesh2D.Mesh()
 
 MyDomain = Mesh2D.NonConvexDomain([[0,0],[2,0],[2,1],[0,1]])

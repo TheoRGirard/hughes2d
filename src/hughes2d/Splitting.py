@@ -1,18 +1,25 @@
-from hughes2d.Mesh2D import *
-from hughes2d.EikonalSolver import *
-from hughes2d.LWR2D import *
-
-import multiprocessing
-
 import csv
-from datetime import date
+import json
+import multiprocessing
+from collections.abc import Callable
+from datetime import datetime
+from pathlib import Path
 
-previousProcessDens = object()
-previousProcessVec = object()
+import numpy as np
+from numpy.typing import ArrayLike
 
-class PedestrianSolver(object):
-    """
-    An object wrapping together different models for pedestrian flows.
+from hughes2d.EikonalSolver import EikoSolver
+from hughes2d.LWR2D import LWRSolver
+from hughes2d.Mesh2D import CellValueMap, Mesh, VertexValueMap
+
+previous_process_dens = object()
+previous_process_vec = object()
+EMPTY_LIST = []
+DEFAULT_OPTIONS = {"model":"hughes"}
+EMPTY_THRESHOLD = 1e-2
+
+class PedestrianSolver:
+    """An object wrapping together different models for pedestrian flows.
 
     Examples:
         First, we need a `Mesh` object in order to create the solver::
@@ -26,43 +33,56 @@ class PedestrianSolver(object):
                         filename = "pathForTheSavedFile",
                         save = True,
                         verbose = False,
-                        lwrSolver = {   'convexFlux' : True,
-                                        'method' : "midVector",
-                                        'ApproximationThreshold' : 0.0001},
-                        eikoSolver = {  'method' : "FMT",
-                                        'constrained' : True,
-                                        'NarrowBandDepth' : 2})
+                        lwrSolver = {   "convexFlux" : True,
+                                        "method" : "midVector",
+                                        "ApproximationThreshold" : 0.0001},
+                        eikoSolver = {  "method" : "FMT",
+                                        "constrained" : True,
+                                        "NarrowBandDepth" : 2})
 
-        Eventually, we need to define an initial datum and we are in a position to instantiate the solver::
+        Eventually, we need to define an initial datum and we are in a position to
+        instantiate the solver::
 
             InitialDatum = Mesh2D.CellValueMap(MyMesh)
             InitialDatum.generateRandom()
 
-            MySolver = PedestrianSolver(MyMesh, 0.01, initialDensity = InitialDatum, options=opt)
+            MySolver = PedestrianSolver(MyMesh, 0.01, initial_density = InitialDatum, options=opt)
 
         Now we can compute the approximation until the domain is empty::
 
-            MySolver.computeUntilEmpty()
+            MySolver.compute_until_empty()
 
     Models:
         At the moment, three models are available for simulations:
 
-          - Hughes' model: a model where the agents try to minimize their individual cost by avoiding high density regions.
-          - Colombo-Garavello-Lecureux-Mercier: a model where the agents try to take the shortest path to the exits but are deviated by high density regions.
-          - LWR with constant direction field: a model where the agents take the shortest path to the exits without taking the surrounding density into account.
+          - Hughes" model: a model where the agents try to minimize their individual
+            cost by avoiding high density regions.
+          - Colombo-Garavello-Lecureux-Mercier-Lecureux-Mercier: a model where the agents try to take
+            the shortest path to the exits but are deviated by high density regions.
+          - LWR with constant direction field: a model where the agents take the
+            shortest path to the exits without taking the surrounding density into
+            account.
 
         See the :doc:`maths` section of the documentation for more details.
 
     Args:
         Mesh (Mesh): the mesh on which the approximations will be computed.
-        dt (float): the duration of a time step. Be careful of the CFL condition see :ref:`CFLwarning`.
-        initialDensity (CellValueMap): the initial density in the domain.
-        speedFunction (function, float -> float, optional): the speed function corresponding to the speed of agents depending on the local density.
-        costFunction (function, float -> float, optional): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
-        directions (List[List[float]], optional): the direction vector field to use as trajectories for the agents. Useless for Hughes' model as the vector field is recomputed depending on the density.
-            If not prescribed, the vector field is computed at the initialization of the solver as the shortest path towards the exits.
-
-        options (dict, optional): an optional dictionary prescribing the model to use and various parameters for the numerical simulations. See :ref:`options-pedestrian` below.
+        dt (float): the duration of a time step. Be careful of the CFL condition
+            see :ref:`CFLwarning`.
+        initial_density (CellValueMap): the initial density in the domain.
+        speed_function (function, float -> float, optional): the speed function
+            corresponding to the speed of agents depending on the local density.
+        cost_function (function, float -> float, optional): the cost function
+            corresponding to the running cost in the eikonal equation. Useless if the
+            model used is not "hughes".
+        directions (list[list[float]], optional): the direction vector field to use as
+            trajectories for the agents. Useless for Hughes" model as the vector field
+            is recomputed depending on the density.
+            If not prescribed, the vector field is computed at the initialization of
+            the solver as the shortest path towards the exits.
+        options (dict, optional): an optional dictionary prescribing the model to use
+            and various parameters for the numerical simulations.
+            See :ref:`options-pedestrian` below.
 
     .. _options-pedestrian:
 
@@ -72,15 +92,15 @@ class PedestrianSolver(object):
         ========================== ===== ========================================================== ===========================================================================================================================
         key                        type  possible values                                            description
         ========================== ===== ========================================================== ===========================================================================================================================
-        'model'                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
-        'save'                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
-        'filename'                 str   a valid path                                               sets the path and basename for the save files.
-        'framerate'                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if 'save' = False.
-        'additional_computations'  dict                                                             adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
-        'verbose'                  bool  True or False                                              determines if the solver will print informations in the console or not.
-        'lwrSolver'                dict                                                             the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
-        'eikoSolver'               dict                                                             the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
-        'CGparameters'             dict                                                             the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
+        "model"                    str   "hughes", "colombo-garavello" or "constantDirectionField"  determines the model to use for the numerical simulation.
+        "save"                     bool  True or False                                              determines whether the data of the simulation should be stored in .csv files.
+        "filename"                 str   a valid path                                               sets the path and basename for the save files.
+        "framerate"                int   > 0                                                        number of frame per seconds that will be saved in the .csv files. Useless if "save" = False.
+        "additional_computations"  dict                                                             adds computations of non standard quantities to the simulation. See :ref:`AdditionnalComputations` for more information.
+        "verbose"                  bool  True or False                                              determines if the solver will print informations in the console or not.
+        "lwrSolver"                dict                                                             the dictionary containing all the options to use for the ``LWRSolver`` object (see the :ref:`LWRSolver` doc).
+        "eikoSolver"               dict                                                             the dictionary containing all the options to use for the ``EikoSolver`` object (see the :ref:`EikoSolver` doc).
+        "CGparameters"             dict                                                             the dictionary containing all the parameters to use for the Rinaldo-Garavello-Lecureux-Mercier (see :ref:`CGparameters`)
         ========================== ===== ========================================================== ===========================================================================================================================
 
         .. _AdditionnalComputations:
@@ -88,9 +108,12 @@ class PedestrianSolver(object):
         additional_computations
           This dictionary can contain 3 optional keys at the moment:
 
-              - ``total_mass``: computes the total mass in the domain for each time step.
-              - ``zones_mean_density``: computes the mean density in each zone of the mesh defined in ``Mesh.zones`` for each time step.
-              - ``max_density``: computes the maximal density present in the domain for each time step.
+              - ``total_mass``: computes the total mass in the domain for each time
+                step.
+              - ``zones_mean_density``: computes the mean density in each zone of the
+                mesh defined in ``Mesh.zones`` for each time step.
+              - ``max_density``: computes the maximal density present in the domain for
+                each time step.
 
         .. _CGparameters:
 
@@ -98,7 +121,8 @@ class PedestrianSolver(object):
           This dictionary contains two different keys:
 
               - ``radius`` (float): corresponds to the radius of the convolution.
-              - ``epsilon`` (flaoat): corresponds to the amount of influence of the deviation vector field.
+              - ``epsilon`` (flaoat): corresponds to the amount of influence of the
+                deviation vector field.
 
           See :ref:`ColomboGaravelloModel` in the documention for more details.
 
@@ -106,270 +130,330 @@ class PedestrianSolver(object):
         ValueError: if the "model" key in the option dictionary is not set properly.
 
     Attributes
-    ------------
+    ----------
 
     Attributes:
         mesh (Mesh): the mesh on which the approximations will be computed.
-        timeStep (int): number of time steps computed since the initialization of the solver.
+        time_step (int): number of time steps computed since the initialization of the
+            solver.
         options (dict): the options dictionary. See :ref:`optionsDict`.
         dt (float): the duration of a time step.
-        speedFunction (function, float -> float): the speed function corresponding to the speed of agents depending on the local density.
-        costFunction (function, float -> float): the cost function corresponding to the running cost in the eikonal equation. Useless if the model used is not "hughes".
-        directions (List[List[float]]): the direction vector field to use as trajectories for the agents.
-        numForgottenSteps (int): number of steps not saved for each time step saved. Useless if ``options['save'] == False``.
+        speed_function (function, float -> float): the speed function corresponding to
+            the speed of agents depending on the local density.
+        cost_function (function, float -> float): the cost function corresponding to the
+            running cost in the eikonal equation. Useless if the model used is not
+            "hughes".
+        directions (list[list[float]]): the direction vector field to use as
+            trajectories for the agents.
+        numForgottenSteps (int): number of steps not saved for each time step saved.
+            Useless if ``options["save"] == False``.
 
     Methods
-    ----------
+    -------
     """
 
-    def __init__(self, Mesh:Mesh, dt:float, initialDensity:CellValueMap, speedFunction = (lambda x: 1-x), costFunction = (lambda x: 1+2*x), directions:List[List[float]] = [], options:dict=dict(model="hughes")):
-        self.mesh = Mesh
-        self.timeStep = 0
+    def __init__(self,
+                 mesh:Mesh,
+                 dt:float,
+                 initial_density:CellValueMap,
+                 speed_function:Callable[[float],float] = (lambda x: 1-x),
+                 cost_function:Callable[[float],float] = (lambda x: 1+2*x),
+                 directions:list[list[float]] = EMPTY_LIST,
+                 options:dict=DEFAULT_OPTIONS) -> None:
+        self.mesh = mesh
+        self.time_step = 0
 
         self.options = options
 
-        if('framerate' not in self.options.keys()):
-            self.options['framerate'] = 25
+        if("framerate" not in self.options):
+            self.options["framerate"] = 25
 
         self.dt = dt
 
-        if('verbose' not in self.options.keys()):
-            self.options['verbose'] = False
+        if("verbose" not in self.options):
+            self.options["verbose"] = False
 
-        self.numForgottenSteps = max(int(1/(self.dt*self.options['framerate'])), 1)
-        if self.options['verbose']:
-            print("Number of steps omitted for one frame : ", self.numForgottenSteps)
+        self.num_forgotten_steps = max(int(1/(self.dt*self.options["framerate"])), 1)
+        if self.options["verbose"]:
+            print("Number of steps omitted for one frame : ", self.num_forgotten_steps)
 
 
-        self.speedFunction = speedFunction
-        self.costFunction = costFunction
+        self.speed_function = speed_function
+        self.cost_function = cost_function
 
-        if('save' not in self.options.keys()):
-            self.options['save'] = False
+        if("save" not in self.options):
+            self.options["save"] = False
 
-        if('filename' not in self.options.keys()):
-            self.options['filename'] = "Save"+str(date.today())
+        if("filename" not in self.options):
+            self.options["filename"] = ("Save"
+                                        +str(datetime.utcnow().date()))
 
-        if('additional_computations' not in self.options.keys()):
-            self.options['additional_computations'] = dict()
+        if("additional_computations" not in self.options):
+            self.options["additional_computations"] = {}
 
-        if("model" not in self.options.keys()):
-            raise ValueError("A model should be prescribed in the options dictionary.")
+        if("model" not in self.options):
+            msg = "A model should be prescribed in the options dictionary."
+            raise ValueError(msg)
 
-        if("eikoSolver" not in self.options.keys()):
-            self.options['eikoSolver'] = {  'constrained' : True,
-                                            'NarrowBandDepth' : 2}
+        if("eikoSolver" not in self.options):
+            self.options["eikoSolver"] = {  "constrained" : True,
+                                            "NarrowBandDepth" : 2}
 
-        if("lwrSolver" not in self.options.keys()):
-            self.options['lwrSolver'] = {   'convexFlux' : True,
-                                            'anNum' : "dichotomy",
-                                            'method' : "midVector",
-                                            'ApproximationThreshold' : 0.0001}
+        if("lwrSolver" not in self.options):
+            self.options["lwrSolver"] = {   "convexFlux" : True,
+                                            "anNum" : "dichotomy",
+                                            "method" : "midVector",
+                                            "ApproximationThreshold" : 0.0001}
 
         if(self.options["model"] == "constantDirectionField"):
             if(len(directions) > 0):
                 self.directions = directions
             else:
                 self.directions = []
-                self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = (lambda x : 1), opt=self.options['eikoSolver'])
+                self.eiko_solver = EikoSolver(self.mesh, density_map = initial_density,
+                                             cost_function = (lambda x : 1),
+                                             opt=self.options["eikoSolver"])
 
-                self.Eikosolver.computeField()
+                self.eiko_solver.compute_field()
 
-                self.constantField = self.Eikosolver.fieldValues
+                self.constant_field = self.eiko_solver.field_values
 
-                self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
+                self.directions = self.eiko_solver.field_values.compute_gradient_flow()
 
         elif(self.options["model"] == "hughes"):
             self.directions = []
-            self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = self.costFunction, opt=self.options['eikoSolver'])
+            self.eiko_solver = EikoSolver(self.mesh, density_map = initial_density,
+                                         cost_function = self.cost_function,
+                                         opt=self.options["eikoSolver"])
 
-            self.Eikosolver.computeField()
+            self.eiko_solver.compute_field()
 
-            self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
+            self.directions = self.eiko_solver.field_values.compute_gradient_flow()
         elif(self.options["model"] == "colombo-garavello"):
             if(directions != []):
-                self.constantDirections = directions
+                self.constant_directions = directions
             else:
                 self.directions = []
-                self.Eikosolver = EikoSolver(self.mesh, DensityMap = initialDensity, costFunction = (lambda x : 1), opt=self.options['eikoSolver'])
+                self.eiko_solver = EikoSolver(self.mesh, density_map = initial_density,
+                                             cost_function = (lambda x : 1),
+                                             opt=self.options["eikoSolver"])
 
-                self.Eikosolver.computeField()
+                self.eiko_solver.compute_field()
 
-                self.constantField = self.Eikosolver.fieldValues
+                self.constant_field = self.eiko_solver.field_values
 
-                self.constantDirections = self.Eikosolver.fieldValues.computeGradientFlow()
+                self.constant_directions = self.eiko_solver.field_values.compute_gradient_flow()
 
-            self.deviationField = VertexValueMap(self.mesh)
-            if 'CGparameters' not in self.options.keys():
-                if self.options['verbose']:
-                    print("Warning: parameters for the Colombo-Garavello model not prescibed. Chosing defaults as radius = 0.2 and espsilon = 0.1")
+            self.deviation_field = VertexValueMap(self.mesh)
+            if "CGparameters" not in self.options:
+                if self.options["verbose"]:
+                    print("Warning: parameters for the Colombo-Garavello-Lecureux-Mercier model not"
+                          " prescibed. Defaults as radius = 0.2 and espsilon = 0.1")
                 self.radius = 0.2
                 self.epsilon = 0.1
             else:
-                if 'radius' not in self.options["CGparameters"].keys():
-                    if self.options['verbose']:
-                        print("Warning: radius for the Colombo-Garavello model not properly prescibed. Chosing defaults as radius = 0.2")
+                if "radius" not in self.options["CGparameters"]:
+                    if self.options["verbose"]:
+                        print("Warning: radius for the Colombo-Garavello-Lecureux-Mercier model not"
+                              " properly prescibed. Chosing defaults as radius = 0.2")
                     self.radius = 0.2
                 else:
                     self.radius = self.options["CGparameters"]["radius"]
 
-                if 'epsilon' not in self.options["CGparameters"].keys():
-                    if self.options['verbose']:
-                        print("Warning: epsilon for the Colombo-Garavello model not properly prescibed. Chosing defaults as epsilon = 0.1")
+                if "epsilon" not in self.options["CGparameters"]:
+                    if self.options["verbose"]:
+                        print("Warning: epsilon for the Colombo-Garavello-Lecureux-Mercier model not"
+                              " properly prescibed. Chosing defaults as epsilon = 0.1")
                     self.epsilon = 0.1
                 else:
                     self.epsilon = self.options["CGparameters"]["epsilon"]
 
-            self.normalizationFunc = (lambda x,y: self.radius**2 * (np.sqrt(1 + x**2 + y**2))/self.epsilon)
-            self.deviationField.values = initialDensity.convolutionOverSquareBall(self.radius, self.convolutionFunctionCG)
+            self.normalization_func = (lambda x,y: (self.radius**2
+                                                   *(np.sqrt(1 + x**2 + y**2))
+                                                   /self.epsilon))
+            self.deviation_field.values = initial_density.convolution_over_square_ball(self.radius,
+                                                                                      self.__convolution_function_cglm)
 
-            self.lastDensity = CellValueMap(self.mesh)
+            self.last_density = CellValueMap(self.mesh)
 
-            self.directions = self.constantDirections + self.deviationField.computeGradientFlow(normalization = self.normalizationFunc)
+            self.directions = (self.constant_directions
+                               + self.deviation_field.compute_gradient_flow(normalization = self.normalization_func))
         else:
             raise ValueError( str(self.options["model"]) + " is not a valid model.")
 
-        if(self.options['save']):
-            global previousProcessDens, previousProcessVec
-            proc = multiprocessing.Process(target=writeFirstLine, args = (self.options['filename']+"_vectors.csv", self.directions))
+        if(self.options["save"]):
+            global previous_process_dens, previous_process_vec
+            proc = multiprocessing.Process(target=_write_first_line,
+                                           args = ((self.options["filename"]
+                                                    +"_vectors.csv"),
+                                                   self.directions))
             proc.start()
-            previousProcessVec = proc
+            previous_process_vec = proc
 
-            proc = multiprocessing.Process(target=writeFirstLine, args = (self.options['filename']+"_densities.csv", initialDensity.values))
+            proc = multiprocessing.Process(target=_write_first_line,
+                                           args = ((self.options["filename"]
+                                                    +"_densities.csv"),
+                                                   initial_density.values))
             proc.start()
-            previousProcessDens = proc
+            previous_process_dens = proc
 
 
-        if('total_mass' in self.options['additional_computations'].keys()):
-            self.totalMass = [initialDensity.integrate()]
-        if('zones_mean_density' in self.options['additional_computations'].keys()):
-            self.zoneDensity = dict()
-            for zoneName in self.mesh.zones.keys():
-                self.zoneDensity[zoneName] = []
-        if('max_density' in self.options['additional_computations'].keys()):
-            self.maxDensity = [max(initialDensity.values)]
+        if("total_mass" in self.options["additional_computations"]):
+            self.total_masses = [initial_density.integrate()]
+        if("zones_mean_density" in self.options["additional_computations"]):
+            self.zone_densities = {}
+            for zone_name in self.mesh.zones:
+                self.zone_densities[zone_name] = []
+        if("max_density" in self.options["additional_computations"]):
+            self.max_densities = [max(initial_density.values)]
 
-        self.LWRsolver = LWRSolver(self.mesh, self.dt, previousDensity = initialDensity, directionMap = self.directions, speedFunction = self.speedFunction, opt = self.options['lwrSolver'])
+        self.lwr_solver = LWRSolver(self.mesh,
+                                    self.dt,
+                                    previous_density = initial_density,
+                                    direction_map = self.directions,
+                                    speed_function = self.speed_function,
+                                    opt = self.options["lwrSolver"])
 
-    def computeStep(self) -> None:
-        """
-        Computes one step of time of the approximation of the solution of the chosen model. Also saves the generated data if ``options['save'] == True``.
-        """
-        self.timeStep += 1
-        self.LWRsolver.computeNextStep()
+    def compute_step(self) -> None:
+        """Compute one step of time of the approximation of the solution of the chosen model. Also saves the generated data if ``options["save"] == True``."""
+        self.time_step += 1
+        self.lwr_solver.compute_next_step()
         if(self.options["model"] == "constantDirectionField"):
-            if(self.options['save']):
-                if(self.timeStep % self.numForgottenSteps == 0):
-                    self.saveDensityslice(self.LWRsolver.densityt1)
+            if((self.options["save"])
+                and (self.time_step % self.num_forgotten_steps == 0)):
+                self.__save_density_slice(self.lwr_solver.densityt1)
         elif(self.options["model"] == "hughes"):
-            self.Eikosolver.updateDensity(self.LWRsolver.densityt1)
-            self.Eikosolver.computeField()
-            self.directions = self.Eikosolver.fieldValues.computeGradientFlow()
-            if(self.options['save']):
-                if(self.timeStep % self.numForgottenSteps == 0):
-                    self.saveDensityslice(self.LWRsolver.densityt1)
-                    self.saveVectorslice(self.directions)
+            self.eiko_solver.update_density(self.lwr_solver.densityt1)
+            self.eiko_solver.compute_field()
+            self.directions = self.eiko_solver.field_values.compute_gradient_flow()
+            if((self.options["save"])
+                and (self.time_step % self.num_forgotten_steps == 0)):
+                self.__save_density_slice(self.lwr_solver.densityt1)
+                self.__save_vector_slice(self.directions)
         elif(self.options["model"] == "colombo-garavello"):
-            self.lastDensity.values = self.LWRsolver.densityt1
-            self.deviationField.values = self.lastDensity.convolutionOverSquareBall(self.radius, self.convolutionFunctionCG)
-            self.directions = self.constantDirections + self.deviationField.computeGradientFlow(normalization = self.normalizationFunc)
-            if(self.options['save']):
-                if(self.timeStep % self.numForgottenSteps == 0):
-                    self.saveDensityslice(self.LWRsolver.densityt1)
-                    self.saveVectorslice(self.directions)
+            self.last_density.values = self.lwr_solver.densityt1
+            self.deviation_field.values = self.last_density.convolution_over_square_ball(self.radius,
+                                                                                         self.__convolution_function_cglm)
+            self.directions = (self.constant_directions
+                               + self.deviation_field.compute_gradient_flow(normalization = self.normalization_func))
+            if((self.options["save"])
+                and (self.time_step % self.num_forgotten_steps == 0)):
+                self.__save_density_slice(self.lwr_solver.densityt1)
+                self.__save_vector_slice(self.directions)
 
-        if(self.timeStep % self.numForgottenSteps == 0):
-            if('total_mass' in self.options['additional_computations'].keys()):
-                self.totalMass.append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))]))
-            if('zones_mean_density' in self.options['additional_computations'].keys()):
-                for zoneName in self.mesh.zones.keys():
-                    self.zoneDensity[zoneName].append(sum([self.LWRsolver.densityt1[i]*self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']])/sum([self.mesh.cellAreas[i] for i in self.mesh.zones[zoneName]['triangles']]))
-            if('max_density' in self.options['additional_computations'].keys()):
-                self.maxDensity.append(max(self.LWRsolver.densityt1))
+        if(self.time_step % self.num_forgotten_steps == 0):
+            if("total_mass" in self.options["additional_computations"]):
+                self.total_masses.append(sum([self.lwr_solver.densityt1[i]
+                                              *self.mesh.cell_areas[i]
+                                              for i in range(len(self.mesh.triangles))]))
+            if("zones_mean_density" in self.options["additional_computations"]):
+                for zone_name in self.mesh.zones:
+                    self.zone_densities[zone_name].append(
+                            sum([self.lwr_solver.densityt1[i]
+                               *self.mesh.cell_areas[i]
+                               for i in self.mesh.zones[zone_name]["triangles"]])
+                           /sum([self.mesh.cell_areas[i]
+                                 for i in self.mesh.zones[zone_name]["triangles"]]))
+            if("max_density" in self.options["additional_computations"]):
+                self.max_densities.append(max(self.lwr_solver.densityt1))
 
-        self.LWRsolver.update(self.directions)
+        self.lwr_solver.update(self.directions)
 
-    def computeSteps(self, n:int) -> None:
-        """
-        Computes ``n`` steps of time of the approximation of the solution of the chosen model. Also saves the generated data if ``options['save'] == True``.
+    def compute_steps(self, n:int) -> None:
+        """Compute ``n`` steps of time of the approximation of the solution of the chosen model.
+
+        Also saves the generated data if ``options["save"] == True``.
 
         Args:
             n (int): the number of steps to compute.
+
         """
         for i in range(n):
-            self.computeStep()
-            if(self.options['verbose']):
+            self.compute_step()
+            if(self.options["verbose"]):
                 print("Time step : ", i, "/", n)
 
-        self.saveAdditionnalComputations()
+        self.save_additionnal_computations()
 
-    def computeUntilEmpty(self, max_frames = 5000) -> None:
-        """
-        Computes enough steps of time of the approximation so that the domain is empty. Also saves the generated data if ``options['save'] == True``.
+    def compute_until_empty(self, max_frames:int = 5000) -> None:
+        """Compute enough steps of time of the approximation so that the domain is empty.
+
+        Also saves the generated data if ``options["save"] == True``.
 
         Args:
             max_frames (int, optional): the maximal number of steps to compute.
+
         """
-        if('total_mass' not in self.options['additional_computations'].keys()):
-            self.options['additional_computations']['total_mass'] = True
-            self.totalMass = [sum([self.LWRsolver.densityt0[i]*self.mesh.cellAreas[i] for i in range(len(self.mesh.triangles))])]
+        if("total_mass" not in self.options["additional_computations"]):
+            self.options["additional_computations"]["total_mass"] = True
+            self.total_masses = [sum([self.lwr_solver.densityt0[i]
+                                      *self.mesh.cell_areas[i]
+                                      for i in range(len(self.mesh.triangles))])]
 
-        numSteps = 0
-        while(self.totalMass[-1] > float(1e-2) and len(self.totalMass) < max_frames):
-            self.computeStep()
-            if(self.options['verbose']):
-                print("Time step : ", numSteps, "/", max_frames*self.numForgottenSteps," total mass : ", self.totalMass[-1])
-            numSteps += 1
+        num_steps = 0
+        while(self.total_masses[-1] > EMPTY_THRESHOLD and len(self.total_masses) < max_frames):
+            self.compute_step()
+            if(self.options["verbose"]):
+                print("Time step : ", num_steps, "/", max_frames*self.num_forgotten_steps,
+                      " total mass : ", self.total_masses[-1])
+            num_steps += 1
 
-        self.saveAdditionnalComputations()
+        self.save_additionnal_computations()
 
-    def saveAdditionnalComputations(self) -> None:
-        """
-        Saves the additional computations required in the ``options['additional_computations']`` dictionary.
-        """
-        if('total_mass' in self.options['additional_computations'].keys()):
-            writeFirstLine(self.options['filename']+"_total_mass.csv",[self.dt*i*self.numForgottenSteps for i in range(len(self.totalMass))])
-            writeSlice(self.options['filename']+"_total_mass.csv",self.totalMass)
+    def save_additionnal_computations(self) -> None:
+        """Save the additional computations required in the ``options["additional_computations"]`` dictionary."""
+        if("total_mass" in self.options["additional_computations"]):
+            _write_first_line(self.options["filename"]+"_total_mass.csv",
+                             [self.dt*i*self.num_forgotten_steps
+                              for i in range(len(self.total_masses))])
+            _write_slice(self.options["filename"]+"_total_mass.csv",self.total_masses)
 
-        if('zones_mean_density' in self.options['additional_computations'].keys()):
-            writeFirstLine(self.options['filename']+"_zones_mean_density.csv",["time"]+[self.dt*i*self.numForgottenSteps for i in range(len(self.zoneDensity[list(self.mesh.zones.keys())[0]]))])
-            for zoneName in self.mesh.zones.keys():
-                writeSlice(self.options['filename']+"_zones_mean_density.csv",[zoneName+"_density"]+ self.zoneDensity[zoneName])
+        if("zones_mean_density" in self.options["additional_computations"]):
+            _write_first_line(self.options["filename"]+"_zones_mean_density.csv",
+                             ["time"]+[self.dt*i*self.num_forgotten_steps
+                                       for i in range(len(self.zone_densities[next(iter(self.mesh.zones))]))])
+            for zone_name in self.mesh.zones:
+                _write_slice(self.options["filename"]+"_zones_mean_density.csv",
+                            [zone_name+"_density"]+ self.zone_densities[zone_name])
 
-        if('max_density' in self.options['additional_computations'].keys()):
-            writeFirstLine(self.options['filename']+"_max_density.csv",[self.dt*i*self.numForgottenSteps for i in range(len(self.maxDensity))])
-            writeSlice(self.options['filename']+"_max_density.csv",self.maxDensity)
+        if("max_density" in self.options["additional_computations"]):
+            _write_first_line(self.options["filename"]+"_max_density.csv",
+                             [self.dt*i*self.num_forgotten_steps
+                              for i in range(len(self.max_densities))])
+            _write_slice(self.options["filename"]+"_max_density.csv",self.max_densities)
 
-    def computeStepsAndShow(self,n:int) -> None:
-        """
-        Computes ``n`` steps of time of the approximation of the solution of the chosen model. Then display the solution after ``n`` steps.
+    def compute_steps_and_show(self,n:int) -> None:
+        """Compute ``n`` steps of time of the approximation of the solution of the chosen model.
+
+        Then display the solution after ``n`` steps.
 
         Args:
             n (int): the number of steps to compute.
+
         """
         for i in range(n):
-            self.computeStep()
-            if(self.options['verbose']):
+            self.compute_step()
+            if(self.options["verbose"]):
                 print("Time step : ", i, "/", n)
 
-        if(not self.options['model'] == "constantDirectionField"):
-            self.Eikosolver.fieldValues.showVectorField()
-        self.LWRsolver.showDensity(t=0)
+        if(self.options["model"] != "constantDirectionField"):
+            self.eiko_solver.field_values.show_vector_field()
+        self.lwr_solver.show_density(t=0)
 
-    def convolutionFunctionCG(self, dens:float, dx:float, dy:float) -> float:
+    def __convolution_function_cglm(self, dens:float, dx:float, dy:float) -> float:
         return dens*(1-(dx/self.radius)**2)**3 * (1-(dy/self.radius)**2)**3
 
-    def saveDensityslice(self, density:ArrayLike) -> None:
-        writeSlice_parallel_Dens(self.options['filename']+ "_densities.csv", self.timeStep, density)
+    def __save_density_slice(self, density:ArrayLike) -> None:
+        _write_slice_parallel_dens(self.options["filename"]+ "_densities.csv",
+                                    density)
 
-    def saveVectorslice(self, vectorField:ArrayLike) -> None:
-        writeSlice_parallel_Vec(self.options['filename']+ "_vectors.csv", self.timeStep, vectorField)
+    def __save_vector_slice(self, vector_field:ArrayLike) -> None:
+        _write_slice_parallel_vec(self.options["filename"]+ "_vectors.csv",
+                                    vector_field)
 
-    def saveToJson(self):
-        """
-        Saves both the mesh and the informations about the simulation in two separate files "_mesh.json" and "_info.json"
-        """
-        self.mesh.saveToJson(self.options['filename'])
+    def save_to_json(self) -> None:
+        """Save both the mesh and the informations about the simulation in two separate files '_mesh.json' and '_info.json'."""
+        self.mesh.save_to_json(self.options["filename"])
 
         if(self.options["model"] == "constantDirectionField"):
             dico = {"type":"density field"}
@@ -377,45 +461,41 @@ class PedestrianSolver(object):
             dico = {"type":"vector density field"}
         dico["dt"] = self.dt
         dico["options"] = self.options
-        dico["finalTimeStep"] = self.timeStep
+        dico["finalTimeStep"] = self.time_step
 
-        DensityFilename = self.options['filename'] + "_densities.csv"
-        dico["densities"] = self.options['filename'] + "_densities.csv"
+        dico["densities"] = self.options["filename"] + "_densities.csv"
+        dico["potential"] = self.options["filename"] + "_potential.csv"
+        dico["vectors"] = self.options["filename"] + "_vectors.csv"
 
-        PotentialFilename = self.options['filename'] + "_potential.csv"
-        VectorsFilename = self.options['filename'] + "_vectors.csv"
-        dico["potential"] = PotentialFilename
-        dico["vectors"] = VectorsFilename
-
-        with open(self.options['filename']+"_info.json", 'w', encoding='utf-8') as f:
+        with Path(self.options["filename"]+"_info.json").open("w", encoding="utf-8") as f:
             json.dump(dico, f, ensure_ascii=False, indent=4)
 
 
 
-def writeFirstLine(filename, chunk):
-    with open(filename, 'w', encoding='UTF8') as f:
+def _write_first_line(filename:str, chunk:ArrayLike)-> None:
+    with Path(filename).open("w", encoding="UTF8") as f:
         writer = csv.writer(f)
         writer.writerow(chunk)
 
-def writeSlice(filename, chunk):
-    with open(filename, 'a', encoding='UTF8') as f:
+def _write_slice(filename:str, chunk:ArrayLike) -> None:
+    with Path(filename).open("a", encoding="UTF8") as f:
         writer = csv.writer(f)
         writer.writerow(chunk)
 
-def writeSlice_parallel_Dens(filename, numSlice, data, num_processes=4):
-    global previousProcessDens
-    if(previousProcessDens.is_alive()):
-        previousProcessDens.join()
-    proc = multiprocessing.Process(target=writeSlice, args = (filename,data))
+def _write_slice_parallel_dens(filename:str, data:ArrayLike) -> None:
+    global previous_process_dens
+    if(previous_process_dens.is_alive()):
+        previous_process_dens.join()
+    proc = multiprocessing.Process(target=_write_slice, args = (filename,data))
     proc.start()
-    previousProcessDens = proc
+    previous_process_dens = proc
 
 
-def writeSlice_parallel_Vec(filename, numSlice, data, num_processes=4):
-    global previousProcessVec
-    if(previousProcessVec.is_alive()):
-        previousProcessVec.join()
+def _write_slice_parallel_vec(filename:str, data:ArrayLike) -> None:
+    global previous_process_vec
+    if(previous_process_vec.is_alive()):
+        previous_process_vec.join()
 
-    proc = multiprocessing.Process(target=writeSlice, args = (filename,data))
+    proc = multiprocessing.Process(target=_write_slice, args = (filename,data))
     proc.start()
-    previousProcessVec = proc
+    previous_process_vec = proc

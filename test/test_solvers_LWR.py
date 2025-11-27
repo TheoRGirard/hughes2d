@@ -1,6 +1,9 @@
-from hughes2d.Mesh2D import *
-from hughes2d.LWR2D import *
 import pytest
+
+import numpy as np
+
+from hughes2d.LWR2D import LWRSolver
+from hughes2d.Mesh2D import CellValueMap, Mesh
 
 """
 This file tests the LWR solver.
@@ -15,7 +18,7 @@ MyMesh = Mesh()
 #MyMesh.saveToJson("test/ressources/test_LWR")
 
 #Mesh loading
-MyMesh.loadFromJson("test/ressources/test_LWR_mesh.json")
+MyMesh.load_from_json("test/ressources/test_LWR_mesh.json")
 
 VectorField = [[1,0] for _ in MyMesh.triangles]
 
@@ -39,19 +42,19 @@ def test_LWR(method, convexFlux, dt, CFL, numSteps, precision):
     options = dict(method = method, convexFlux = convexFlux, debugging = True)
     if not convexFlux:
         options['ApproximationThreshold'] = 0.001
-    MySolver = LWRSolver(MyMesh, dt = dt, previousDensity = InitialDatum, directionMap = VectorField, opt=options)
+    MySolver = LWRSolver(MyMesh, dt = dt, previous_density = InitialDatum, direction_map = VectorField, opt=options)
 
-    assert MySolver.checkCFL() == CFL
+    assert MySolver.check_cfl() == CFL
 
     for i in range(numSteps):
         slice = CellValueMap(MyMesh)
         slice.values = [explicitSolFunc((i+1)*dt, P[0]) for P in MyMesh.barycenters]
 
-        MySolver.computeNextStep()
+        MySolver.compute_next_step()
 
         meanDiff = 0
         for j in range(len(MyMesh.triangles)):
-            meanDiff += abs(MySolver.densityt1[j] - slice[j])*MyMesh.cellAreas[j]
+            meanDiff += abs(MySolver.densityt1[j] - slice[j])*MyMesh.cell_areas[j]
         meanDiff = meanDiff/50
 
         assert meanDiff < precision

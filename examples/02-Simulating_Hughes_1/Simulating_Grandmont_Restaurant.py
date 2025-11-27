@@ -1,5 +1,6 @@
-from hughes2d import *
 import random as alea
+
+from hughes2d import *
 
 """
 This example illustrates how to simulate pedestrian flows on a complex domain that represents the university restaurant of Tours.

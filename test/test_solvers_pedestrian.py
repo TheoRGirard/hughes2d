@@ -1,6 +1,9 @@
-from hughes2d.Mesh2D import *
-from hughes2d.Splitting import *
 import pytest
+
+import numpy as np
+
+from hughes2d.Mesh2D import CellValueMap, Mesh
+from hughes2d.Splitting import PedestrianSolver
 
 try:
     import plotly.figure_factory as ff
@@ -18,10 +21,10 @@ MyMesh = Mesh()
 #MyDomain = NonConvexDomain([[0,0],[10,0],[10,5],[0,5]])
 #MyDomain.addExit([[10,0],[10,5]])
 #MyMesh.generateMeshFromDomain(MyDomain, 0.2)
-#MyMesh.saveToJson("test/ressources/test_pedestrian")
+#MyMesh.save_to_json("test/ressources/test_pedestrian")
 
 #Mesh loading
-MyMesh.loadFromJson("test/ressources/test_pedestrian_mesh.json")
+MyMesh.load_from_json("test/ressources/test_pedestrian_mesh.json")
 
 InitialDatum  = CellValueMap(MyMesh)
 for i in range(len(InitialDatum)):
@@ -42,17 +45,17 @@ def explicitSolFunc(t,x):
 def test_pedestrian_models(model, dt, numSteps, precision):
     options = dict(model = model)
 
-    MySolver = PedestrianSolver(MyMesh, dt = dt, initialDensity = InitialDatum, options=options)
+    MySolver = PedestrianSolver(MyMesh, dt = dt, initial_density = InitialDatum, options=options)
 
     for i in range(numSteps):
         slice = CellValueMap(MyMesh)
         slice.values = [explicitSolFunc((i+1)*dt, P[0]) for P in MyMesh.barycenters]
 
-        MySolver.computeStep()
+        MySolver.compute_step()
 
         meanDiff = 0
         for j in range(len(MyMesh.triangles)):
-            meanDiff += abs(MySolver.LWRsolver.densityt0[j] - slice[j])*MyMesh.cellAreas[j]
+            meanDiff += abs(MySolver.lwr_solver.densityt0[j] - slice[j])*MyMesh.cell_areas[j]
         meanDiff = meanDiff/50
 
         assert meanDiff < precision
@@ -65,20 +68,20 @@ def test_pedestrian_save():
                     )
 
     InitialDatum2  = CellValueMap(MyMesh)
-    InitialDatum2.setConstantCircle([9.5,2.5],0.3,0.3)
+    InitialDatum2.set_constant_circle([9.5,2.5],0.3,0.3)
 
-    MySolver = PedestrianSolver(MyMesh, dt = 0.1, initialDensity = InitialDatum2, options=options)
+    MySolver = PedestrianSolver(MyMesh, dt = 0.1, initial_density = InitialDatum2, options=options)
 
-    MySolver.computeUntilEmpty()
+    MySolver.compute_until_empty()
 
-    assert MySolver.timeStep < 20
+    assert MySolver.time_step < 20
 
-    MySolver.saveToJson()
+    MySolver.save_to_json()
 
 def test_pedestrian_plot():
     if(go):
         options = dict(model = "hughes")
 
-        MySolver = PedestrianSolver(MyMesh, dt = 0.1, initialDensity = InitialDatum, options=options)
+        MySolver = PedestrianSolver(MyMesh, dt = 0.1, initial_density = InitialDatum, options=options)
 
-        MySolver.computeStepsAndShow(10)
+        MySolver.compute_steps_and_show(10)

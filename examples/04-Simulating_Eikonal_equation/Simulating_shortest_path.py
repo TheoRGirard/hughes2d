@@ -1,6 +1,8 @@
-from hughes2d import *
 import random as alea
+
 import numpy as np
+
+from hughes2d import *
 
 MyMesh = Mesh2D.Mesh()
 

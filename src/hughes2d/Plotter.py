@@ -1,15 +1,13 @@
 
-import json
-import numpy as np
 import csv
+import json
+from pathlib import Path
 
-from typing import List
+import numpy as np
 
 try:
     import matplotlib.pyplot as plt
-    import matplotlib.cm as cm
-    import matplotlib.collections as collections
-    import matplotlib.animation as animation
+    from matplotlib import animation, cm, collections
 except ImportError:
     plt = None
 
@@ -19,38 +17,46 @@ try:
 except ImportError:
     go, ff = None, None
 
-def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300, plot_scale:bool = True, pic_size = (8,6)) -> None:
-    """
-    Creates a video file from the data files of a simulation.
+EMPTY_LIST = []
+
+def convert_to_mp4(filename:str, limits:list[list[float]] = EMPTY_LIST, dpi_set:int = 300, pic_size:tuple[int,int] = (8,6), *, plot_scale:bool = True) -> None:
+    """Create a video file from the data files of a simulation.
 
     Args:
         filename (str): the path and basename for the data files.
-        limits (List[List[float]]): the scope of the simulation as [[x_min,x_max],[y_min,y_max]].
-        dpi_set (int): resolution of the video as dots per inches (dpi)
+        limits (list[list[float]], optional): the scope of the simulation as
+            [[x_min,x_max],[y_min,y_max]].
+        dpi_set (int, optional): resolution of the video as dots per inches (dpi)
+        pic_size (tuple[int,int], optional): size of the picture as (width,height)
+        plot_scale (bool, keyword-only): toggles the plot of a color scale for
+            the density.
 
     Raises:
         ImportError: if matplotlib is not installed.
+
     """
-
     if not plt:
-        raise ImportError("matplotlib is required for this function.")
+        msg = "matplotlib is required for this function."
+        raise ImportError(msg)
 
-    with open(filename +"_mesh.json") as f:
+    with Path(filename +"_mesh.json").open("r") as f:
         data = json.load(f)
-        Triangles = np.array([ [ [ data['vertices'][i][0], data['vertices'][i][1] ] for i in triangle] for triangle in data['triangles'] ])
+        triangles = np.array([ [ [ data["vertices"][i][0], data["vertices"][i][1] ]
+                                for i in triangle] for triangle in data["triangles"] ])
 
 
     values = []
 
-    with open(filename +"_densities.csv", mode ='r')as file:
-        csvFile = csv.reader(file)
-        for lines in csvFile:
-            values.append(np.array([float(lines[i]) for i in range(len(lines))]))
+    with Path(filename +"_densities.csv").open("r") as file:
+        csv_file = csv.reader(file)
+        for lines in csv_file:
+            values = [*values,
+                      np.array([float(lines[i]) for i in range(len(lines))])]
 
 
     fig, ax = plt.subplots(figsize= pic_size, dpi=dpi_set)
 
-    col = collections.PolyCollection(Triangles)
+    col = collections.PolyCollection(triangles)
     col.set_cmap(cm.viridis)
     col.set_clim([0, 1])
     rgcol = col.set_array(values[0])
@@ -63,11 +69,10 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300,
     if len(limits) > 0:
         ax.set_xlim(limits[0][0],limits[0][1])
         ax.set_ylim(limits[1][0],limits[1][1])
-        plt.axis('equal')
+        plt.axis("equal")
 
 
-    def update(frame):
-        # for each frame, update the data stored on each artist.
+    def update(frame:int):
         col.set_array(values[frame])
         ax.add_collection(col)
 
@@ -76,120 +81,163 @@ def convertToMP4(filename:str, limits:List[List[float]] = [], dpi_set:int = 300,
 
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(values), interval=30)
 
-    FFwriter = animation.FFMpegWriter(fps=25)
-    ani.save(filename+'.mp4', writer = FFwriter, dpi=dpi_set)
+    ff_writer = animation.FFMpegWriter(fps=25)
+    ani.save(filename+".mp4", writer = ff_writer, dpi=dpi_set)
 
 
-def saveTimeSlices(times:List[float], filename:str, slicename:str, limits:List[List[float]] = [], dpi_set:int = 300, plot_scale:bool = True, pic_size = (8,6)) -> None:
-    """
-    Exports an image file from the data files of a simulation for each time slice required in the ``times`` parameter.
+def save_time_slices(times:list[float], filename:str, slicename:str, limits:list[list[float]] = EMPTY_LIST, dpi_set:int = 300, pic_size: tuple[int,int] = (8,6), *, plot_scale:bool = True) -> None:
+    """Export an image file from the data files of a simulation for each time slice required in the ``times`` parameter.
 
     Args:
-        times (List[float]): a list of the timing (in seconds) when a picture should be extracted from the simulation.
+        times (list[float]): a list of the timing (in seconds) when a picture should be
+            extracted from the simulation.
         filename (str): the path and basename for the data files.
         slicename (str): the path and basename for the exported pictures.
-        limits (List[List[float]]): the scope of the simulation as [[x_min,x_max],[y_min,y_max]].
+        limits (list[list[float]]): the scope of the simulation as
+            [[x_min,x_max],[y_min,y_max]].
         dpi_set (int): resolution of the video as dots per inches (dpi)
+        pic_size (tuple[int,int], optional): size of the picture as (width,height)
+        plot_scale (bool, keyword-only): toggles the plot of a color scale for
+            the density.
 
     Raises:
         ImportError: if matplotlib is not installed.
+
     """
     if not plt:
-        raise ImportError("matplotlib is required for this function.")
+        msg = "matplotlib is required for this function."
+        raise ImportError(msg)
 
-    IntTimes = [int(times[i]*25) for i in range(len(times))]
+    int_times = [int(times[i]*25) for i in range(len(times))]
 
-    with open(filename +"_mesh.json") as f:
+    with Path(filename +"_mesh.json").open("r") as f:
         data = json.load(f)
-        Triangles = np.array([ [ [ data['vertices'][i][0], data['vertices'][i][1] ] for i in triangle] for triangle in data['triangles'] ])
+        triangles = np.array([ [ [ data["vertices"][i][0], data["vertices"][i][1] ]
+                                for i in triangle] for triangle in data["triangles"] ])
 
 
     values = []
 
-    with open(filename +"_densities.csv", mode ='r')as file:
-        csvFile = csv.reader(file)
-        for lines in csvFile:
-            values.append(np.array([float(lines[i]) for i in range(len(lines))]))
-
-
+    with Path(filename +"_densities.csv").open("r") as file:
+        csv_file = csv.reader(file)
+        for lines in csv_file:
+            values = [*values,
+                      np.array([float(lines[i]) for i in range(len(lines))])]
 
     for i,t in enumerate(times):
 
-        if IntTimes[i] < len(values):
+        if int_times[i] < len(values):
             fig, ax = plt.subplots(figsize= pic_size, dpi=dpi_set)
 
-            col = collections.PolyCollection(Triangles)
+            col = collections.PolyCollection(triangles)
             col.set_cmap(cm.viridis)
             col.set_clim([0, 1])
-            rgcol = col.set_array(values[IntTimes[i]])
+            rgcol = col.set_array(values[int_times[i]])
 
 
             if len(limits) > 0:
                 ax.set_xlim(limits[0][0],limits[0][1])
                 ax.set_ylim(limits[1][0],limits[1][1])
-                plt.axis('equal')
+                plt.axis("equal")
 
             ax.add_collection(col)
-            ax.set_title("t = "+str(times[i])+"s")
+            ax.set_title("t = "+str(t)+"s")
             if plot_scale:
                 fig.colorbar(rgcol, ax=ax, label="density")
-            plt.savefig(slicename + str(times[i]) +"s.png", dpi=dpi_set)
+            plt.savefig(slicename + str(t) +"s.png", dpi=dpi_set)
         else:
-            print("Warning: time slice ", t, " ignored because the simulation is too short.")
+            print("Warning: time slice ", t,
+                  " ignored because the simulation is too short.")
 
 
 
-def plotVectorField(VertexList:List[List[float]], TriangleList:List[List[int]], VectorField:List[List[float]], plotMesh:bool=True) -> None:
-    """
-    Displays a vector field passed as a parameter with plotly.
+def plot_vector_field(vertex_list:list[list[float]], triangle_list:list[list[int]], vector_field:list[list[float]], *, plot_mesh:bool=True) -> None:
+    """Display a vector field passed as a parameter with plotly.
 
     Args:
-        VertexList (List[List[float]]): a list of the vertices of the mesh on which the vector field will be plotted.
-        TriangleList (List[List[int]]): a list of the triangles of the mesh on which the vector field will be plotted.
-        VectorField (List[List[float]]): the vector field to plot. Must be of the same shape as ``TriangleList``.
-        plotMesh (bool, optional): whether or not the mesh should be plotted in background.
+        vertex_list (list[list[float]]): a list of the vertices of the mesh on which
+            the vector field will be plotted.
+        triangle_list (list[list[int]]): a list of the triangles of the mesh on which
+            the vector field will be plotted.
+        vector_field (list[list[float]]): the vector field to plot. Must be of the same
+            shape as ``triangle_list``.
+        plot_mesh (bool, keyword-only): whether or not the mesh should be plotted in
+            background.
 
     Raises:
         ImportError: if plotly is not installed.
+
     """
     if not go:
-        raise ImportError("plotly is required for this function.")
+        msg = "plotly is required for this function."
+        raise ImportError(msg)
 
     fig = go.Figure()
-    if(plotMesh):
-        for T in TriangleList:
-            fig.add_trace(go.Scatter(x=[VertexList[i][0] for i in T]+[VertexList[T[0]][0]],
-                                    y=[VertexList[i][1] for i in T]+[VertexList[T[0]][1]],
+    if(plot_mesh):
+        for triangle in triangle_list:
+            fig.add_trace(go.Scatter(x=([vertex_list[i][0] for i in triangle]
+                                        +[vertex_list[triangle[0]][0]]),
+                                    y=([vertex_list[i][1] for i in triangle]
+                                       +[vertex_list[triangle[0]][1]]),
                             fill="toself",
                             fillcolor="White",
                             mode="lines",
-                            line=dict(
-                                color="Black",
-                                width=1
-                             )))
-        fig.update_layout(yaxis=dict(
-            scaleanchor='x',
-            scaleratio=1))
-    figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
-                                [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
-                                [V[0] for V in VectorField], [V[1] for V in VectorField])
-    fig.add_traces(figQuiv.data)
-    fig.update_layout(yaxis=dict(
-        scaleanchor='x',
-        scaleratio=1))
+                            line={
+                                "color" : "Black",
+                                "width" : 1,
+                             }))
+        fig.update_layout(yaxis={
+                "scaleanchor" : "x",
+                "scaleratio" : 1,
+                })
+    fig_quiv = ff.create_quiver([(vertex_list[triangle[0]][0]+vertex_list[triangle[1]][0]
+                                 +vertex_list[triangle[2]][0])/3 for triangle in triangle_list],
+                                [(vertex_list[triangle[0]][1]+vertex_list[triangle[1]][1]
+                                  +vertex_list[triangle[2]][1])/3 for triangle in triangle_list],
+                                [V[0] for V in vector_field], [V[1] for V in vector_field])
+    fig.add_traces(fig_quiv.data)
+    fig.update_layout(yaxis={
+            "scaleanchor" : "x",
+            "scaleratio" : 1,
+            })
     fig.show()
 
-def addVectorFieldPlot(fig, VertexList, TriangleList, VectorField, color=[255,255,255,0.9]):
-    if not go:
-        raise ImportError("plotly is required for this function.")
+def add_vector_field_plot(fig:go.Figure, vertex_list:list[float], triangle_list:list[list[int]], vector_field:list[list[float]], color:list[int]=[255,255,255,0.9]) -> None:
+    """Add a vector field plot to a given figure.
 
-    figQuiv = ff.create_quiver([(VertexList[T[0]][0]+VertexList[T[1]][0]+VertexList[T[2]][0])/3 for T in TriangleList],
-                                [(VertexList[T[0]][1]+VertexList[T[1]][1]+VertexList[T[2]][1])/3 for T in TriangleList],
-                                [V[0] for V in VectorField], [V[1] for V in VectorField],
-                                line=dict(
-                                    color='rgba('+str(color[0])+','+str(color[1])+','+str(color[2])+','+str(color[3])+')')
-                                )
-    fig.add_traces(figQuiv.data)
-    fig.update_layout(yaxis=dict(
-        scaleanchor='x',
-        scaleratio=1))
+    Args:
+        fig (go.Figure): the figure on which the vector field plot should be added;
+        vertex_list (list[list[float]]): a list of the vertices of the mesh on which
+            the vector field will be plotted.
+        triangle_list (list[list[int]]): a list of the triangles of the mesh on which
+            the vector field will be plotted.
+        vector_field (list[list[float]]): the vector field to plot. Must be of the same
+            shape as ``triangle_list``.
+        plot_mesh (bool, keyword-only): whether or not the mesh should be plotted in
+            background.
+        color (list[int], optional): the color of the vectors.
+
+    Raises:
+        ImportError: if plotly is not installed.
+
+    """
+    if not go:
+        msg = "plotly is required for this function."
+        raise ImportError(msg)
+
+    fig_quiv = ff.create_quiver([(vertex_list[triangle[0]][0]+vertex_list[triangle[1]][0]
+                                  +vertex_list[triangle[2]][0])/3
+                                 for triangle in triangle_list],
+                                [(vertex_list[triangle[0]][1]+vertex_list[triangle[1]][1]
+                                  +vertex_list[triangle[2]][1])/3
+                                 for triangle in triangle_list],
+                                [V[0] for V in vector_field],
+                                [V[1] for V in vector_field],
+                                line={
+                                    "color":"rgba("+str(color[0])+","+str(color[1])+","+str(color[2])+","+str(color[3])+")",
+                                })
+    fig.add_traces(fig_quiv.data)
+    fig.update_layout(yaxis={
+            "scaleanchor" : "x",
+            "scaleratio" : 1,
+            })
