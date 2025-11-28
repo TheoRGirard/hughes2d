@@ -1,11 +1,13 @@
-from hughes2d.Mesh2D import *
+from pathlib import Path
 
-filename = "examples/06-File_handling/dxf/config_simple.dxf"
+from hughes2d.Mesh2D import Mesh, NonConvexDomain
+
+filename = Path(__file__).parent / "config_simple.dxf"
 
 MyDomain = NonConvexDomain()
 MyDomain.importFromDXF(filename)
 MyDomain.show()
 
 MyMesh = Mesh()
-MyMesh.generateMeshFromDomain(MyDomain, 10)
+MyMesh.generate_mesh_from_domain(MyDomain, 10)
 MyMesh.show()

@@ -1,4 +1,6 @@
-from hughes2d import *
+from pathlib import Path
 
-filename = "examples/02-Simulating_Hughes1/data/RuGrandmont"
+from hughes2d import Plotter
+
+filename = str(Path(__file__).parent / "RuGrandmont")
 Plotter.convertToMP4(filename, limits=[[1,13],[-11,-3]])

@@ -1,32 +1,33 @@
-import random as alea
+from pathlib import Path
 
 import numpy as np
 
-from hughes2d import *
+from hughes2d import CellValueMap, EikoSolver, Mesh
 
-MyMesh = Mesh2D.Mesh()
+MyMesh = Mesh()
 
 #Construction of the mesh
+#from hughes2d import NonConvexDomain
 #MyDomain = Mesh2D.NonConvexDomain([[0,0],[3,0],[3,3],[0,3]])
-#MyDomain.addExits([[[1,0],[2,0]],[[3,0.5],[3,1.5]],[[0.5,3],[2,3]]])
-#MyMesh.generateMeshFromDomain(MyDomain, 0.01)
-#MyMesh.saveToJson("examples/04-Simulating_Eikonal_equation/data/square")
+#MyDomain.add_exits([[[1,0],[2,0]],[[3,0.5],[3,1.5]],[[0.5,3],[2,3]]])
+#MyMesh.generate_mesh_from_domain(MyDomain, 0.01)
+#MyMesh.save_to_json("examples/04-Simulating_Eikonal_equation/data/square")
 
 #Loading the mesh
-MyMesh.loadFromJson("examples/04-Simulating_Eikonal_equation/data/square_mesh.json")
+MyMesh.load_from_json(Path(__file__).parent / "data" / "square_mesh.json")
 
-MyMap = Mesh2D.CellValueMap(MyMesh)
+MyMap = CellValueMap(MyMesh)
 
-Opt=dict(method = "FMT", constrained = True, NarrowBandDepth = 2)
+opt=dict(method = "FMT", constrained = True, NarrowBandDepth = 2)
 
-EikoSolv = EikonalSolver.EikoSolver(MyMesh, DensityMap = MyMap, opt = Opt)
-EikoSolv.computeField()
+EikoSolv = EikoSolver(MyMesh, density_map = MyMap, opt = opt)
+EikoSolv.compute_field()
 
 #Show as a colored scatter plot
-EikoSolv.fieldValues.show(grid=True, colorscale_name = 'magenta')
+EikoSolv.field_values.show(grid=True, colorscale_name = "magenta")
 
 #Show as a 3D plot
-EikoSolv.fieldValues.show3D()
+EikoSolv.field_values.show_3d()
 
 #Displays the vector field associated with the computed approximation
-EikoSolv.fieldValues.showVectorField()
+EikoSolv.field_values.show_vector_field()
