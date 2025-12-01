@@ -1,0 +1,11 @@
+#Untrack pyc and pycache folder
+
+*.pyc
+**/__pycache__/
+
+#Untrack data files
+
+*.csv
+*.json
+
+
