@@ -8,4 +8,7 @@
 *.csv
 *.json
 
+#Untrack rendered files
 
+*.png
+*.mp4
