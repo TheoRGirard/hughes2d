@@ -1,10 +1,10 @@
 [project]
 name = "hughes2d"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "A python package for simulating macroscopic pedestrian evacuations."
 readme = "README.md"
 authors = [
-    { name = "Theo Girard", email = "girard-theo@orange.fr" }
+    { name = "Theo Girard", email = "theo.girard@math.cnrs.fr" }
 ]
 requires-python = ">=3.10"
 dependencies = [
