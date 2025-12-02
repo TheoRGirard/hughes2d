@@ -281,11 +281,8 @@ class LWRSolver:
                         or far_flux > 1 + self.opt["ApproximationThreshold"]):
                         print("Warning : scalar product out of bonds")
                         if self.opt["debugging"]:
-                            print(f"| far_triangle_grad | = {far_triangle_grad[0]
-                                  *far_triangle_grad[0]
-                                  + far_triangle_grad[1]*far_triangle_grad[1]}")
-                            print(f"| normal | = {normal[0]*normal[0]
-                                                    + normal[1]*normal[1]}")
+                            print(f"| far_triangle_grad | = {far_triangle_grad[0]*far_triangle_grad[0]+far_triangle_grad[1]*far_triangle_grad[1]}")
+                            print(f"| normal | = {normal[0]*normal[0]+normal[1]*normal[1]}")
                     """
                     If the flux function is not convex, we use a dichotomy to solve
                     the problem.
