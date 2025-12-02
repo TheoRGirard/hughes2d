@@ -115,7 +115,7 @@ We cover below the basic usages of the *hughes2d* package. The content of this s
 The *NonConvexDomain* object is used to define a domain. Here a domain is defined by a set of walls, exits. Walls and exits are pretty explicit (note however that a domain should necessarily contain at least one exit for the simulation to compute properly).
 
 Here is an example of the script used to define the following domain:
-![A simple square domain](docs/assets/square_domain.png)
+![A simple square domain](docs/source/assets/square_domain.png)
 
 ```python
 from hughes2d import NonConvexDomain
@@ -206,7 +206,7 @@ Here the initial density of pedestrian is random (*CellValueMap.generate_random(
 MyMap.set_constant_circle(center=[1,1], radius = 1, value = 0.7)
 ```
 in order to get something like:
-![A constant circle defined CellValueMap](docs/assets/constant_circle.png)
+![A constant circle defined CellValueMap](docs/source/assets/constant_circle.png)
 
 You can also add and multiply two *CellValueMap* objects together. And you can visualize the datum using *CellValueMap.show()*.
 We defer to the object reference for more details.
