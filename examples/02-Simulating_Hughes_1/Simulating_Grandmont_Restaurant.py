@@ -33,7 +33,7 @@ MyDomain.show()
 
 #construction of the Mesh--------------------------------------
 MyMesh = Mesh()
-MyMesh.generate_mesh_from_domain(MyDomain, 0.02)
+MyMesh.generate_mesh_from_domain(MyDomain, 0.05)
 MyMesh.show()
 MyMesh.save_to_json(str(Path(__file__).parent / "data" / "RuGrandmont"))
 
@@ -57,4 +57,4 @@ opt = dict(model = "hughes",
                             'NarrowBandDepth' : 2})
 
 Solver = PedestrianSolver(MyMesh, 0.01, initial_density = MyMap, options=opt)
-Solver.compute_until_empty(5000)
+Solver.compute_until_empty(10)

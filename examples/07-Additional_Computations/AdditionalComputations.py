@@ -16,8 +16,9 @@ for i,B in enumerate(MyMesh.barycenters):
         MyMap.values[i] = 0.5
 
 
-opt = dict(constantDirectionField = False,
-            filename = Path(__file__).parent / "data" / "output",
+opt = dict( model = "hughes",
+            constantDirectionField = False,
+            filename = str(Path(__file__).parent / "data" / "output"),
             save = True,
             verbose = True,
             lwrSolver = {   'convexFlux' : True,
@@ -28,7 +29,7 @@ opt = dict(constantDirectionField = False,
                             'NarrowBandDepth' : 2},
             additional_computations = { 'zones_mean_density' : True, 'total_mass' : True })
 
-Solver = PedestrianSolver(MyMesh, 0.003, initial_density = MyMap, options=opt)
+Solver = PedestrianSolver(MyMesh, 0.03, initial_density = MyMap, options=opt)
 
-Solver.compute_until_empty(5000)
+Solver.compute_until_empty(50)
 Solver.save_to_json()

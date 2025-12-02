@@ -7,6 +7,8 @@ import pytest
 from hughes2d.Mesh2D import CellValueMap, Mesh, NonConvexDomain
 
 try:
+    import matplotlib as mpl
+    mpl.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib import cm, collections, patches
 except ImportError:

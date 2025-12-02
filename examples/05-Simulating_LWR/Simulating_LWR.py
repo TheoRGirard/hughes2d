@@ -27,8 +27,8 @@ VectorField = [[1,0] for _ in MyMesh.triangles]
 #Construction of the LWR solver
 opt = dict( method = "midVector",
             convexFlux = True )
-MySolver = LWRSolver(MyMesh, dt, previousDensity=InitialDatum,
-                     directionMap =VectorField, opt = opt)
+MySolver = LWRSolver(MyMesh, dt, previous_density=InitialDatum,
+                     direction_map =VectorField, opt = opt)
 
 #Compute the number of steps num_step
 for _ in range(num_step):

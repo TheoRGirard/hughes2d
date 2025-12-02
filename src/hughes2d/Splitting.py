@@ -385,11 +385,14 @@ class PedestrianSolver:
             n (int): the number of steps to compute.
 
         """
-        for i in range(n):
+        if self.options["verbose"]:
+            print(f"Computing {n} time steps of the approximated solution.")
+        for i in range(n+1):
             self.compute_step()
             if(self.options["verbose"]):
                 print("Time step : ", i, "/", n)
 
+        print("End of simulation.")
         self.save_additionnal_computations()
 
     def compute_until_empty(self, max_frames:int = 5000) -> None:
@@ -401,6 +404,10 @@ class PedestrianSolver:
             max_frames (int, optional): the maximal number of steps to compute.
 
         """
+        if self.options["verbose"]:
+            print(f"Computing time steps until the total mass is less"
+                  f" than {EMPTY_THRESHOLD}."
+                  f"Maximum number of steps: {max_frames*self.num_forgotten_steps}.")
         if("total_mass" not in self.options["additional_computations"]):
             self.options["additional_computations"]["total_mass"] = True
             self.total_masses = [sum([self.lwr_solver.densityt0[i]
@@ -408,12 +415,14 @@ class PedestrianSolver:
                                       for i in range(len(self.mesh.triangles))])]
 
         num_steps = 0
-        while(self.total_masses[-1] > EMPTY_THRESHOLD and len(self.total_masses) < max_frames):
+        while(self.total_masses[-1] > EMPTY_THRESHOLD and len(self.total_masses) < max_frames+1):
             self.compute_step()
             if(self.options["verbose"]):
                 print("Time step : ", num_steps, "/", max_frames*self.num_forgotten_steps,
                       " total mass : ", self.total_masses[-1])
             num_steps += 1
+        if self.options["verbose"]:
+            print("End of simulation.")
 
         self.save_additionnal_computations()
 
@@ -448,7 +457,9 @@ class PedestrianSolver:
             n (int): the number of steps to compute.
 
         """
-        for i in range(n):
+        if self.options["verbose"]:
+            print(f"Computing {n} time steps of the approximated solution.")
+        for i in range(n+1):
             self.compute_step()
             if(self.options["verbose"]):
                 print("Time step : ", i, "/", n)

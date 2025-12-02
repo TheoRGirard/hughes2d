@@ -18,9 +18,9 @@ import plotly
 from hughes2d import CellValueMap, Mesh, NonConvexDomain, PedestrianSolver
 
 #Parameters of the simulation
-dt = 0.025
-dx = 0.05
-num_step = 2000
+dt = 0.25
+dx = 0.5
+num_step = 200
 
 #Construction of the mesh
 Exits = [[[10,0],[10,5]]]
@@ -88,8 +88,8 @@ SolverHughes = PedestrianSolver(MyMesh, dt,
 #Computing the L1 differences with the explicit solution step by step
 L1Diffs = [[],[]]
 for j in range(num_step):
-    SolverConstantDirection.computeStep()
-    SolverHughes.computeStep()
+    SolverConstantDirection.compute_step()
+    SolverHughes.compute_step()
 
     D = 0
     D2 = 0

@@ -672,13 +672,25 @@ class NonConvexDomain:
         if( NonConvexDomain.belong_segment(edge[0],outer2_coord)
            or NonConvexDomain.belong_segment(edge[1],outer1_coord)):
             return True
-        return( ( NonConvexDomain.belong_segment(outer1_coord[0], outer2_coord)
+        if( ( NonConvexDomain.belong_segment(outer1_coord[0], outer2_coord)
              or NonConvexDomain.belong_segment(outer1_coord[1], outer2_coord))
             and np.abs( (outer1_coord[1][0]- outer1_coord[0][0])
                        *(outer2_coord[1][1]- outer2_coord[0][1])
                        - (outer1_coord[1][1]- outer1_coord[0][1])
                        *(outer2_coord[1][0]- outer2_coord[0][0]) )
-                   < PRECISION)
+                   < PRECISION):
+            return True
+        for i in self.outer_boundary[outer_indices[0]]:
+            for j in self.outer_boundary[outer_indices[1]]:
+                if (self.outer_vertices[i][0] == edge[0][0]
+                     and self.outer_vertices[i][1] == edge[0][1]
+                     and self.outer_vertices[j][0] == edge[1][0]
+                     and self.outer_vertices[j][1] == edge[1][1]):
+                     for edge_test in self.outer_boundary:
+                            if ((edge_test[0] == i and edge_test[1] == j)
+                                or (edge_test[1] == i and edge_test[0] == j)):
+                                return True
+        return False
 
     def show(self, preference:str ="plotly") -> None:
         """Plot method for the domain object.
@@ -938,7 +950,7 @@ class Mesh:
         triangles_with_edges (ArrayLike): array of triangles ordered as self.triangles,
             elements as [edge_index, edge_index, edge_index].
         pairs_of_triangles (list[list[int]]): nested list of length 1 or 2, ordered as
-            self.edges, elements as [triangle_index, triangle_index] or [triangle_index].
+            self.edges, elements as [triangle_index, triangle_index] or [triangle_index]
         triangles_per_vertex (list[list]): nested list, ordered as self.vertices, an
             element is a list of (number of triangles containing the vertex) elements
             as [[triangle index, [otherVertex1, otherVertex2 ]], ...].
@@ -1510,15 +1522,15 @@ class Mesh:
 
         wall_edges = []
         for index, edge in enumerate(self.edges):
-                if( ( domain.has_wall_edge([self.vertices[edge[0]],
+            if( ( domain.has_wall_edge([self.vertices[edge[0]],
+                                        self.vertices[edge[1]]])
+                 and not domain.has_exit_edge([self.vertices[edge[0]],
+                                               self.vertices[edge[1]]]) )
+                or ( domain.has_outer_edge([self.vertices[edge[0]],
                                             self.vertices[edge[1]]])
-                     and not domain.has_exit_edge([self.vertices[edge[0]],
-                                                   self.vertices[edge[1]]]) )
-                    or ( domain.has_outer_edge([self.vertices[edge[0]],
-                                                self.vertices[edge[1]]])
-                        and not domain.has_exit_edge([self.vertices[edge[0]],
-                                                      self.vertices[edge[1]]]) )):
-                    wall_edges.append(index)
+                    and not domain.has_exit_edge([self.vertices[edge[0]],
+                                                  self.vertices[edge[1]]]) )):
+                wall_edges.append(index)
         self.wall_edges = np.array(wall_edges)
 
     def compute_vertex_flags(self, domain : NonConvexDomain,

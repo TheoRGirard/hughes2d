@@ -2,11 +2,16 @@ import pytest
 import runpy
 from pathlib import Path
 
+try:
+    import matplotlib as mpl
+    mpl.use("Agg")
+except ImportError:
+    pass
+
 example_folder = Path(__file__).parent.parent / "examples"
 
 example_files = [Path(example_folder, folder, file)
                  for folder, file in [
-          ("00-getting_started","getting_started.py"),
           ("00-getting_started","getting_started.py"),
           ("01-Mesh_generation", "Generating_square_mesh.py"),
           ("02-Simulating_Hughes_1", "Simulating_Grandmont_Restaurant.py"),
