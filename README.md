@@ -189,7 +189,7 @@ Instead of generating a mesh from a *NonConvexDomain* you can also import an ext
 - *Mesh.import_mesh_from_msh*: an import from a GMSH-defined .msh file.
 - *Mesh.import_mesh_from_msh_free_fem*: an import from a FreeFEM defined .msh file.
 
-We defer to the ![complete reference](https://hughes2d.readthedocs.io/en/latest/reference.html) of the *Mesh* object in the documentation for further details.
+We defer to the [complete reference](https://hughes2d.readthedocs.io/en/latest/reference.html) of the *Mesh* object in the documentation for further details.
 
 ### Defining the initial datum
 
@@ -243,7 +243,7 @@ from pathlib import Path
 import hughes2d.Plotter
 
 filename = "path/to/datafile_base_name"
-hughes2d.Plotter.convertToMP4(filename)
+hughes2d.Plotter.convert_to_mp4(filename)
 ```
 
 ### The **opt** dictionary
