@@ -1111,16 +1111,16 @@ class EikoSolver:
     def compute_height_from_grad_constrained(a:list[float],b:list[float],c:list[float],v_b:float,v_c:float,slope:float) -> float:
         r"""Compute and return the value of v_a.
 
-        v_a is computed such that, if we denote by :math:`\\Phi_{ABC}(v_a,v_b,v_c)`
-        the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
+        v_a is computed such that, if we denote by :math:`\Phi_{ABC}(v_a,v_b,v_c)`
+        the unique affine function :math:`F` of :math:`\mathbb{R}^2` such that
 
         .. math::
-            F(A) = v_a, \\; F(B) = v_b, \\; F(C) = v_c
+            F(A) = v_a, \; F(B) = v_b, \; F(C) = v_c
 
         then we have
 
         .. math::
-            \\left| \\nabla\\Phi_{ABC}(v_a,v_b,v_c) \\right| = slope.
+            \left| \nabla\Phi_{ABC}(v_a,v_b,v_c) \right| = slope.
 
         If the gradient found is not inside the triangle, v_a is taken as the smallest
         value found by following an edge of the triangle.

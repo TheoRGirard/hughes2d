@@ -35,22 +35,22 @@ class LWRSolver:
 
     .. math::
 
-        \\left\\{ \\begin{matrix}
-        \\partial_t \\rho(t,x) + \\mathbf{div}\\left[ \\rho(t,x) v(\\rho(t,x)) \\vec{V}(t,x) \\right] = 0, \\\\
-        \\rho(0,x) = \\rho_0(x)
-        \\end{matrix} \\right.
+        \left\{ \begin{matrix}
+        \partial_t \rho(t,x) + \mathbf{div}\left[ \rho(t,x) v(\rho(t,x)) \vec{V}(t,x) \right] = 0, \\
+        \rho(0,x) = \rho_0(x)
+        \end{matrix} \right.
 
     Args:
         Mesh (Mesh): a mesh object on which the equation will be approximated.
         previous_density (CellValueMap or list[float]): initial density for the solver.
-            Must be of the shape of `Mesh.triangles`. Represents :math:`\\rho_0(x)` in
+            Must be of the shape of `Mesh.triangles`. Represents :math:`\rho_0(x)` in
                 the equation above.
         direction_map (list[list[float]]): a vector field represented by a list of
             vectors with the shape of `Mesh.triangles`. Typically this corresponds to
             the output of `VertexValueMap.computeGradientFlow()`.
-            Represents :math:`\\vec{V}(t,x)` in the equation above.
+            Represents :math:`\vec{V}(t,x)` in the equation above.
         speed_function (function, float -> float): a function respresenting the speed of
-            the agents depending on the local density. Represents :math:`v(\\cdot)` in
+            the agents depending on the local density. Represents :math:`v(\cdot)` in
             the equation above.
         dt (float): the time division for the approximation.
 
@@ -59,11 +59,11 @@ class LWRSolver:
                 Here the CFL condition is:
 
                 .. math::
-                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
+                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
 
-                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a
-                triangle in the mesh :math:`M_\\Delta` and
-                :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length
+                where :math:`\underline{|\triangle|}` denotes the minimal area of a
+                triangle in the mesh :math:`M_\Delta` and
+                :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length
                 of the edges of the mesh.
 
         opt (dict): an optional dictionary prescribing the numerical method.
@@ -84,16 +84,16 @@ class LWRSolver:
     Attributes:
         mesh (Mesh): a mesh object on which the equation will be approximated.
         densityt0 (ArrayLike): initial density for the solver. Of the shape of
-            `Mesh.triangles`. Represents :math:`\\rho_0(x)` in the equation above.
+            `Mesh.triangles`. Represents :math:`\rho_0(x)` in the equation above.
         densityt1 (ArrayLike): density computed by the solver after one time step.
-            Of the shape of `Mesh.triangles`. Represents :math:`\\rho(\\Delta t, x)`.
+            Of the shape of `Mesh.triangles`. Represents :math:`\rho(\Delta t, x)`.
         directions (list[list[float]]): a vector field represented by a list of vectors
             with the shape of `Mesh.triangles`. Typically this corresponds to the output
-            of `VertexValueMap.computeGradientFlow()`. Represents :math:`\\vec{V}(t,x)`
+            of `VertexValueMap.computeGradientFlow()`. Represents :math:`\vec{V}(t,x)`
             in the equation above.
         fluxFunction (function, float -> float): a function respresenting the flux of
             agents depending on the local density. Represents
-            :math:`\\rho \\mapsto \\rho v(\\cdot)` in the equation above.
+            :math:`\rho \mapsto \rho v(\cdot)` in the equation above.
         dt (float): the time division for the approximation.
 
             Warning:
@@ -101,11 +101,11 @@ class LWRSolver:
                 Here the CFL condition is:
 
                 .. math::
-                    \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
+                    \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
 
-                where :math:`\\underline{|\\triangle|}` denotes the minimal area of a
-                triangle in the mesh :math:`M_\\Delta` and
-                :math:`\\underline{\\textrm{$\\triangle$}}` denotes the maximal length
+                where :math:`\underline{|\triangle|}` denotes the minimal area of a
+                triangle in the mesh :math:`M_\Delta` and
+                :math:`\underline{\textrm{$\triangle$}}` denotes the maximal length
                 of the edges of the mesh.
 
         opt (dict): an optional dictionary prescribing the numerical method.
@@ -158,10 +158,10 @@ class LWRSolver:
         Here the CFL condition is:
 
         .. math::
-            \\Delta t \\leq \\frac{\\underline{|\\triangle|}}{3\\underline{\\textrm{$\\triangle$}}Lip_f},
+            \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},
 
-        where :math:`\\underline{|\\triangle|}` denotes the minimal area of a triangle
-        in the mesh :math:`M_\\Delta` and :math:`\\underline{\\textrm{$\\triangle$}}`
+        where :math:`\underline{|\triangle|}` denotes the minimal area of a triangle
+        in the mesh :math:`M_\Delta` and :math:`\underline{\textrm{$\triangle$}}`
         denotes the maximal length of the edges of the mesh.
 
         Args:
@@ -496,7 +496,7 @@ class LWRSolver:
             new_direction_field (list[list[float]]): a vector field represented by a
                 list of vectors with the shape of `Mesh.triangles`. Typically this
                 corresponds to the output of `VertexValueMap.computeGradientFlow()`.
-                Represents :math:`\\vec{V}(t,x)` in the scalar conservation law
+                Represents :math:`\vec{V}(t,x)` in the scalar conservation law
                 equation.
         """
         self.densityt0 = np.copy(self.densityt1)
@@ -616,8 +616,8 @@ class LWRSolver:
 
         .. math::
 
-            \\mathbf{God}_{f}(a,b) = \\left\\{ \\begin{matrix} \\mathbf{min}_{c \\in [a,b]} f(c) \\textrm{ if } a < b \\\\
-            \\mathbf{max}_{c \\in [b,a]} f(c) \\textrm{ if } a > b. \\end{matrix} \\right.
+            \mathbf{God}_{f}(a,b) = \left\{ \begin{matrix} \mathbf{min}_{c \in [a,b]} f(c) \textrm{ if } a < b \\
+            \mathbf{max}_{c \in [b,a]} f(c) \textrm{ if } a > b. \end{matrix} \right.
 
         Args:
             f (function, float -> float): the function `f` for which the Godunov flux
