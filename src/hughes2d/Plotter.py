@@ -26,14 +26,14 @@ FigureType = None
 try:
     import matplotlib.pyplot as plt
     from matplotlib import animation, cm, collections
-    #FigureType = FigureType | plt.Figure
+    FigureType = FigureType | plt.Figure
 except ImportError:
     plt = None
 
 try:
     import plotly.figure_factory as ff
     import plotly.graph_objects as go
-    #FigureType = FigureType | go.Figure
+    FigureType = FigureType | go.Figure
 except ImportError:
     go, ff = None, None
 
