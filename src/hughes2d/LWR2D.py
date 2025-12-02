@@ -217,8 +217,7 @@ class LWRSolver:
                         if self.opt["debugging"]:
                             print("| far_triangle_grad | = "
                                   f"{(far_triangle_grad[0]*far_triangle_grad[0]+ far_triangle_grad[1]*far_triangle_grad[1])}")
-                            print(f"| normal | = {normal[0]*normal[0]
-                                                    + normal[1]*normal[1]}")
+                            print(f"| normal | = {normal[0]*normal[0]+normal[1]*normal[1]}")
 
 
                     """
