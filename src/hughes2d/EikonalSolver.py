@@ -29,7 +29,7 @@ class EikoSolver:
     We use the following notations for the eikonal equation:
 
     .. math::
-        |\\nabla u | = c(\\rho).
+        |\nabla u | = c(\rho).
 
 
     Attributes
@@ -1058,16 +1058,16 @@ class EikoSolver:
     def compute_height_from_grad_unconstrained(c:list[float],b:list[float],a:list[float],v_b:float,v_a:float,slope:float) -> float:
         r"""Compute and return the value of v_c.
 
-        v_c is computed such that, if we denote by :math:`\\Phi_{ABC}(v_a,v_b,v_c)`
-        the unique affine function :math:`F` of :math:`\\mathbb{R}^2` such that
+        v_c is computed such that, if we denote by :math:`\Phi_{ABC}(v_a,v_b,v_c)`
+        the unique affine function :math:`F` of :math:`\mathbb{R}^2` such that
 
         .. math::
-            F(A) = v_a, \\; F(B) = v_b, \\; F(C) = v_c
+            F(A) = v_a, \; F(B) = v_b, \; F(C) = v_c
 
         then we have
 
         .. math::
-            \\left| \\nabla\\Phi_{ABC}(v_a,v_b,v_c) \\right| = slope.
+            \left| \nabla\Phi_{ABC}(v_a,v_b,v_c) \right| = slope.
 
         Args:
             c (list[float]): a point of the triangle.
