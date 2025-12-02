@@ -166,6 +166,9 @@ The *dx* corresponds to the maximal area of a triangle in the mesh and *da* corr
 
 **_NOTE:_** Be careful: the generation time is inversely proportional to *dx*. Also the generation time explodes as *da* goes to 45.
 
+You can visualize the mesh by using `MyMesh.show()` and obtain something like:
+![A generated mesh](docs/source/assets/mesh_generated.png)
+
 You can now pass to the definition of an initial datum step in order to use the *Mesh* for a simulation. We recommand saving your mesh as a .json file in order to save computation time, instead of generating a mesh for each execution.
 
 ```python
