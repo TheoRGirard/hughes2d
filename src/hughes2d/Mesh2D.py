@@ -21,15 +21,21 @@ from pathlib import Path
 import numpy as np
 import triangle as tr
 
+FigureType = None
+AxesType = None
+
 try:
     import matplotlib.pyplot as plt
     from matplotlib import cm, collections, patches
+    FigureType = FigureType | plt.Figure
+    AxesType = AxesType | plt.Axes
 except ImportError:
     plt = None
 
 try:
     import plotly.figure_factory as ff
     import plotly.graph_objects as go
+    FigureType = FigureType | go.Figure
 except ImportError:
     go, ff = None, None
 
@@ -55,7 +61,6 @@ from typing import Self
 from numpy.typing import ArrayLike
 
 PointType = list[float]
-FigureType = plt.Figure | go.Figure
 
 PRECISION = 1e-10
 DEFAULT_MESH_DICT = {"domain" : 0, "exit" : [98], "wall" : [99]}
@@ -729,7 +734,7 @@ class NonConvexDomain:
                    " if you want to use show methods")
             raise ImportError(msg)
 
-    def add_plot(self, fig: FigureType, ax: plt.Axes = None, preference: str = "plotly") -> None:
+    def add_plot(self, fig: FigureType, ax: AxesType = None, preference: str = "plotly") -> None:
         """Non-blocking plot method for the domain object, does not show the graph.
 
         Args:
@@ -1895,7 +1900,7 @@ class Mesh:
                    " if you want to use show methods")
             raise ImportError(msg)
 
-    def add_plot(self, fig: FigureType, ax: plt.Axes = None, preference: str = "plotly") -> None:
+    def add_plot(self, fig: FigureType, ax: AxesType = None, preference: str = "plotly") -> None:
         """Non-blocking plot method for the mesh object.
 
         Args:
@@ -2171,7 +2176,7 @@ class CellValueMap:
                    " if you want to use show methods")
             raise ImportError(msg)
 
-    def get_scatter(self, preference: str = "plotly") -> list[go.Figure]:
+    def get_scatter(self, preference: str = "plotly") -> list[FigureType]:
         """Non-blocking plot method for the cellValueMap object.
 
         Args:

@@ -21,17 +21,23 @@ from pathlib import Path
 
 import numpy as np
 
+FigureType = None
+
 try:
     import matplotlib.pyplot as plt
     from matplotlib import animation, cm, collections
+    FigureType = FigureType | plt.Figure
 except ImportError:
     plt = None
 
 try:
     import plotly.figure_factory as ff
     import plotly.graph_objects as go
+    FigureType = FigureType | go.Figure
 except ImportError:
     go, ff = None, None
+
+
 
 EMPTY_LIST = []
 
@@ -218,7 +224,7 @@ def plot_vector_field(vertex_list:list[list[float]], triangle_list:list[list[int
             })
     fig.show()
 
-def add_vector_field_plot(fig:go.Figure, vertex_list:list[float], triangle_list:list[list[int]], vector_field:list[list[float]], color:list[int]=[255,255,255,0.9]) -> None:
+def add_vector_field_plot(fig:FigureType, vertex_list:list[float], triangle_list:list[list[int]], vector_field:list[list[float]], color:list[int]=[255,255,255,0.9]) -> None:
     """Add a vector field plot to a given figure.
 
     Args:
