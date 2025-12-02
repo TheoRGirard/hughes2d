@@ -8,7 +8,6 @@ This file tests the eikonal solver.
 """
 
 try:
-    import plotly.figure_factory as ff
     import plotly.graph_objects as go
 except ImportError:
     go = None

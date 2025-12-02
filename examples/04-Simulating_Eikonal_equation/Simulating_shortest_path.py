@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import numpy as np
-
 from hughes2d import CellValueMap, EikoSolver, Mesh
 
 MyMesh = Mesh()

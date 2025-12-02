@@ -1,9 +1,8 @@
-import random as alea
-
 import numpy as np
 import plotly.graph_objects as go
 
-from hughes2d import CellValueMap, EikoSolver, Mesh, NonConvexDomain, VertexValueMap
+from hughes2d import (CellValueMap, EikoSolver, Mesh, NonConvexDomain,
+                      VertexValueMap)
 
 dx = 0.05
 

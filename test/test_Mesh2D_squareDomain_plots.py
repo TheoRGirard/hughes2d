@@ -10,12 +10,10 @@ try:
     import matplotlib as mpl
     mpl.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib import cm, collections, patches
 except ImportError:
     plt = None
 
 try:
-    import plotly.figure_factory as ff
     import plotly.graph_objects as go
 except ImportError:
     go = None

@@ -1,12 +1,10 @@
-import pytest
-
 import numpy as np
+import pytest
 
 from hughes2d.Mesh2D import CellValueMap, Mesh
 from hughes2d.Splitting import PedestrianSolver
 
 try:
-    import plotly.figure_factory as ff
     import plotly.graph_objects as go
 except ImportError:
     go = None

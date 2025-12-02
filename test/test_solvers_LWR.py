@@ -1,6 +1,5 @@
-import pytest
-
 import numpy as np
+import pytest
 
 from hughes2d.LWR2D import LWRSolver
 from hughes2d.Mesh2D import CellValueMap, Mesh

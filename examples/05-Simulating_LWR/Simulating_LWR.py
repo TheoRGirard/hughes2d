@@ -1,6 +1,3 @@
-
-import matplotlib.pyplot as plt
-
 from hughes2d import CellValueMap, LWRSolver, Mesh, NonConvexDomain
 
 #Parameters of the simulation

@@ -1,8 +1,8 @@
+import numpy as np
 import pytest
 
-import numpy as np
-
-from hughes2d.Mesh2D import belong_triangle, CellValueMap, Mesh, NonConvexDomain
+from hughes2d.Mesh2D import (CellValueMap, Mesh, NonConvexDomain,
+                             belong_triangle)
 
 #Tests for the NonConvexDomain object -------------------------------------------
 
@@ -39,7 +39,7 @@ Domain1.add_wall(smallSquarePoints, cycle=True)
 
 def test_NCD_holes():
     assert [2.5,2.5] in Domain1
-    assert not [6,0] in Domain1
+    assert [6,0] not in Domain1
     #Caution : a hole in the domain does NOT exclude points in the __contains__ method at the moment.
 
 def test_NCD_add_boundary_point():

@@ -9,11 +9,8 @@ than the LWR + explicit vectors simulation.
 """
 from pathlib import Path
 
-import random as alea
-
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly
 
 from hughes2d import CellValueMap, Mesh, NonConvexDomain, PedestrianSolver
 

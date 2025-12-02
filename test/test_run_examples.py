@@ -1,6 +1,7 @@
-import pytest
 import runpy
 from pathlib import Path
+
+import pytest
 
 try:
     import matplotlib as mpl

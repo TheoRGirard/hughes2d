@@ -1,17 +1,12 @@
-# Configuration file for the Sphinx documentation builder.
-
-# -- Project information
+import sys
+from pathlib import Path
 
 project = 'hughes2d'
 copyright = '2025, Girard'
 author = 'Girard Théo'
 
-release = '0.1'
-version = '0.1.0'
-
-# enabling the path to sources for sphinx autodoc
-import sys
-from pathlib import Path
+release = '1.0'
+version = '1.0.0'
 
 sys.path.insert(0, str(Path('..', '..', 'src').resolve()))
 
@@ -57,5 +52,3 @@ html_theme = 'sphinx_rtd_theme'
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
-
-

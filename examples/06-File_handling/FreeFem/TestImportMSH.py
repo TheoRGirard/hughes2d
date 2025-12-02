@@ -1,7 +1,9 @@
-from hughes2d.Mesh2D import *
+from pathlib import Path
 
-filename = "examples/06-File_handling/FreeFem/mesh_FF.msh"
+from hughes2d import Mesh
+
+filename = str(Path(__file__).parent / "mesh_FF.msh")
 
 MyMesh = Mesh()
-MyMesh.importMeshFromMshFreeFem(filename)
+MyMesh.import_mesh_from_msh_free_fem(filename)
 MyMesh.show()
