@@ -27,15 +27,15 @@ AxesType = None
 try:
     import matplotlib.pyplot as plt
     from matplotlib import cm, collections, patches
-    FigureType = FigureType | plt.Figure
-    AxesType = AxesType | plt.Axes
+    #FigureType = FigureType | plt.Figure
+    #AxesType = AxesType | plt.Axes
 except ImportError:
     plt = None
 
 try:
     import plotly.figure_factory as ff
     import plotly.graph_objects as go
-    FigureType = FigureType | go.Figure
+    #FigureType = FigureType | go.Figure
 except ImportError:
     go, ff = None, None
 
