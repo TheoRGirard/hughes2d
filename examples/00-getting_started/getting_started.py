@@ -38,4 +38,4 @@ except ImportError:
 
 if plt:
     from hughes2d import Plotter
-Plotter.convert_to_mp4(file_path, limits=[[0,1],[0,1]])
+    Plotter.convert_to_mp4(file_path, limits=[[0,1],[0,1]])
