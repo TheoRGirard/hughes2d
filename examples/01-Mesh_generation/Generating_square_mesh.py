@@ -25,7 +25,7 @@ MyMesh = Mesh()
 MyMesh.generate_mesh_from_domain(Domain1, 0.1)
 
 #Saving the mesh
-MyMesh.save_to_json(str(Path(__file__).parent / "outputs" / "square"))
+MyMesh.save_to_json(str(Path(__file__).parent / "square"))
 
 #Loading the mesh
-MyMesh.load_from_json(str(Path(__file__).parent / "outputs" / "square_mesh.json"))
+MyMesh.load_from_json(str(Path(__file__).parent / "square_mesh.json"))

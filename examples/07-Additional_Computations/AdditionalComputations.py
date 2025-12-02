@@ -18,7 +18,7 @@ for i,B in enumerate(MyMesh.barycenters):
 
 opt = dict( model = "hughes",
             constantDirectionField = False,
-            filename = str(Path(__file__).parent / "data" / "output"),
+            filename = str(Path(__file__).parent / "output"),
             save = True,
             verbose = True,
             lwrSolver = {   'convexFlux' : True,
