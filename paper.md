@@ -22,23 +22,22 @@ bibliography: paper.bib
 
 # Summary
 
-`hughes2d` is an open-source python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of Hughes' model introduced in [Hug02] (and other related models). The Hughes model is a macroscopic model -there is no agents here, the crowd is represented by a density function- coupling two non-linear partial differential equations.
+`hughes2d` is an open-source python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of Hughes' model introduced in [@Hug02] (and other related models). The Hughes model is a macroscopic model -there is no agents here, the crowd is represented by a density function- coupling two non-linear partial differential equations.
 
 
 # Statement of need
 
 The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([vadere],[JuPedSim],[UMANS],[Cromosim]) or not. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
 
-The Hughes model has been thoroughly studied during the last two decades (see [Survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [Goatin]) but in a slightly modified context.
-We hope that this package will help formulating conjectures in the future.
+The Hughes model has been thoroughly studied during the last two decades (see [@survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [@Goatin]) but in a slightly modified context. The present package should provide a reliable and open-source solution to approximate the behavior of Hughes' model.
+We also hope that this package will help formulating conjectures in the future.
 
 
-# Short introduction to Hughes' model
+## Introduction to Hughes' model
 
 The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed *scalar conservation law* with discontinuous flux. The second is an *Eikonal equation* with discontinuous source term.
 
-The scalar conservation law
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+### The scalar conservation law
 
 The first equation models the flow of a density $\rho$. To be more precise  $\rho(t,x)$ represents the density of pedestrian at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{max} >0$. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
 Then, if we write the conservation of the mass on pedestrian on each subdomain of $\Omega$, we end up with the following scalar conservation law:
@@ -52,10 +51,9 @@ Then, in the following we will denote the speed by $v(\rho(t,x))$ where $v$ is a
 
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.$$
 
-A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [LW55]_, [Ric56]_).
+A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [@LW55], [@Ric56]_).
 
-The Eikonal equation
-^^^^^^^^^^^^^^^^^^^^^
+### The Eikonal equation
 
 The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (this assumption is quite controversial).
 Let $x \in \Omega$. For any $\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)$, we say that $X^\alpha_x(\cdot)$ is a trajectory controlled by $\alpha$ starting at $x$ if $X$ is a solution to the Cauchy problem:
@@ -95,10 +93,9 @@ If we suppose that there exists $X^*_x$ an optimal trajectory, i.e. $\phi(x) = \
 
 $$ \vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
 
-The Hughes model definition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+### The Hughes model definition
 
-Then the complete Hughes' model introduced in [Hug02]_ was the following:
+Then the complete Hughes' model introduced in [@Hug02] was the following:
 
 
 $$
@@ -113,14 +110,13 @@ $$
 .. note::
  Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
 
-For a deep overview of the mathematical results regarding Hughes' model we defer to [AADF+23]_.
+For a deep overview of the mathematical results regarding Hughes' model we defer to [@survey].
 
 .. ColomboGaravelloModel:
 
-Model of Colombo-Garavello-Lécureux-Mercier
-------------------
+## Model of Colombo-Garavello-Lécureux-Mercier
 
-In [CGLM11]_, the authors introduced an alternative model for pedestrian flows.
+In [@CGLM11], the authors introduced an alternative model for pedestrian flows.
 
 In this model, the agents chose the shortest path to the exits without taking the density into account. This corresponds to the Eikonal equation with constant source term:
 
@@ -153,16 +149,15 @@ $$
 
 This model is also featured in the present python package.
 
-Numerical schemes
-----------------
+# Details of the numerical schemes
 
 .. note::
- The presentation of the numerical schemes below is quoted from the introduction of Section 4.5.1 of [Gir25]_. It is recommanded reading it there as more detail are included.
+ The presentation of the numerical schemes below is quoted from the introduction of Section 4.5.1 of [@Gir25]. It is recommanded reading it there as more detail are included.
 
 The numerical scheme we propose consists in two coupled algorithms, each of them approximating, at one time step, one of the equations of Hughes' model ($\rho$ or $V=\nabla \phi$, respectively) given the solution of the other equation.
 
-Mesh definition
-^^^^^^^^^^^^^^^^
+## Mesh definition
+
 
 Let $T>0$. Let $J \in \mathbb{N}^*$. We discretize the interval $[0,T]$ as $J + 1$ time steps and we set:
 
@@ -196,10 +191,9 @@ We use the following notations:
 We also denote $N := \mathbf{Card}(M_{\Delta x})$ i.e.
 $M_{\Delta x} = (\mathcal{T}_n)_{1\leq n \leq N}$.
 
-General overview of the scheme
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## General overview of the scheme
 
-Let the initial datum $\rho_0$ be lower semi-continuous (so that the Eikonal equation is well posed, see [Gir25]_). We discretize $\rho_0$ by defining, for any $n \in \mathbb{N}$,
+Let the initial datum $\rho_0$ be lower semi-continuous (so that the Eikonal equation is well posed, see [@Gir25]). We discretize $\rho_0$ by defining, for any $n \in \mathbb{N}$,
 
 
 $$ \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x), \;\; \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.$$
@@ -242,8 +236,7 @@ $$ \left\{ \begin{matrix} \rho_t + \div \left[ f(\rho) V^j_\Delta \right] = 0 &(
 We use a finite volume scheme on $M_\Delta$ in order to approximate $\rho$. We propose two different computations for the flux on the edges of the mesh, namely the **discontinuous flux** method and the **weighted flux** method. See below for details about the finite volume scheme and the different methods.
 
 
-The finite volume scheme for the SCL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## The finite volume scheme for the SCL
 
 In this paragraph, we present the explicit finite volume scheme we will use to compute $(\rho^{j+1}_n)_{1\leq n \leq N}$ knowing $(\rho^{j}_n)_{1\leq n \leq N}$ and $(V^{j}_n)_{1\leq n \leq N}$.
 We suppose that the maximal density $\rho_{max}$ equals $1$ i.e. we suppose that the flux function $f$ is Lipschitz, concave and such that
@@ -318,7 +311,7 @@ $$   \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^
 
 
 .. note::
- The **discontinuous flux** method correspond to the algorithm detailled in \cite{AbrahamPreprint}. Heuristically, we are solving the SCL while assuming there is a discontinuity of $V^j_\Delta$ at each edge of $E_\Delta$.
+ The **discontinuous flux** method correspond to the algorithm detailled in [@AbrahamPreprint]. Heuristically, we are solving the SCL while assuming there is a discontinuity of $V^j_\Delta$ at each edge of $E_\Delta$.
  If $V_\Delta^j$ is constant across the edge $e_m$ then the **discontinuous flux** method is equivalent to setting
 
 
@@ -349,7 +342,7 @@ $$   \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^
  This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
 
 .. warning::
- Even if we do not provide any proof of convergence for the above finite volume scheme in [Gir25]_, we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
+ Even if we do not provide any proof of convergence for the above finite volume scheme in [@Gir25], we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
 
 
 $$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},$$
@@ -357,8 +350,7 @@ $$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle
  where $\underline{|\triangle|}$ denotes the minimal area of a triangle in $M_\Delta$. The numerical experiments with the present package must be done under the above CFL condition !
 
 
-Scheme for the eikonal equation: the FMTC algorithm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## Scheme for the eikonal equation: the FMTC algorithm
 
 In this paragraph, we fix $j \in [\![ 0, j ]\!]$. Then, for any $n \in [\![ 0, N]\!]$, we set:
 
@@ -404,28 +396,78 @@ $$
 In the following, we denote by $\phi_\Delta$ the unique function of $W^{1,\infty}(\bar\Omega)$ that is affine on each triangle and
 $\phi_\Delta(P)$ is given by the above algorythm for any $P \in V_\Delta$.
 
-# Citations
+# Estimation of convergence
 
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
+We consider Hughes' model in the specific context where the 2D dynamics is reduced to the 1D dynamics towards the unique exit:
 
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
+- $(\Omega, \mathcal{E},\mathcal{W})$ is defined by \eqref{eq:domainCouloir};
+- $\rho_0$ is defined by \eqref{eq:rho0couloir};
+- the cost function $c$ is defined by $c(\rho) := 1 + \rho$.
 
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+We define the couple $(\rho,\phi)$ where $\rho$ is defined by
+$$
+\rho(t,x) := \left\{ \begin{matrix}
+0 &\textrm{ if } x \leq 0.3t \textrm{ and } t \leq 5/0.3\\
+0 &\textrm{ if } x \leq  5 + t - 2 \sqrt{5\times0.7t} \textrm{ and } t> 5/0.3\\
+\min \left( 0.7, \max \left( 0, \frac{1}{2} + \frac{5-x}{2t} \right) \right) & \textrm{ else,}
+\end{matrix}\right.
+$$
+and $\phi$ is defined by:
+$$
+\phi(t,(x,y)) := \int_x^{10} 1 + \rho_*(t,(z,y)) \d z.
+$$
+Then notice that $(\rho,\xi)$ is well defined and is an explicit solution to Hughes model.
+Notice also that, for any $(t,z) \in [0,T]\times \bar\Omega$, we have:
+$$V(t,x) = \left( \begin{matrix} 1 \\ 0 \end{matrix} \right).$$
 
-# Figures
+Then we compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ of the solution $(\rho,\phi)$ and the numerical density obtained using *hughes2d* approximation scheme.
+As a comparison, we also compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ and
+- the numerical approximation to the scalar conservation law with the explicit vector vector field $V = (1,0)$;
+- the numerical approximation to the scalar conservation law with the gradient of the $\mathbf{FMTC}$ approximation of the solution to the eikonal equation when $c = 1$.
 
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
+![Normalized $L^1$ differences over time between the approximations and the density of an explicit solution.](docs/source/assets/CompareExplicit.png))
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+
+It is interesting to notice that the *hughes2d* approximation scheme gives a better approximation than the finite volume scheme computed with the explicit vector field $V = (1,0)$. We believe that this phenomenon (which can seem quite contradictory) occurs because, in the *Hughes2d* approximation scheme, the specific coupling of the finite volume scheme with $\mathbf{FMTC}$ tends to compensate for the numerical errors produced by the finite volume scheme alone. This specific coupling seems to induce a regularization of the density in the vertical direction $(0,1)$ (see [@Gir25] for a more detailled study of this conjecture).
+
+# Examples
+
+We present a simple simulation of Hughes' model in a room with exits located at the end of two corridors. More precisely, we use the setting:
+$$
+    \bar\Omega := [-2,0]\times [3,4] \cup [0,10]\times [0,7] \cup [10,12] \times [3,4],
+    $$
+    $$
+    \mathcal{E} := \{-2\} \times [3,4] \cup \{12\} \times [3,4],
+    $$
+    $$
+  \mathcal{W} := \partial \Omega \setminus \mathcal{E},
+  $$
+  $$
+    \rho_0(x) := 0.7\times \mathbb{1}_{B((7,2.5),2.4)},
+    $$
+    $$
+    c(\rho) = 1 +5\rho.
+$$
+ We also mention that many videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations).
+
+![Hughes simulation at time $t=0s$](docs/source/assets/demo/test5_1_0s.png)
+![Hughes simulation at time $t=1s$](docs/source/assets/demo/test5_1_1s.png)
+![Hughes simulation at time $t=2s$](docs/source/assets/demo/test5_1_2s.png)
+![Hughes simulation at time $t=4s$](docs/source/assets/demo/test5_1_4s.png)
+![Hughes simulation at time $t=7s$](docs/source/assets/demo/test5_1_7s.png)
+![Hughes simulation at time $t=10s$](docs/source/assets/demo/test5_1_10s.png)
+![Hughes simulation at time $t=15s$](docs/source/assets/demo/test5_1_15s.png)
+![Hughes simulation at time $t=20s$](docs/source/assets/demo/test5_1_20s.png)
+![Hughes simulation at time $t=25s$](docs/source/assets/demo/test5_1_25s.png)
+
+
+In this simulation, we can observe the following distinctive features of Hughes' model.
+
+- *Repartition of the agents between the different exits.* Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$). In the 1D case, this phenomenon corresponds to the $\xi(t)$ turning curve crossing a region in space where $\rho(t,\xi(t)) \neq 0$.
+
+- *Geometry of the congestion figures.* Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation. In [@Gir25], we try to give a more rigorous definition of this phenomenon and measure the influence of the initial datum on the large time density profiles.
+- *Regularization of the density in time.* Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
+
 
 # Acknowledgements
 
