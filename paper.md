@@ -140,7 +140,7 @@ $$\left\lbrace \begin{matrix}
  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
  |\nabla \phi (t,x) | = 1 \\
  \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
- \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nablla \rho * \eta_r|^2}}\\
+ \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}\\
  \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}\[\rho\](x) }{| \vec{\nu}(x) + \mathcal{I}\[\rho\](x) |}
  \end{matrix}\right.$$
 
@@ -172,10 +172,11 @@ We consider a triangular mesh defined by a set of open triangles $M_\Delta := (\
 3. for any $1 \leq i,j \leq N$, we have $\mathcal{T}_i \bigcap \mathcal{T}_j = \emptyset$ and
 
 
-$$ \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j \neq \emptyset \Rightarrow
-   &\textrm{ upon reparametrization of the points of the triangle }\\
+$$ \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j \neq \emptyset \Rightarrow$$
+$$\begin{matrix}   &\textrm{ upon reparametrization of the points of the triangle }\\
     &\textrm{either } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = \lbrace A_i\rbrace = \lbrace A_j \rbrace,\\
-   &\textrm{or } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = [A_iB_i] = [ A_j B_j].$$
+   &\textrm{or } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = [A_iB_i] = [ A_j B_j].
+   \end{matrix}$$
 
 4. $\bigcup_n \bar{\mathcal{T}}_n = \bar\Omega$.
 
@@ -197,13 +198,13 @@ Let the initial datum $\rho_0$ be lower semi-continuous (so that the Eikonal equ
 $$ \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x),$$
 $$ \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.$$
 
-Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in [\![ 1, N ]\!],$  $\exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n$,  $ \rho_\Delta(x) = \rho_n$.
+Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in \llbracket 1, N \rrbracket,$  $\exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n$,  $ \rho_\Delta(x) = \rho_n$.
 Then, we define the lower semi-continuous envelope of $\rho_\Delta$ by:
 
 
-$$ \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in [\![ 1, N ]\!], \\ \textrm{ s.t. } x \in \overline{\textrm{$\mathcal{T}_n$}}\end{matrix}} \rho_n.$$
+$$ \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in \llbracket 1, N \rrbracket, \\ \textrm{ s.t. } x \in \overline{\textrm{$\mathcal{T}_n$}}\end{matrix}} \rho_n.$$
 
-Then, we will apply the following procedure iteratively for any $j \in [\![ 0 , J ]\!]$.
+Then, we will apply the following procedure iteratively for any $j \in \llbracket 0 , J \rrbracket$.
 
 1. We compute a numerical approximation $\phi^j_\Delta$ of the solution to the eikonal equation
 
@@ -213,7 +214,7 @@ Then, we will apply the following procedure iteratively for any $j \in [\![ 0 , 
 
 We use either a $\mathbf{FMT}$, a $\mathbf{FME}$ (see [Gir25]_) or a third algorithm (detailled below) named the $\mathbf{FMTC}$ algorithm.
 
-2. We compute $V^j_\Delta$ corresponding to the unit vector opposite to the gradient of $\phi_\Delta^j$ on each triangle $(\mathcal{T}_n)_{1\leq n \leq N}$. In order to compute $V^j_\Delta$, we denote $\mathcal{T}_n = ABC$. As $\phi_\Delta^j$ is affine on $ABC$, the gradient is constant and, for any $n \in [\![ 1, N ]\!]$, we set:
+2. We compute $V^j_\Delta$ corresponding to the unit vector opposite to the gradient of $\phi_\Delta^j$ on each triangle $(\mathcal{T}_n)_{1\leq n \leq N}$. In order to compute $V^j_\Delta$, we denote $\mathcal{T}_n = ABC$. As $\phi_\Delta^j$ is affine on $ABC$, the gradient is constant and, for any $n \in \llbracket 1, N \rrbracket$, we set:
 
 
 $$ V_n^j := \frac{1}{\mathcal{H}_{ABC}(\phi(A),\phi(B),\phi(C))}\times \frac{(\phi(B) - \phi(A))\vec{AB}^\bot - (\phi(C) - \phi(A))\vec{AC}^\bot}{\det(\vec{AC},\vec{AB})}.$$
@@ -226,7 +227,7 @@ See [Gir25]_ for more details about this formula. We define $V^j_\Delta$ by:
 3. We compute a numerical approximation $\rho^{j+1}_\Delta$ of $\rho(\Delta t,\cdot)$ where $\rho$ is the solution to
 
 
-$$ \left\lbrace \begin{matrix} \rho_t + \div \left[ f(\rho) V^j_\Delta \right] = 0 &(t,x) \in (0,\Delta t) \times \Omega\\
+$$ \left\lbrace \begin{matrix} \rho_t + \mathbf{div} \left[ f(\rho) V^j_\Delta \right] = 0 &(t,x) \in (0,\Delta t) \times \Omega\\
  \rho = 0 &x \in \mathcal{E}\\
  f(\rho)(V^j_\Delta \cdot \vec{n}) = 0 &x \in \mathcal{W} \\
  \rho(0,x) = \rho^j_\Delta(x).
@@ -244,10 +245,10 @@ We introduce a few additional notations.
 
 
 - Let $M \in \mathbb{N}$ be the number of distinct edges in the mesh $M_\Delta$. We denote by $E_\Delta := (e_m)_{1\leq m \leq M}$ the set of all the edges of the triangles of $M_\Delta$.
-- For any $n \in [\![ 1, N ]\!]$, we denote by $E_n$ the set of all the edges of $\mathcal{T}_n$.
-- For any $m \in [\![ 1, M ]\!]$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \lbrace 1,2\rbrace$.
-- For any $m \in [\![ 1, M ]\!]$, we denote by $|e_m|$ the geometrical length of the edge $|e_m|$.
-- For any $m \in [\![ 1, M ]\!]$, for any $\mathcal{T} \in \mathcal{E}^m$, we denote by $\vec{n}_m(\mathcal{T})$ the unit normal vector to $e_m$ that is pointing outward of $\mathcal{T}$.
+- For any $n \in \llbracket 1, N \rrbracket$, we denote by $E_n$ the set of all the edges of $\mathcal{T}_n$.
+- For any $m \in \llbracket 1, M \rrbracket$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \lbrace 1,2\rbrace$.
+- For any $m \in \llbracket 1, M \rrbracket$, we denote by $|e_m|$ the geometrical length of the edge $|e_m|$.
+- For any $m \in \llbracket 1, M \rrbracket$, for any $\mathcal{T} \in \mathcal{E}^m$, we denote by $\vec{n}_m(\mathcal{T})$ the unit normal vector to $e_m$ that is pointing outward of $\mathcal{T}$.
 - For any $\mathcal{T} \in M_\Delta$ we denote $\rho^j_{\mathcal{T}} := \rho^j_n$ where $\mathcal{T}_n = \mathcal{T}$. Analogously, we denote $V^j_{\mathcal{T}} := V^j_n$ where $\mathcal{T}_n = \mathcal{T}$.
 
 We also recall that, for any $f:\mathbb{R} \rightarrow \mathbb{R}$, for any $a,b \in \mathbb{R}$, the Godunov numerical flux is defined by:
@@ -257,9 +258,9 @@ $$ \mathbf{God}_f(a,b) := \left\lbrace \begin{matrix} \min_{c \in [a,b]} f(c) &\
  \max_{c \in [b,a]} f(c) &\textrm{if } b < a. \end{matrix}  \right.$$
 
 
-The finite volume scheme corresponds to the following algorithm for any fixed $j \in [\![ 0, J ]\!]$.
+The finite volume scheme corresponds to the following algorithm for any fixed $j \in \llbracket 0, J \rrbracket$.
 
-1. For any $m \in [\![ 1, M ]\!]$, we denote
+1. For any $m \in \llbracket 1, M \rrbracket$, we denote
 
 
 $$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =1,
@@ -302,7 +303,7 @@ $$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\m
 
   $$   f^j_m(\mathcal{T}) := 0.$$
 
-2. For any $n \in [\![ 1, N ]\!]$, we set
+2. For any $n \in \llbracket 1, N \rrbracket$, we set
 
 
   $$ \rho^{j+1}_n := \rho^{j}_n - \frac{\Delta t}{|\mathcal{T}_n|} \sum_{e_m \in E_n} f_m^j(\mathcal{T}_n)  |e_m|.$$
@@ -319,11 +320,9 @@ $$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\m
 > The **weighted flux** method corresponds to the following procedure: we define $\vec{v}_m(\mathcal{T})$ as a weighted mean of the two vectors $V^j_{\mathcal{T}}$ and $V^j_{\mathcal{T}'}$;
 > then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had $V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})$.
 > The heuristics for this method comes from the following situation.
-
 > ![Drawing of two contradictory vectors on two neighbor triangles](docs/source/assets/MidVectorSchema.png)
 > Notice that, here, we have:
 >  $$ V^j_{\mathcal{T}'}\cdot \vec{n}_m(\mathcal{T}) = 0.$$
-
 > Then, if we use the **discontinuous flux** method, for any $\rho_{\mathcal{T}}^j, \rho_{\mathcal{T}'}^j  \in [0,1]$ we have $f_m^j(\mathcal{T}) = 0$. Then there is no flux exiting the cell $\mathcal{T}$ even if $\rho_{\mathcal{T}'}^j = 0$.
 > Heuristically, this means that the agents of cell $\mathcal{T}$ are prevented from moving in the direction $V^j_{\mathcal{T}}$ because the "phantom" agents of cell $\mathcal{T}'$ (since the cell is almost empty) should move in the incompatible direction $V^j_{\mathcal{T}'}$.
 > This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if $\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j$ then we have that $\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j$.
@@ -342,7 +341,7 @@ $$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\triangle}Lip_f},$
 
 ## Scheme for the eikonal equation: the FMTC algorithm
 
-In this paragraph, we fix $j \in [\![ 0, j ]\!]$. Then, for any $n \in [\![ 0, N]\!]$, we set:
+In this paragraph, we fix $j \in \llbracket 0, j \rrbracket$. Then, for any $n \in \llbracket 0, N\rrbracket$, we set:
 
 
 $$ c_n := c(\rho^j_n).$$
