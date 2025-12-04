@@ -35,7 +35,7 @@ We also hope that this package will help formulating conjectures in the future.
 
 ## Introduction to Hughes' model
 
-The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed *scalar conservation law* with discontinuous flux. The second is an *Eikonal equation* with discontinuous source term.
+The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed **scalar conservation law** with discontinuous flux. The second is an **Eikonal equation** with discontinuous source term.
 
 ### The scalar conservation law
 
@@ -51,7 +51,7 @@ Then, in the following we will denote the speed by $v(\rho(t,x))$ where $v$ is a
 
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.$$
 
-A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [@LW55], [@Ric56]_).
+A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [@LW55], [@Ric56]).
 
 ### The Eikonal equation
 
@@ -88,10 +88,11 @@ $$
  $$
 
 We now claim that the direction field $\vec{V}(t,x)$ should be the unitary descending gradient of $\phi$.
-If we suppose that there exists $X^*_x$ an optimal trajectory, i.e. $\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^*_x(t))g(\rho(X^*_x(t)))\textrm{d} t$, then we have
+If we suppose that there exists $X^\star_x$ an optimal trajectory,
+i.e. $\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^\star_x(t))g(\rho(X^\star_x(t)))\textrm{d} t$, then we have
 
 
-$$ \vec{V}(t,x) = \dot{X}^*_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
+$$ \vec{V}(t,x) = \dot{X}^\star_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
 
 ### The Hughes model definition
 
@@ -107,7 +108,7 @@ $$
  \end{matrix}\right.
 $$
 
-.. note::
+>[!NOTE]
  Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
 
 For a deep overview of the mathematical results regarding Hughes' model we defer to [@survey].
@@ -124,12 +125,11 @@ In this model, the agents chose the shortest path to the exits without taking th
 $$
  |\nabla u (x)| = 1.$$
 
-Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}[\rho](x)$.
+Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}\[\rho\](x)$.
 In [CGLM11]_, the authors propose the a definition for the non-local operator: let $\eta_r(\cdot)$ be a mollifier compactly supported in the ball of radius $r > 0$; then we define:
 
 
-$$
- \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
+$$ \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
 
 Note:
  The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary $$CGparameters$$ in the python package.
@@ -137,22 +137,20 @@ Note:
 In the present package, we denote by the Colombo-Garavello-Lecureux-Mercier model the following (slightly modified) system:
 
 
-$$
- \left\{ \begin{matrix}
+$$\left\{ \begin{matrix}
  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
  |\nabla \phi (t,x) | = 1 \\
  \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
- \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nablla \rho * \eta_r|^2}}\\
- \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}[\rho](x) }{| \vec{\nu}(x) + \mathcal{I}[\rho](x) |}
- \end{matrix}\right.
-$$
+ \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nablla \rho * \eta_r|^2}}\\
+ \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}\[\rho\](x) }{| \vec{\nu}(x) + \mathcal{I}\[\rho\](x) |}
+ \end{matrix}\right.$$
 
 This model is also featured in the present python package.
 
 # Details of the numerical schemes
 
-.. note::
- The presentation of the numerical schemes below is quoted from the introduction of Section 4.5.1 of [@Gir25]. It is recommanded reading it there as more detail are included.
+> [!NOTE]
+> The presentation of the numerical schemes below is quoted from the introduction of Section 4.5.1 of [@Gir25]. It is recommanded reading it there as more detail are included.
 
 The numerical scheme we propose consists in two coupled algorithms, each of them approximating, at one time step, one of the equations of Hughes' model ($\rho$ or $V=\nabla \phi$, respectively) given the solution of the other equation.
 
@@ -162,11 +160,12 @@ The numerical scheme we propose consists in two coupled algorithms, each of them
 Let $T>0$. Let $J \in \mathbb{N}^*$. We discretize the interval $[0,T]$ as $J + 1$ time steps and we set:
 
 
- $$\Delta t := \frac{T}{J}, \;\; t^j := j\Delta t.$$
+ $$\Delta t := \frac{T}{J},$$
+ $$ t^j := j\Delta t.$$
 
 We suppose that $\Omega$ is a polygonal domain. Let $\Delta x > 0$.
 
-Let $\underline{\textrm{$\triangle$}}, |\triangle| > 0$, we denote $\Delta x := (\underline{\textrm{$\triangle$}}, |\triangle|)$.
+Let $\underline{\triangle}, |\triangle| > 0$, we denote $\Delta x := (\underline{\textrm{$\triangle$}}, |\triangle|)$.
 We consider a triangular mesh defined by a set of open triangles $M_\Delta := (\mathcal{T}_n)_{1 \leq n \leq N}$ such that
 
 1. for all $1\leq n \leq N$, the area of the triangle $\mathcal{T}_n$ denoted by $|\mathcal{T}_n|$ satisfies $0 < |\mathcal{T}_n| \leq |\triangle|$.
@@ -310,38 +309,28 @@ $$   \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^
 
 
 
-.. note::
- The **discontinuous flux** method correspond to the algorithm detailled in [@AbrahamPreprint]. Heuristically, we are solving the SCL while assuming there is a discontinuity of $V^j_\Delta$ at each edge of $E_\Delta$.
- If $V_\Delta^j$ is constant across the edge $e_m$ then the **discontinuous flux** method is equivalent to setting
+>[!NOTE]
+> The **discontinuous flux** method correspond to the algorithm detailled in [@AbrahamPreprint]. Heuristically, we are solving the SCL while assuming there is a discontinuity of $V^j_\Delta$ at each edge of $E_\Delta$.
+> If $V_\Delta^j$ is constant across the edge $e_m$ then the **discontinuous flux** method is equivalent to setting
+>  $$ f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),$$
+> which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity $k \mapsto k$ "transmission map", in the terminology of \cite{CancesAndreianov2015}.
 
+>[!NOTE]
+> The **weighted flux** method corresponds to the following procedure: we define $\vec{v}_m(\mathcal{T})$ as a weighted mean of the two vectors $V^j_{\mathcal{T}}$ and $V^j_{\mathcal{T}'}$;
+> then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had $V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})$.
+> The heuristics for this method comes from the following situation.
 
-  $$ f^j_m(\mathcal{T}) := \mathbf{God}_{V^j_{\mathcal{T}} \cdot \vec{n}_m(\mathcal{T})f}(\rho^j_{\mathcal T},\rho^j_{\mathcal T'}),$$
+> ![Drawing of two contradictory vectors on two neighbor triangles](docs/source/assets/MidVectorSchema.png)
+> Notice that, here, we have:
+>  $$ V^j_{\mathcal{T}'}\cdot \vec{n}_m(\mathcal{T}) = 0.$$
 
- which corresponds exactly to the classical Godunov numerical flux in the continuous case. The **discontinuous flux** method correponds exactly to the use of the identity $k \mapsto k$ "transmission map", in the terminology of \cite{CancesAndreianov2015}.
+> Then, if we use the **discontinuous flux** method, for any $\rho_{\mathcal{T}}^j, \rho_{\mathcal{T}'}^j  \in [0,1]$ we have $f_m^j(\mathcal{T}) = 0$. Then there is no flux exiting the cell $\mathcal{T}$ even if $\rho_{\mathcal{T}'}^j = 0$.
+> Heuristically, this means that the agents of cell $\mathcal{T}$ are prevented from moving in the direction $V^j_{\mathcal{T}}$ because the "phantom" agents of cell $\mathcal{T}'$ (since the cell is almost empty) should move in the incompatible direction $V^j_{\mathcal{T}'}$.
+> This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if $\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j$ then we have that $\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j$.
+> Then
+>  $$ f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.$$
+> This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
 
-.. note::
- The **weighted flux** method corresponds to the following procedure: we define $\vec{v}_m(\mathcal{T})$ as a weighted mean of the two vectors $V^j_{\mathcal{T}}$ and $V^j_{\mathcal{T}'}$;
- then \eqref{eq:defMidVecFlux} corresponds to the classical Godunov numerical flux as if we had $V^j_{\mathcal{T}}=V^j_{\mathcal{T}'}=\vec{v}_m(\mathcal{T})$.
- The heuristics for this method comes from the following situation.
-
- .. image:: assets/MidVectorSchema.png
-
- Notice that, here, we have:
-
-
-  $$ V^j_{\mathcal{T}'}\cdot \vec{n}_m(\mathcal{T}) = 0.$$
-
- Then, if we use the **discontinuous flux** method, for any $\rho_{\mathcal{T}}^j, \rho_{\mathcal{T}'}^j  \in [0,1]$ we have $f_m^j(\mathcal{T}) = 0$. Then there is no flux exiting the cell $\mathcal{T}$ even if $\rho_{\mathcal{T}'}^j = 0$.
- Heuristically, this means that the agents of cell $\mathcal{T}$ are prevented from moving in the direction $V^j_{\mathcal{T}}$ because the "phantom" agents of cell $\mathcal{T}'$ (since the cell is almost empty) should move in the incompatible direction $V^j_{\mathcal{T}'}$.
- This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if $\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j$ then we have that $\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j$.
- Then
-
-
-  $$ f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.$$
-
- This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
-
-.. warning::
  Even if we do not provide any proof of convergence for the above finite volume scheme in [@Gir25], we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
 
 
@@ -420,7 +409,7 @@ Then notice that $(\rho,\xi)$ is well defined and is an explicit solution to Hug
 Notice also that, for any $(t,z) \in [0,T]\times \bar\Omega$, we have:
 $$V(t,x) = \left( \begin{matrix} 1 \\ 0 \end{matrix} \right).$$
 
-Then we compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ of the solution $(\rho,\phi)$ and the numerical density obtained using *hughes2d* approximation scheme.
+Then we compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ of the solution $(\rho,\phi)$ and the numerical density obtained using **Hughes2d** approximation scheme.
 As a comparison, we also compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ and
 - the numerical approximation to the scalar conservation law with the explicit vector vector field $V = (1,0)$;
 - the numerical approximation to the scalar conservation law with the gradient of the $\mathbf{FMTC}$ approximation of the solution to the eikonal equation when $c = 1$.
@@ -428,7 +417,7 @@ As a comparison, we also compute the normalized $L^1$ difference $\mathbf{Diff}_
 ![Normalized $L^1$ differences over time between the approximations and the density of an explicit solution.](docs/source/assets/CompareExplicit.png))
 
 
-It is interesting to notice that the *hughes2d* approximation scheme gives a better approximation than the finite volume scheme computed with the explicit vector field $V = (1,0)$. We believe that this phenomenon (which can seem quite contradictory) occurs because, in the *Hughes2d* approximation scheme, the specific coupling of the finite volume scheme with $\mathbf{FMTC}$ tends to compensate for the numerical errors produced by the finite volume scheme alone. This specific coupling seems to induce a regularization of the density in the vertical direction $(0,1)$ (see [@Gir25] for a more detailled study of this conjecture).
+It is interesting to notice that the **Hughes2d** approximation scheme gives a better approximation than the finite volume scheme computed with the explicit vector field $V = (1,0)$. We believe that this phenomenon (which can seem quite contradictory) occurs because, in the **Hughes2d** approximation scheme, the specific coupling of the finite volume scheme with $\mathbf{FMTC}$ tends to compensate for the numerical errors produced by the finite volume scheme alone. This specific coupling seems to induce a regularization of the density in the vertical direction $(0,1)$ (see [@Gir25] for a more detailled study of this conjecture).
 
 # Examples
 
@@ -463,10 +452,10 @@ $$
 
 In this simulation, we can observe the following distinctive features of Hughes' model.
 
-- *Repartition of the agents between the different exits.* Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$). In the 1D case, this phenomenon corresponds to the $\xi(t)$ turning curve crossing a region in space where $\rho(t,\xi(t)) \neq 0$.
+- **Repartition of the agents between the different exits.** Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$). In the 1D case, this phenomenon corresponds to the $\xi(t)$ turning curve crossing a region in space where $\rho(t,\xi(t)) \neq 0$.
 
-- *Geometry of the congestion figures.* Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation. In [@Gir25], we try to give a more rigorous definition of this phenomenon and measure the influence of the initial datum on the large time density profiles.
-- *Regularization of the density in time.* Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
+- **Geometry of the congestion figures.** Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation. In [@Gir25], we try to give a more rigorous definition of this phenomenon and measure the influence of the initial datum on the large time density profiles.
+- **Regularization of the density in time.** Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
 
 
 # Acknowledgements
