@@ -66,7 +66,7 @@ $$
  \end{matrix}\right.
  $$
 
-For any $x \in \Omega$, we denote by $\mathcal{A}_x = \{ X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \}$ the set of all controlled trajectories starting at $x$. We define $\phi(x)$ as the minimal exit time starting at location $x$, that is to say:
+For any $x \in \Omega$, we denote by $\mathcal{A}_x = \lbrace X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \rbrace$ the set of all controlled trajectories starting at $x$. We define $\phi(x)$ as the minimal exit time starting at location $x$, that is to say:
 
 
 $$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \textrm{d} t.$$
@@ -113,7 +113,6 @@ $$
 
 For a deep overview of the mathematical results regarding Hughes' model we defer to [@survey].
 
-.. ColomboGaravelloModel:
 
 ## Model of Colombo-Garavello-Lécureux-Mercier
 
@@ -131,13 +130,13 @@ In [CGLM11]_, the authors propose the a definition for the non-local operator: l
 
 $$ \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
 
-Note:
- The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary $$CGparameters$$ in the python package.
+> [!NOTE]
+> The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary $$CGparameters$$ in the python package.
 
 In the present package, we denote by the Colombo-Garavello-Lecureux-Mercier model the following (slightly modified) system:
 
 
-$$\left\{ \begin{matrix}
+$$\left\lbrace \begin{matrix}
  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
  |\nabla \phi (t,x) | = 1 \\
  \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
@@ -165,17 +164,17 @@ Let $T>0$. Let $J \in \mathbb{N}^*$. We discretize the interval $[0,T]$ as $J + 
 
 We suppose that $\Omega$ is a polygonal domain. Let $\Delta x > 0$.
 
-Let $\underline{\triangle}, |\triangle| > 0$, we denote $\Delta x := (\underline{\textrm{$\triangle$}}, |\triangle|)$.
+Let $\underline{\triangle}, |\triangle| > 0$, we denote $\Delta x := (\underline{\triangle}, |\triangle|)$.
 We consider a triangular mesh defined by a set of open triangles $M_\Delta := (\mathcal{T}_n)_{1 \leq n \leq N}$ such that
 
 1. for all $1\leq n \leq N$, the area of the triangle $\mathcal{T}_n$ denoted by $|\mathcal{T}_n|$ satisfies $0 < |\mathcal{T}_n| \leq |\triangle|$.
-2. for all $1\leq n \leq N$, if we denote $\mathcal{T}_n = A_nB_nC_n$ then $\max \{ |A_n B_n|, |A_n C_n|, |C_n B_n|\} \leq \underline{\textrm{$\triangle$}}$.
+2. for all $1\leq n \leq N$, if we denote $\mathcal{T}_n = A_nB_nC_n$ then $\max \lbrace |A_n B_n|, |A_n C_n|, |C_n B_n|\rbrace \leq \underline{\triangle}$.
 3. for any $1 \leq i,j \leq N$, we have $\mathcal{T}_i \bigcap \mathcal{T}_j = \emptyset$ and
 
 
 $$ \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j \neq \emptyset \Rightarrow
    &\textrm{ upon reparametrization of the points of the triangle }\\
-    &\textrm{either } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = \{A_i\} = \{ A_j \},\\
+    &\textrm{either } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = \lbrace A_i\rbrace = \lbrace A_j \rbrace,\\
    &\textrm{or } \bar{\mathcal{T}}_i \bigcap \bar{\mathcal{T}}_j = [A_iB_i] = [ A_j B_j].$$
 
 4. $\bigcup_n \bar{\mathcal{T}}_n = \bar\Omega$.
@@ -195,9 +194,10 @@ $M_{\Delta x} = (\mathcal{T}_n)_{1\leq n \leq N}$.
 Let the initial datum $\rho_0$ be lower semi-continuous (so that the Eikonal equation is well posed, see [@Gir25]). We discretize $\rho_0$ by defining, for any $n \in \mathbb{N}$,
 
 
-$$ \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x), \;\; \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.$$
+$$ \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x),$$
+$$ \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.$$
 
-Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in [\![ 1, N ]\!], \; \exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n, \;\; \rho_\Delta(x) = \rho_n$.
+Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in [\![ 1, N ]\!],$  $\exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n$,  $ \rho_\Delta(x) = \rho_n$.
 Then, we define the lower semi-continuous envelope of $\rho_\Delta$ by:
 
 
@@ -208,7 +208,7 @@ Then, we will apply the following procedure iteratively for any $j \in [\![ 0 , 
 1. We compute a numerical approximation $\phi^j_\Delta$ of the solution to the eikonal equation
 
 
- $$\left\{ \begin{matrix} |\nabla \phi| = c((\rho^j_{\Delta})_*) &x \in \bar\Omega \setminus \mathcal{E}\\
+ $$\left\lbrace \begin{matrix} |\nabla \phi| = c((\rho^j_{\Delta})_*) &x \in \bar\Omega \setminus \mathcal{E}\\
  \phi(x) = 0 &x \in \mathcal{E}.\end{matrix}\right.$$
 
 We use either a $\mathbf{FMT}$, a $\mathbf{FME}$ (see [Gir25]_) or a third algorithm (detailled below) named the $\mathbf{FMTC}$ algorithm.
@@ -226,7 +226,7 @@ See [Gir25]_ for more details about this formula. We define $V^j_\Delta$ by:
 3. We compute a numerical approximation $\rho^{j+1}_\Delta$ of $\rho(\Delta t,\cdot)$ where $\rho$ is the solution to
 
 
-$$ \left\{ \begin{matrix} \rho_t + \div \left[ f(\rho) V^j_\Delta \right] = 0 &(t,x) \in (0,\Delta t) \times \Omega\\
+$$ \left\lbrace \begin{matrix} \rho_t + \div \left[ f(\rho) V^j_\Delta \right] = 0 &(t,x) \in (0,\Delta t) \times \Omega\\
  \rho = 0 &x \in \mathcal{E}\\
  f(\rho)(V^j_\Delta \cdot \vec{n}) = 0 &x \in \mathcal{W} \\
  \rho(0,x) = \rho^j_\Delta(x).
@@ -245,7 +245,7 @@ We introduce a few additional notations.
 
 - Let $M \in \mathbb{N}$ be the number of distinct edges in the mesh $M_\Delta$. We denote by $E_\Delta := (e_m)_{1\leq m \leq M}$ the set of all the edges of the triangles of $M_\Delta$.
 - For any $n \in [\![ 1, N ]\!]$, we denote by $E_n$ the set of all the edges of $\mathcal{T}_n$.
-- For any $m \in [\![ 1, M ]\!]$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \{1,2\}$.
+- For any $m \in [\![ 1, M ]\!]$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \lbrace 1,2\rbrace$.
 - For any $m \in [\![ 1, M ]\!]$, we denote by $|e_m|$ the geometrical length of the edge $|e_m|$.
 - For any $m \in [\![ 1, M ]\!]$, for any $\mathcal{T} \in \mathcal{E}^m$, we denote by $\vec{n}_m(\mathcal{T})$ the unit normal vector to $e_m$ that is pointing outward of $\mathcal{T}$.
 - For any $\mathcal{T} \in M_\Delta$ we denote $\rho^j_{\mathcal{T}} := \rho^j_n$ where $\mathcal{T}_n = \mathcal{T}$. Analogously, we denote $V^j_{\mathcal{T}} := V^j_n$ where $\mathcal{T}_n = \mathcal{T}$.
@@ -253,7 +253,7 @@ We introduce a few additional notations.
 We also recall that, for any $f:\mathbb{R} \rightarrow \mathbb{R}$, for any $a,b \in \mathbb{R}$, the Godunov numerical flux is defined by:
 
 
-$$ \mathbf{God}_f(a,b) := \left\{ \begin{matrix} \min_{c \in [a,b]} f(c) &\textrm{if } a \leq b \\
+$$ \mathbf{God}_f(a,b) := \left\lbrace \begin{matrix} \min_{c \in [a,b]} f(c) &\textrm{if } a \leq b \\
  \max_{c \in [b,a]} f(c) &\textrm{if } b < a. \end{matrix}  \right.$$
 
 
@@ -262,8 +262,8 @@ The finite volume scheme corresponds to the following algorithm for any fixed $j
 1. For any $m \in [\![ 1, M ]\!]$, we denote
 
 
-$$   \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =1,
-   \mathcal{E}^m = \{  \mathcal{T}, \mathcal{T}' \} \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =2.$$
+$$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =1,
+   \mathcal{E}^m = \lbrace  \mathcal{T}, \mathcal{T}' \rbrace \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =2.$$
 
  We want to compute the flux $f^j_m(\mathcal{T})$ crossing the edge $e_m$ coming from $\mathcal T$. We distinguish between the two following cases.
 
@@ -328,13 +328,14 @@ $$   \mathcal{E}^m = \{  \mathcal{T} \} \textrm{ if } \mathbf{Card}(\mathcal{E}^
 > Heuristically, this means that the agents of cell $\mathcal{T}$ are prevented from moving in the direction $V^j_{\mathcal{T}}$ because the "phantom" agents of cell $\mathcal{T}'$ (since the cell is almost empty) should move in the incompatible direction $V^j_{\mathcal{T}'}$.
 > This heuristic is our inspiration to consider, as a practical alternative, the **weighted flux** method. Indeed, if we use the **weighted flux** method, if $\rho_{\mathcal{T}}^j \gg \rho_{\mathcal{T}'}^j$ then we have that $\vec{v}_m(\mathcal{T}) \simeq V_{\mathcal{T}}^j$.
 > Then
->  $$ f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c) \;\; V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.$$
+>  $$ f_m^j \simeq \max_{c \in [\rho_{\mathcal{T}'}^j,\rho_{\mathcal{T}}^j]} f(c)$$
+> $$ V_{\mathcal{T}}^j \cdot \vec{n}_m(\mathcal{T}) \gg 0.$$
 > This represents a kind of "majority-rule" where the direction of the high density cells prevails over the direction of the low density cells.
 
  Even if we do not provide any proof of convergence for the above finite volume scheme in [@Gir25], we can still derive the CFL condition that guarantees the monotonicity and the stability of the scheme. Here the CFL takes the following form:
 
 
-$$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\textrm{$\triangle$}}Lip_f},$$
+$$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\triangle}Lip_f},$$
 
  where $\underline{|\triangle|}$ denotes the minimal area of a triangle in $M_\Delta$. The numerical experiments with the present package must be done under the above CFL condition !
 
@@ -353,7 +354,7 @@ For any $m \in \mathbb{N}$, we introduce the following iterative $\mathbf{FMTC}$
 1. We compute the set of neighbours among which we will choose the next vertex (or vertices) to freeze (named the "narrow band"):
 
 
- $$NB^m = \left\{ P \in V_\Delta \setminus P^m \textrm{ s.t. } \exists Q \in P^m, P \in \mathcal{V}(Q) \right\}.$$
+ $$NB^m = \left\lbrace P \in V_\Delta \setminus P^m \textrm{ s.t. } \exists Q \in P^m, P \in \mathcal{V}(Q) \right\rbrace.$$
 
 2. If $NB^m = \emptyset$, the algorithm is terminated.
 3. Else, for any $A \in NB^m$, we compute $\mathcal{V}_A$ as described below.
@@ -366,20 +367,20 @@ For any $m \in \mathbb{N}$, we introduce the following iterative $\mathbf{FMTC}$
  b. If $B$ and $C$ are both in $P^m$, we suppose, up to renaming the vertices, that $\phi_\Delta(B) \leq \phi_\Delta(C)$. We denote $V_B := \phi_\Delta(B)$ and $V_C = \phi_\Delta(C)$. Then we set $V_A^k = \tilde{V}_A$ where $\tilde{V}_A$ is defined by \eqref{eq:defTildeVa} i.e.
 
 
-  $$ V_A^k := \left\{
+  $$ V_A^k := \left\lbrace
    \begin{matrix}
-       &V_B + F|AB| \qquad\qquad\qquad\qquad \textrm{ if } c_k\; \vec{AB}\cdot\vec{BC} +(V_C -V_B)|AB| >0 \\
+       &V_B + F|AB| \qquad\qquad\qquad\qquad \textrm{ if } c_k \vec{AB}\cdot\vec{BC} +(V_C -V_B)|AB| >0 \\
        \\
-       &V_C + F|AC| \qquad\qquad\qquad\qquad \textrm{ if } c_k\; \vec{AC}\cdot\vec{BC} +(V_C -V_B)|AC| <0 \\
+       &V_C + F|AC| \qquad\qquad\qquad\qquad \textrm{ if } c_k \vec{AC}\cdot\vec{BC} +(V_C -V_B)|AC| <0 \\
        \\
        &V_B + \frac{\vec{AB}\cdot\vec{CB}}{BC^2}(V_C-V_B) + |\det(\vec{AB},\vec{CB})| \frac{\sqrt{(c_k)^2 BC^2 - (V_C-V_B)^2}}{BC^2} \qquad \textrm{ else. }\end{matrix}\right.
 $$
  Then we set
 
 
-  $$ \mathcal{V}_A := \min_k \{ V_A^k \}.$$
+  $$ \mathcal{V}_A := \min_k \lbrace V_A^k \rbrace.$$
 
-4. We freeze the point $P = \mathbf{argmin}_{A \in NB^m} \mathcal{V}_A$ i.e. $P^{m+1} = P^m \cup \{ P \}$. We set $\phi_\Delta(P) = \mathcal{V}_P$. If multiple points satisfy $\phi_\Delta(P) = \mathcal{V}_P$, we freeze all these points. We loop back to step 1.
+4. We freeze the point $P = \mathbf{argmin}_{A \in NB^m} \mathcal{V}_A$ i.e. $P^{m+1} = P^m \cup \lbrace P \rbrace$. We set $\phi_\Delta(P) = \mathcal{V}_P$. If multiple points satisfy $\phi_\Delta(P) = \mathcal{V}_P$, we freeze all these points. We loop back to step 1.
 
 
 In the following, we denote by $\phi_\Delta$ the unique function of $W^{1,\infty}(\bar\Omega)$ that is affine on each triangle and
@@ -395,7 +396,7 @@ We consider Hughes' model in the specific context where the 2D dynamics is reduc
 
 We define the couple $(\rho,\phi)$ where $\rho$ is defined by
 $$
-\rho(t,x) := \left\{ \begin{matrix}
+\rho(t,x) := \left\lbrace \begin{matrix}
 0 &\textrm{ if } x \leq 0.3t \textrm{ and } t \leq 5/0.3\\
 0 &\textrm{ if } x \leq  5 + t - 2 \sqrt{5\times0.7t} \textrm{ and } t> 5/0.3\\
 \min \left( 0.7, \max \left( 0, \frac{1}{2} + \frac{5-x}{2t} \right) \right) & \textrm{ else,}
@@ -426,7 +427,7 @@ $$
     \bar\Omega := [-2,0]\times [3,4] \cup [0,10]\times [0,7] \cup [10,12] \times [3,4],
     $$
     $$
-    \mathcal{E} := \{-2\} \times [3,4] \cup \{12\} \times [3,4],
+    \mathcal{E} := \lbrace -2\rbrace \times [3,4] \cup \lbrace 12\rbrace \times [3,4],
     $$
     $$
   \mathcal{W} := \partial \Omega \setminus \mathcal{E},
