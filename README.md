@@ -14,7 +14,7 @@ Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
 ## Installation
 The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
 ```
-git clone https://github.com/TheoRGirard/hughes2d
+git clone --depth 1 https://github.com/TheoRGirard/hughes2d
 cd hughes2d
 uv sync
 ```
