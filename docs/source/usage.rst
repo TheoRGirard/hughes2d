@@ -10,7 +10,7 @@ The hughes2d package dependencies are managed using **uv** (see [uv](https://doc
 
 .. code-block:: console
 
-  git clone https://github.com/TheoRGirard/hughes2d
+  git clone --depth 1 https://github.com/TheoRGirard/hughes2d
   cd hughes2d
   uv sync
 
