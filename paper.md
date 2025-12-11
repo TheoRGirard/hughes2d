@@ -124,11 +124,11 @@ In this model, the agents chose the shortest path to the exits without taking th
 $$
  |\nabla u (x)| = 1.$$
 
-Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}\[\rho\](x)$.
+Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}[\rho](x)$.
 In [CGLM11]_, the authors propose the a definition for the non-local operator: let $\eta_r(\cdot)$ be a mollifier compactly supported in the ball of radius $r > 0$; then we define:
 
 
-$$ \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
+$$ \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
 
 > [!NOTE]
 > The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary $$CGparameters$$ in the python package.
@@ -140,8 +140,8 @@ $$\left\lbrace \begin{matrix}
  \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
  |\nabla \phi (t,x) | = 1 \\
  \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
- \mathcal{I}\[\rho\](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}\\
- \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}\[\rho\](x) }{| \vec{\nu}(x) + \mathcal{I}\[\rho\](x) |}
+ \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}\\
+ \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}[\rho](x) }{| \vec{\nu}(x) + \mathcal{I}[\rho](x) |}
  \end{matrix}\right.$$
 
 This model is also featured in the present python package.
