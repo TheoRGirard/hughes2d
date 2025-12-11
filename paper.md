@@ -15,7 +15,6 @@ authors:
 affiliations:
   - name: Institut Denis Poisson, Université de Tours
     index: 1
-    ror: 05djhd259
 date: 02 december 2025
 bibliography: paper.bib
 ---
@@ -198,13 +197,13 @@ Let the initial datum $\rho_0$ be lower semi-continuous (so that the Eikonal equ
 $$ \rho^0_n = \inf_{x \in \mathcal{T}_n} \rho_0(x),$$
 $$ \rho^0_\Delta(x) := \sum_{1\leq n \leq N} \mathbb{1}_{\mathcal{T}_n}(x) \rho^0_n.$$
 
-Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in \llbracket 1, N \rrbracket,$  $\exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n$,  $ \rho_\Delta(x) = \rho_n$.
+Let $\rho_\Delta : \bar\Omega \rightarrow \mathbb{R}$ be constant on the triangles of $M_{\Delta x}$ i.e. $\forall n \in [\![ 1, N ]\!],$  $\exists \rho_n \in \mathbb{R},$ such that $\forall x \in \mathcal{T}_n$,  $ \rho_\Delta(x) = \rho_n$.
 Then, we define the lower semi-continuous envelope of $\rho_\Delta$ by:
 
 
-$$ \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in \llbracket 1, N \rrbracket, \\ \textrm{ s.t. } x \in \overline{\textrm{$\mathcal{T}_n$}}\end{matrix}} \rho_n.$$
+$$ \rho_{\Delta*}(x) := \min_{\begin{matrix}n \in [\![ 1, N ]\!], \\ \textrm{ s.t. } x \in \overline{\textrm{$\mathcal{T}_n$}}\end{matrix}} \rho_n.$$
 
-Then, we will apply the following procedure iteratively for any $j \in \llbracket 0 , J \rrbracket$.
+Then, we will apply the following procedure iteratively for any $j \in [\![ 0 , J ]\!]$.
 
 1. We compute a numerical approximation $\phi^j_\Delta$ of the solution to the eikonal equation
 
@@ -214,7 +213,7 @@ Then, we will apply the following procedure iteratively for any $j \in \llbracke
 
 We use either a $\mathbf{FMT}$, a $\mathbf{FME}$ (see [Gir25]_) or a third algorithm (detailled below) named the $\mathbf{FMTC}$ algorithm.
 
-2. We compute $V^j_\Delta$ corresponding to the unit vector opposite to the gradient of $\phi_\Delta^j$ on each triangle $(\mathcal{T}_n)_{1\leq n \leq N}$. In order to compute $V^j_\Delta$, we denote $\mathcal{T}_n = ABC$. As $\phi_\Delta^j$ is affine on $ABC$, the gradient is constant and, for any $n \in \llbracket 1, N \rrbracket$, we set:
+2. We compute $V^j_\Delta$ corresponding to the unit vector opposite to the gradient of $\phi_\Delta^j$ on each triangle $(\mathcal{T}_n)_{1\leq n \leq N}$. In order to compute $V^j_\Delta$, we denote $\mathcal{T}_n = ABC$. As $\phi_\Delta^j$ is affine on $ABC$, the gradient is constant and, for any $n \in [\![ 1, N ]\!]$, we set:
 
 
 $$ V_n^j := \frac{1}{\mathcal{H}_{ABC}(\phi(A),\phi(B),\phi(C))}\times \frac{(\phi(B) - \phi(A))\vec{AB}^\bot - (\phi(C) - \phi(A))\vec{AC}^\bot}{\det(\vec{AC},\vec{AB})}.$$
@@ -245,10 +244,10 @@ We introduce a few additional notations.
 
 
 - Let $M \in \mathbb{N}$ be the number of distinct edges in the mesh $M_\Delta$. We denote by $E_\Delta := (e_m)_{1\leq m \leq M}$ the set of all the edges of the triangles of $M_\Delta$.
-- For any $n \in \llbracket 1, N \rrbracket$, we denote by $E_n$ the set of all the edges of $\mathcal{T}_n$.
-- For any $m \in \llbracket 1, M \rrbracket$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \lbrace 1,2\rbrace$.
-- For any $m \in \llbracket 1, M \rrbracket$, we denote by $|e_m|$ the geometrical length of the edge $|e_m|$.
-- For any $m \in \llbracket 1, M \rrbracket$, for any $\mathcal{T} \in \mathcal{E}^m$, we denote by $\vec{n}_m(\mathcal{T})$ the unit normal vector to $e_m$ that is pointing outward of $\mathcal{T}$.
+- For any $n \in [\![ 1, N ]\!]$, we denote by $E_n$ the set of all the edges of $\mathcal{T}_n$.
+- For any $m \in [\![ 1, M ]\!]$, we denote by $\mathcal E^m$ the set of all triangles of $M_\Delta$ that admit $e_m$ as one of its edges. Notice that $\mathbf{Card}(\mathcal{E}^m) \in \lbrace 1,2\rbrace$.
+- For any $m \in [\![ 1, M ]\!]$, we denote by $|e_m|$ the geometrical length of the edge $|e_m|$.
+- For any $m \in [\![ 1, M ]\!]$, for any $\mathcal{T} \in \mathcal{E}^m$, we denote by $\vec{n}_m(\mathcal{T})$ the unit normal vector to $e_m$ that is pointing outward of $\mathcal{T}$.
 - For any $\mathcal{T} \in M_\Delta$ we denote $\rho^j_{\mathcal{T}} := \rho^j_n$ where $\mathcal{T}_n = \mathcal{T}$. Analogously, we denote $V^j_{\mathcal{T}} := V^j_n$ where $\mathcal{T}_n = \mathcal{T}$.
 
 We also recall that, for any $f:\mathbb{R} \rightarrow \mathbb{R}$, for any $a,b \in \mathbb{R}$, the Godunov numerical flux is defined by:
@@ -258,9 +257,9 @@ $$ \mathbf{God}_f(a,b) := \left\lbrace \begin{matrix} \min_{c \in [a,b]} f(c) &\
  \max_{c \in [b,a]} f(c) &\textrm{if } b < a. \end{matrix}  \right.$$
 
 
-The finite volume scheme corresponds to the following algorithm for any fixed $j \in \llbracket 0, J \rrbracket$.
+The finite volume scheme corresponds to the following algorithm for any fixed $j \in [\![ 0, J ]\!]$.
 
-1. For any $m \in \llbracket 1, M \rrbracket$, we denote
+1. For any $m \in [\![ 1, M ]\!]$, we denote
 
 
 $$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\mathcal{E}^m) =1,
@@ -303,7 +302,7 @@ $$   \mathcal{E}^m = \lbrace  \mathcal{T} \rbrace \textrm{ if } \mathbf{Card}(\m
 
   $$   f^j_m(\mathcal{T}) := 0.$$
 
-2. For any $n \in \llbracket 1, N \rrbracket$, we set
+2. For any $n \in [\![ 1, N ]\!]$, we set
 
 
   $$ \rho^{j+1}_n := \rho^{j}_n - \frac{\Delta t}{|\mathcal{T}_n|} \sum_{e_m \in E_n} f_m^j(\mathcal{T}_n)  |e_m|.$$
@@ -341,7 +340,7 @@ $$   \Delta t \leq \frac{\underline{|\triangle|}}{3\underline{\triangle}Lip_f},$
 
 ## Scheme for the eikonal equation: the FMTC algorithm
 
-In this paragraph, we fix $j \in \llbracket 0, j \rrbracket$. Then, for any $n \in \llbracket 0, N\rrbracket$, we set:
+In this paragraph, we fix $j \in [\![ 0, j ]\!]$. Then, for any $n \in [\![ 0, N]\!]$, we set:
 
 
 $$ c_n := c(\rho^j_n).$$
