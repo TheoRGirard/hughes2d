@@ -25,17 +25,20 @@ bibliography: paper.bib
 
 # Statement of need
 
-The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([vadere],[JuPedSim],[UMANS],[Cromosim]) or not. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
+The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([@vadere],[@JuPedSim],[@UMANS],[@Cromosim],[@CrowdWalk]) or not (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available softwares. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
 
-The Hughes model has been thoroughly studied during the last two decades (see [@survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [@Goatin]) but in a slightly modified context. The present package should provide a reliable and open-source solution to approximate the behavior of Hughes' model.
+The Hughes model has been thoroughly studied during the last two decades (see [@survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [@Goatin2014]) but in a slightly modified context. The present package should provide a reliable and open-source solution to approximate the behavior of Hughes' model.
 We also hope that this package will help formulating conjectures in the future.
 
 
-## Introduction to Hughes' model
+# Mathematical introduction to Hughes' model
 
 The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed **scalar conservation law** with discontinuous flux. The second is an **Eikonal equation** with discontinuous source term.
 
-### The scalar conservation law
+> [!NOTE]
+> We defer to the introduction of Section 4.5.1 of [@Gir25] for the presentation of the numerical schemes used in the present package.
+
+## The scalar conservation law
 
 The first equation models the flow of a density $\rho$. To be more precise  $\rho(t,x)$ represents the density of pedestrian at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{max} >0$. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
 Then, if we write the conservation of the mass on pedestrian on each subdomain of $\Omega$, we end up with the following scalar conservation law:
@@ -51,7 +54,7 @@ $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.$$
 
 A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [@LW55], [@Ric56]).
 
-### The Eikonal equation
+## The Eikonal equation
 
 The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (this assumption is quite controversial).
 Let $x \in \Omega$. For any $\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)$, we say that $X^\alpha_x(\cdot)$ is a trajectory controlled by $\alpha$ starting at $x$ if $X$ is a solution to the Cauchy problem:
@@ -92,7 +95,7 @@ i.e. $\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^\star_x(t))g(\rho(X^\star_x
 
 $$ \vec{V}(t,x) = \dot{X}^\star_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
 
-### The Hughes model definition
+## The Hughes model definition
 
 Then the complete Hughes' model introduced in [@Hug02] was the following:
 
@@ -123,13 +126,9 @@ $$
  |\nabla u (x)| = 1.$$
 
 Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}[\rho](x)$.
-In [CGLM11]_, the authors propose the a definition for the non-local operator: let $\eta_r(\cdot)$ be a mollifier compactly supported in the ball of radius $r > 0$; then we define:
-
+In [@CGLM11], the authors propose the a definition for the non-local operator: let $\eta_r(\cdot)$ be a mollifier compactly supported in the ball of radius $r > 0$; then we define:
 
 $$ \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
-
-> [!NOTE]
-> The operator above depends on two real parameters: the radius r and the amount of deviation epsilon. These parameters corresponds to the parameters of the dictionary $$CGparameters$$ in the python package.
 
 In the present package, we denote by the Colombo-Garavello-Lecureux-Mercier model the following (slightly modified) system:
 
@@ -143,43 +142,6 @@ $$\left\lbrace \begin{matrix}
  \end{matrix}\right.$$
 
 This model is also featured in the present python package.
-
-> [!NOTE]
-> We defer to the introduction of Section 4.5.1 of [@Gir25] for the presentation of the numerical schemes used in the present package.
-
-# Estimation of convergence
-
-We consider Hughes' model in the specific context where the 2D dynamics is reduced to the 1D dynamics towards the unique exit:
-
-- $(\Omega, \mathcal{E},\mathcal{W})$ is defined by \eqref{eq:domainCouloir};
-- $\rho_0$ is defined by \eqref{eq:rho0couloir};
-- the cost function $c$ is defined by $c(\rho) := 1 + \rho$.
-
-We define the couple $(\rho,\phi)$ where $\rho$ is defined by
-$$
-\rho(t,x) := \left\lbrace \begin{matrix}
-0 &\textrm{ if } x \leq 0.3t \textrm{ and } t \leq 5/0.3\\
-0 &\textrm{ if } x \leq  5 + t - 2 \sqrt{5\times0.7t} \textrm{ and } t> 5/0.3\\
-\min \left( 0.7, \max \left( 0, \frac{1}{2} + \frac{5-x}{2t} \right) \right) & \textrm{ else,}
-\end{matrix}\right.
-$$
-and $\phi$ is defined by:
-$$
-\phi(t,(x,y)) := \int_x^{10} 1 + \rho_*(t,(z,y)) \d z.
-$$
-Then notice that $(\rho,\xi)$ is well defined and is an explicit solution to Hughes model.
-Notice also that, for any $(t,z) \in [0,T]\times \bar\Omega$, we have:
-$$V(t,x) = \left( \begin{matrix} 1 \\ 0 \end{matrix} \right).$$
-
-Then we compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ of the solution $(\rho,\phi)$ and the numerical density obtained using **Hughes2d** approximation scheme.
-As a comparison, we also compute the normalized $L^1$ difference $\mathbf{Diff}_{L^1}$ between the explicit density $\rho$ and
-- the numerical approximation to the scalar conservation law with the explicit vector vector field $V = (1,0)$;
-- the numerical approximation to the scalar conservation law with the gradient of the $\mathbf{FMTC}$ approximation of the solution to the eikonal equation when $c = 1$.
-
-![Normalized $L^1$ differences over time between the approximations and the density of an explicit solution.](docs/source/assets/CompareExplicit.png))
-
-
-It is interesting to notice that the **Hughes2d** approximation scheme gives a better approximation than the finite volume scheme computed with the explicit vector field $V = (1,0)$. We believe that this phenomenon (which can seem quite contradictory) occurs because, in the **Hughes2d** approximation scheme, the specific coupling of the finite volume scheme with $\mathbf{FMTC}$ tends to compensate for the numerical errors produced by the finite volume scheme alone. This specific coupling seems to induce a regularization of the density in the vertical direction $(0,1)$ (see [@Gir25] for a more detailled study of this conjecture).
 
 # Examples
 
@@ -213,6 +175,6 @@ In this simulation, we can observe the following distinctive features of Hughes'
 
 
 # Acknowledgements
-
+This research was partially funded by l’Agence Nationale de la Recherche (ANR), project ANR-22-CE40-0010 COSS.
 
 # References
