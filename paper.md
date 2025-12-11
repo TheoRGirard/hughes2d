@@ -35,8 +35,8 @@ We also hope that this package will help formulating conjectures in the future.
 
 The model consists in a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed **scalar conservation law** with discontinuous flux. The second is an **Eikonal equation** with discontinuous source term.
 
-> [!NOTE]
-> We defer to the introduction of Section 4.5.1 of [@Gir25] for the presentation of the numerical schemes used in the present package.
+
+* **Remark:** We defer to the introduction of Section 4.5.1 of [@Gir25] for the presentation of the numerical schemes used in the present package.*
 
 ## The scalar conservation law
 
@@ -109,8 +109,7 @@ $$
  \end{matrix}\right.
 $$
 
->[!NOTE]
- Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
+* **Remark:** Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.*
 
 For a deep overview of the mathematical results regarding Hughes' model we defer to [@survey].
 
