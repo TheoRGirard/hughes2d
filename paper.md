@@ -1,5 +1,5 @@
 ---
-title: "Hughes2d: approximating solutions of the Hughes'model"
+title: "Hughes2d: approximating solutions of Hughes' model"
 tags:
   - python
   - non-linear discontinuous PDE
@@ -151,15 +151,11 @@ $$
     \bar\Omega := [-2,0]\times [3,4] \cup [0,10]\times [0,7] \cup [10,12] \times [3,4],
     $$
     $$
-    \mathcal{E} := \lbrace -2\rbrace \times [3,4] \cup \lbrace 12\rbrace \times [3,4],
-    $$
-    $$
+    \mathcal{E} := \lbrace -2\rbrace \times [3,4] \cup \lbrace 12\rbrace \times [3,4], \;\;
   \mathcal{W} := \partial \Omega \setminus \mathcal{E},
   $$
   $$
-    \rho_0(x) := 0.7\times \mathbb{1}_{B((7,2.5),2.4)},
-    $$
-    $$
+    \rho_0(x) := 0.7\times \mathbb{1}_{B((7,2.5),2.4)}, \; \;
     c(\rho) = 1 +5\rho.
 $$
  We also mention that many videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations).
