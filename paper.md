@@ -172,6 +172,6 @@ In this simulation, we can observe the following distinctive features of Hughes'
 
 
 # Acknowledgements
-This research was partially funded by l’Agence Nationale de la Recherche (ANR), project ANR-22-CE40-0010 COSS.
+This research was partially funded by l’Agence Nationale de la Recherche (ANR), project ANR-22-CE40-0010 COSS. I want to thank deeply Vincent Perrollaz for motivating me to publish this software and for acting as a beta tester. I also want to thank Carine Lucas for counseling me about open-source licences and standards.
 
 # References
