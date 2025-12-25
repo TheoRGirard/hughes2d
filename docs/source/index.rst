@@ -13,6 +13,24 @@ Check out the :doc:`reference` for a complete reference of the classes and metho
 
    This project is under active development.
 
+Citation 
+---------
+
+You can cite the **Hughes2d** package using:
+
+.. code-block:: bibtex
+
+  @software{hughes2d,
+  author = {Théo Girard},
+  title = {Hughes2d: approximating solutions of Hughes' model},
+  journal = {(submitted)},
+  year = {2025},
+  }
+
+which produces the output:
+
+  **T. Girard**, *Hughes2d: approximating solutions of Hughes' model*, submitted (2025).
+
 Contents
 --------
 

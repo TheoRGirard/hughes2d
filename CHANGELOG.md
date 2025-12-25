@@ -1,10 +1,15 @@
 # Change log
 
+## [1.1.1] - (25/12/2025)
+
+- Adding AUTHORS, LICENCE files
+- Adding "Citation" section in both documentation and README
+
 ## [1.1.0] - (04/12/2025)
 
 - Paper.md now detail both the models and numerical schemes.
 - The README.md and documentation usage.rst now present how to create a simple domain, mesh and how to run simple simulations.
-- python version (>=3.10) --> (>=3.11) because of the use of **typing.Self** for type hint of special methods *__add__* and *__mult__* of CellValueMap and VertexValueMap objects. 
+- python version (>=3.10) --> (>=3.11) because of the use of **typing.Self** for type hint of special methods *__add__* and *__mult__* of CellValueMap and VertexValueMap objects.
 
 ## [1.0.0] - (27/10/2025)
 

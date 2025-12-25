@@ -143,7 +143,7 @@ Domain1.add_exit(Exit1) #One at a time
 Domain1.add_exits([Exit2,Exit3]) #Or multiple
 ```
 
-Then we can visualize the domain using 
+Then we can visualize the domain using
 ```python
 Domain1.show()
 ```
@@ -155,7 +155,7 @@ Domain1.show(preference="matplotlib")
 
 ### Generating a mesh
 
-If you have defined a *NonConvexDomain* object, you can simply generate a *Mesh* using the domain. 
+If you have defined a *NonConvexDomain* object, you can simply generate a *Mesh* using the domain.
 Here is an example:
 
 ```python
@@ -270,6 +270,24 @@ We detail here the different options available in the **opt** dictionary passed 
             "NarrowBandDepth" : 2, #(int) thickness (in number of neighbouring degree) of the narrow band.
             },
 ```
+
+## Citation
+
+
+You can cite the **Hughes2d** package using the following bibtex entry:
+
+```bibtex
+@software{hughes2d,
+author = {Théo Girard},
+title = {Hughes2d: approximating solutions of Hughes' model},
+journal = {(submitted)},
+year = {2025},
+}
+```
+
+which produces the output:
+
+  **T. Girard**, *Hughes2d: approximating solutions of Hughes' model*, submitted (2025).
 
 ## Licence
 
