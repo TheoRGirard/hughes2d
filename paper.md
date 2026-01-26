@@ -108,17 +108,18 @@ $$
 
 ![Simple Hughes simulation](docs/source/assets/demo.png)
 
+In the above simulation, we can observe what seems to be distinctive features of Hughes' model.
+
+- **Repartition of the agents between the different exits.** Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit.
+
+- **Geometry of the congestion figures.** Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation.
+
+- **Regularization of the density in time.** Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. This regularization in time could be a key property in order to give a mathematical proof of existence of a solution.
+
 # Research impact statement
 
-On a mathematical point of view, the simulation of Hughes' model suggests that there indeed exist solutions to this problem (a mathematical fact that is not proven at the moment). In the above simulation, we can observe what seems to be distinctive features of Hughes' model.
-
-- **Repartition of the agents between the different exits.** Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$).
-
-- **Geometry of the congestion figures.** Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation. In [@Gir25], we try to give a more rigorous definition of this phenomenon and measure the influence of the initial datum on the large time density profiles.
-
-- **Regularization of the density in time.** Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
-
-Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
+On a mathematical point of view, the simulation of Hughes' model suggests that there indeed exist solutions to this problem (a mathematical fact that is not proven at the moment).
+Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)). 
 
 # AI usage disclosure
 
