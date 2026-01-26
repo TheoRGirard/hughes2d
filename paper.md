@@ -12,7 +12,7 @@ authors:
     orcid: 0000-0002-9382-6746
     affiliation: 1
 affiliations:
-  - name: Institut Denis Poisson, Université de Tours
+  - name: Institut Denis Poisson, Université de Tours, France
     index: 1
 date: 02 december 2025
 bibliography: paper.bib
@@ -57,25 +57,10 @@ A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{ma
 ## The Eikonal equation
 
 The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (this assumption is quite controversial).
-Let $x \in \Omega$. For any $\alpha(\cdot) \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1)$, we say that $X^\alpha_x(\cdot)$ is a trajectory controlled by $\alpha$ starting at $x$ if $X$ is a solution to the Cauchy problem:
+Then, for any $x \in \Omega$, we define the value function by
 
-
-$$
- \left\lbrace \begin{matrix}
- \dot{X}^\alpha_x(s) = \alpha(s)v(\rho(t,X^\alpha_x(s))) \\
- X^\alpha_x(0) = x
- \end{matrix}\right.
- $$
-
-For any $x \in \Omega$, we denote by $\mathcal{A}_x = \lbrace X^\alpha_x, \alpha \in \mathcal{C}^1((0,+\infty),\mathcal{S}_1) \rbrace$ the set of all controlled trajectories starting at $x$. We define $\phi(x)$ as the minimal exit time starting at location $x$, that is to say:
-
-
-$$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t)) \textrm{d} t.$$
-
-In Hughes' model, we also take into account the discomfort caused by being surrounded by a high density crowd. In order to model this discomfort, we introduce an increasing function $g(\rho)$ with respect to the density $\rho$. The function $g(\rho)$ can be interpreted as a running cost we are paying along a trajectory $X$ for being in high density regions. Then, the previous equation becomes:
-
-
-$$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \textrm{d} t.$$
+$$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \textrm{d} t,$$
+where $A_x$ denotes the set of admissible trajectories and $g$ is an increasing function modeling the discomfort of a agent standing in a high density region.
 
 A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman (HJB) equations is that
 solving the optimal control problem above is in fact equivalent to solving the Eikonal equation:
@@ -115,34 +100,11 @@ $$
 
 For a deep overview of the mathematical results regarding Hughes' model we defer to [@survey].
 
+> **Remark:** We also included a numerical scheme for different models in the Hughes2d package such as the model of Colombo-Garavello-Lécureux-Mercier (see [@CGLM11]) but for conciseness' sake, we only present the Hughes model.
 
-## Model of Colombo-Garavello-Lécureux-Mercier
+# Software design
 
-In [@CGLM11], the authors introduced an alternative model for pedestrian flows.
-
-In this model, the agents chose the shortest path to the exits without taking the density into account. This corresponds to the Eikonal equation with constant source term:
-
-
-$$
- |\nabla u (x)| = 1.$$
-
-Then the vector field prescribing the direction of the agents $\vec{V}(x)$ is a combination between the direction of the shortest path $\frac{-\nabla u}{|\nabla u|}$ and a non-local deviation operator $\mathcal{I}[\rho](x)$.
-In [@CGLM11], the authors propose the a definition for the non-local operator: let $\eta_r(\cdot)$ be a mollifier compactly supported in the ball of radius $r > 0$; then we define:
-
-$$ \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}.$$
-
-In the present package, we denote by the Colombo-Garavello-Lecureux-Mercier model the following (slightly modified) system:
-
-
-$$\left\lbrace \begin{matrix}
- \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0 \\
- |\nabla \phi (t,x) | = 1 \\
- \vec{\nu}(x) = - \frac{\nabla \phi}{|\nabla \phi|} \\
- \mathcal{I}[\rho](x) = - \epsilon \frac{\nabla \rho * \eta_r}{\sqrt{1+|\nabla \rho * \eta_r|^2}}\\
- \vec{V}(t,x) = \frac{ \vec{\nu}(x) + \mathcal{I}[\rho](x) }{| \vec{\nu}(x) + \mathcal{I}[\rho](x) |}
- \end{matrix}\right.$$
-
-This model is also featured in the present python package.
+The `hughes2d` package provides an easy way to produce simulation of macroscopic pedestrian models without having to learn the mathematical theory related to the PDEs involved in the models. Indeed a particular attention must be dedicated to the choice of numerical schemes for the PDEs involved in Hughes' model (i.e. an adapted finite volume scheme for discontinuous scalar conservation law and a fast marching algorithm for the eikonal equation). Additionnaly, most of the prototypes of code produced by mathematicians work only on square meshes. Here we chose to provide a numerical scheme working on a triangular grid in order which is much more flexible towards applications.
 
 # Examples
 
@@ -162,13 +124,22 @@ $$
 
 ![Simple Hughes simulation](docs/source/assets/demo.png)
 
+# Research impact statement
 
-In this simulation, we can observe the following distinctive features of Hughes' model.
+On a mathematical point of view, the simulation of Hughes' model suggests that there indeed exist solutions to this problem (a mathematical fact that is not proven at the moment). In the above simulation, we can observe what seems to be distinctive features of Hughes' model.
 
-- **Repartition of the agents between the different exits.** Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$). In the 1D case, this phenomenon corresponds to the $\xi(t)$ turning curve crossing a region in space where $\rho(t,\xi(t)) \neq 0$.
+- **Repartition of the agents between the different exits.** Notice that after the time $t=10s$ the agents seem to be separated in two different groups, one for each exit. The repartition of agents was already featured in the one-dimensional Hughes' model (see [@survey],[@Gir25]). As in the 1D case, we can observe the "overtaking of the turning curve" phenomenon. More precisely, we can see that some agents that were moving towards the left before a given point in time $t=\tau$ and move towards the right for $t > \tau$ (see for example at time $t=4s$).
 
 - **Geometry of the congestion figures.** Notice that after $t=15s$ the density profiles don't seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation. In [@Gir25], we try to give a more rigorous definition of this phenomenon and measure the influence of the initial datum on the large time density profiles.
+
 - **Regularization of the density in time.** Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
+
+Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see ![BOUM project](https://conferences.cirm-math.fr/3512.html)).
+
+# AI usage disclosure
+
+No generative AI tools were used in the development of this software, the writing
+of this manuscript, or the preparation of supporting materials.
 
 
 # Acknowledgements
