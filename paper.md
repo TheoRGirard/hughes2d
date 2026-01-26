@@ -134,7 +134,7 @@ On a mathematical point of view, the simulation of Hughes' model suggests that t
 
 - **Regularization of the density in time.** Starting at $t=1s$, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. In fact, it seems that, apart from the shocks that appeared in the interior of the $B((7,2.5),2.4)$, the density is continuous in space. We conjecture that the specific coupling of the scalar conservation law with the eikonal equation induces a kind of regularity of the density that is not to be expected of solution to the scalar conservation law for an abritrary vector field $V$.
 
-Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see ![BOUM project](https://conferences.cirm-math.fr/3512.html)).
+Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
 
 # AI usage disclosure
 
