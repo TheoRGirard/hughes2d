@@ -27,6 +27,8 @@ bibliography: paper.bib
 
 The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([@vadere],[@JuPedSim],[@UMANS],[@Cromosim],[@CrowdWalk]) or not (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available softwares. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
 
+# State of the field
+
 The Hughes model has been thoroughly studied during the last two decades (see [@survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [@Goatin2014]) but in a slightly modified context. The present package should provide a reliable and open-source solution to approximate the behavior of Hughes' model.
 We also hope that this package will help formulating conjectures in the future.
 
@@ -41,27 +43,16 @@ The model consists in a system of two equations set on a bounded domain $\Omega 
 ## The scalar conservation law
 
 The first equation models the flow of a density $\rho$. To be more precise  $\rho(t,x)$ represents the density of pedestrian at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{max} >0$. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
-Then, if we write the conservation of the mass on pedestrian on each subdomain of $\Omega$, we end up with the following scalar conservation law:
-
-
-$$ \partial_t \rho + \mathbf{div}(\vec{V}(t,x) v(t,x) \rho(t,x)) = 0.$$
-
-In Hughes' model, we assume that the speed of agents $v(t,x)$ at time $t$ and location $x$ only depends on the density $\rho(t,x)$ and that this speed is decreasing with respect to the density.
-Then, in the following we will denote the speed by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{max}]$ such that
-
-
+We chose the speed of agents given by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{max}]$ such that
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{max})= 0.$$
-
 A classical example of such a speed function is $v(\rho) = v_{max}\frac{\rho_{max}-\rho}{\rho_{max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows (see [@LW55], [@Ric56]).
 
 ## The Eikonal equation
 
 The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (this assumption is quite controversial).
 Then, for any $x \in \Omega$, we define the value function by
-
 $$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \textrm{d} t,$$
 where $A_x$ denotes the set of admissible trajectories and $g$ is an increasing function modeling the discomfort of a agent standing in a high density region.
-
 A very classical result of the theory of viscosity solution for Hamilton-Jacobi-Bellman (HJB) equations is that
 solving the optimal control problem above is in fact equivalent to solving the Eikonal equation:
 
@@ -73,17 +64,11 @@ $$
  \end{matrix}\right.
  $$
 
-We now claim that the direction field $\vec{V}(t,x)$ should be the unitary descending gradient of $\phi$.
-If we suppose that there exists $X^\star_x$ an optimal trajectory,
-i.e. $\phi(x) = \int_0^{+\infty} \mathbb{1}_\Omega(X^\star_x(t))g(\rho(X^\star_x(t)))\textrm{d} t$, then we have
-
-
-$$ \vec{V}(t,x) = \dot{X}^\star_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
-
 ## The Hughes model definition
 
+We define the direction field $\vec{V}(t,x)$ by chosing the unitary descending gradient of $\phi$.
+$$ \vec{V}(t,x) = \dot{X}^\star_x(0) = -\frac{\nabla \phi(x)}{|\nabla \phi(x)|}.$$
 Then the complete Hughes' model introduced in [@Hug02] was the following:
-
 
 $$
  \left\lbrace \begin{matrix}
@@ -93,7 +78,6 @@ $$
  \phi(t,x) = 0 && x \in \partial\Omega.
  \end{matrix}\right.
 $$
-
 
 > **Remark:** Here, we chose to present the Hughes' model without any wall around or inside the domain for consiness' sake. Keep in mind that for a domain with walls and exits, both equations should be solved with mixed boundary condition i.e. Neumann non-crossing conditions on the walls and Dirichlet free-exit boundary conditions on the exits.
 
