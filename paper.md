@@ -23,14 +23,20 @@ bibliography: paper.bib
 `hughes2d` is an open-source python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of Hughes' model introduced in [@Hug02] (and other related models). The Hughes model is a macroscopic model -there is no agents here, the crowd is represented by a density function- coupling two non-linear partial differential equations.
 
 
-# Statement of need
+# State of the field
 
 The mathematical modeling of pedestrian crowd is a rapidly developping topic since a few decades. There exist multiple software for simulation crowds of pedestrians both open source ([@vadere],[@JuPedSim],[@UMANS],[@Cromosim],[@CrowdWalk]) or not (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available softwares. However, up to our knowledge, all these softwares deal with microscopic simulations. We propose here a python package for macroscopic simulations of pedestrian evacuations, specifically for Hughes' model which is one of the most famous macroscopic pedestrian flow models.
 
-# State of the field
+
+# Statement of need
 
 The Hughes model has been thoroughly studied during the last two decades (see [@survey]) but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. Some simulations appear in a few papers (see [@Goatin2014]) but in a slightly modified context. The present package should provide a reliable and open-source solution to approximate the behavior of Hughes' model.
 We also hope that this package will help formulating conjectures in the future.
+
+
+# Software design
+
+The `hughes2d` package provides an easy way to produce simulation of macroscopic pedestrian models without having to learn the mathematical theory related to the PDEs involved in the models. Indeed a particular attention must be dedicated to the choice of numerical schemes for the PDEs involved in Hughes' model (i.e. an adapted finite volume scheme for discontinuous scalar conservation law and a fast marching algorithm for the eikonal equation). Additionnaly, most of the prototypes of code produced by mathematicians work only on square meshes. Here we chose to provide a numerical scheme working on a triangular grid in order which is much more flexible towards applications.
 
 
 # Mathematical introduction to Hughes' model
@@ -86,9 +92,6 @@ For a deep overview of the mathematical results regarding Hughes' model we defer
 
 > **Remark:** We also included a numerical scheme for different models in the Hughes2d package such as the model of Colombo-Garavello-Lécureux-Mercier (see [@CGLM11]) but for conciseness' sake, we only present the Hughes model.
 
-# Software design
-
-The `hughes2d` package provides an easy way to produce simulation of macroscopic pedestrian models without having to learn the mathematical theory related to the PDEs involved in the models. Indeed a particular attention must be dedicated to the choice of numerical schemes for the PDEs involved in Hughes' model (i.e. an adapted finite volume scheme for discontinuous scalar conservation law and a fast marching algorithm for the eikonal equation). Additionnaly, most of the prototypes of code produced by mathematicians work only on square meshes. Here we chose to provide a numerical scheme working on a triangular grid in order which is much more flexible towards applications.
 
 # Examples
 
@@ -119,7 +122,7 @@ In the above simulation, we can observe what seems to be distinctive features of
 # Research impact statement
 
 On a mathematical point of view, the simulation of Hughes' model suggests that there indeed exist solutions to this problem (a mathematical fact that is not proven at the moment).
-Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)). 
+Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation of `Hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
 
 # AI usage disclosure
 
