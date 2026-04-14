@@ -19,7 +19,7 @@ import csv
 import json
 import multiprocessing
 from collections.abc import Callable
-from datetime import datetime
+import datetime
 from pathlib import Path
 
 import numpy as np
@@ -203,7 +203,7 @@ class PedestrianSolver:
 
         if("filename" not in self.options):
             self.options["filename"] = ("Save"
-                                        +str(datetime.utcnow().date()))
+                                        +str(datetime.datetime.now(datetime.UTC)))
 
         if("additional_computations" not in self.options):
             self.options["additional_computations"] = {}

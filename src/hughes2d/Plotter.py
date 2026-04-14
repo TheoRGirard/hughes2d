@@ -107,7 +107,7 @@ def convert_to_mp4(filename:str, limits:list[list[float]] = EMPTY_LIST, dpi_set:
     ani.save(filename+".mp4", writer = ff_writer, dpi=dpi_set)
 
 
-def save_time_slices(times:list[float], filename:str, slicename:str, limits:list[list[float]] = EMPTY_LIST, dpi_set:int = 300, pic_size: tuple[int,int] = (8,6), *, plot_scale:bool = True) -> None:
+def save_time_slices(times:list[float], filename:str, slicename:str, limits:list[list[float]] = EMPTY_LIST, dpi_set:int = 300, pic_size: tuple[int,int] = (8,6), format:str = "svg", *, plot_scale:bool = True) -> None:
     """Export an image file from the data files of a simulation for each time slice required in the ``times`` parameter.
 
     Args:
@@ -119,6 +119,7 @@ def save_time_slices(times:list[float], filename:str, slicename:str, limits:list
             [[x_min,x_max],[y_min,y_max]].
         dpi_set (int): resolution of the video as dots per inches (dpi)
         pic_size (tuple[int,int], optional): size of the picture as (width,height)
+        format (str, optional): the output extension as a string.
         plot_scale (bool, keyword-only): toggles the plot of a color scale for
             the density.
 
@@ -166,7 +167,7 @@ def save_time_slices(times:list[float], filename:str, slicename:str, limits:list
             ax.set_title("t = "+str(t)+"s")
             if plot_scale:
                 fig.colorbar(rgcol, ax=ax, label="density")
-            plt.savefig(slicename + str(t) +"s.png", dpi=dpi_set)
+            plt.savefig(slicename + str(t) +"s." + format, format=format, dpi=dpi_set)
         else:
             print("Warning: time slice ", t,
                   " ignored because the simulation is too short.")

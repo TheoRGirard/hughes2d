@@ -1,6 +1,6 @@
 [project]
 name = "hughes2d"
-version = "1.1"
+version = "1.1.2"
 description = "A python package for simulating macroscopic pedestrian evacuations."
 readme = "README.md"
 authors = [

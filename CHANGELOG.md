@@ -1,5 +1,11 @@
 # Change log
 
+## [1.1.2] - (14/04/2026)
+
+- Fixing example 08/time-slices
+- Fixing the warning due to the use of the deprecated datetime.utcnow() in the default filenames
+- The default file format for pictures is now svg instead of png in save_time_slices()
+
 ## [1.1.1] - (25/12/2025)
 
 - Adding AUTHORS, LICENCE files

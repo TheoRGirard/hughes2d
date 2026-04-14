@@ -2,11 +2,11 @@ import sys
 from pathlib import Path
 
 project = 'hughes2d'
-copyright = '2025, Girard'
+copyright = '2025-2026, Girard'
 author = 'Girard Théo'
 
 release = '1.0'
-version = '1.1'
+version = '1.1.2'
 
 sys.path.insert(0, str(Path('..', '..', 'src').resolve()))
 
