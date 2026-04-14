@@ -274,12 +274,12 @@ We detail here the different options available in the **opt** dictionary passed 
 ## Citation
 
 
-You can cite the **Hughes2d** package using the following bibtex entry:
+You can cite the **hughes2d** package using the following bibtex entry:
 
 ```bibtex
 @software{hughes2d,
 author = {Théo Girard},
-title = {Hughes2d: approximating solutions of Hughes' model},
+title = {hughes2d: approximating solutions of Hughes' model},
 journal = {(submitted)},
 year = {2025},
 }
@@ -287,20 +287,20 @@ year = {2025},
 
 which produces the output:
 
-  **T. Girard**, *Hughes2d: approximating solutions of Hughes' model*, submitted (2025).
+  **T. Girard**, *hughes2d: approximating solutions of Hughes' model*, submitted (2025).
 
 ## Licence
 
-The Hughes2d package is free software: you can redistribute it and/or modify it under
+The hughes2d package is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later version.
 
-The Hughes2d package is distributed in the hope that it will be useful, but WITHOUT ANY
+The hughes2d package is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with the
-Hughes2d package. If not, see <https://www.gnu.org/licenses/>.
+hughes2d package. If not, see <https://www.gnu.org/licenses/>.
 
 ## Contact
 
