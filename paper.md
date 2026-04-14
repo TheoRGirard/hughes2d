@@ -48,7 +48,7 @@ The model consists of a system of two equations set on a bounded domain $\Omega 
 
 ## The scalar conservation law
 
-The first equation models the flow of a density $\rho(t,x)$ representing the density of pedestrians at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{\max} >0$. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
+The first equation models the flow of a density $\rho(t,x)$ representing the density of pedestrians at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{\max} >0$. In order to describe the model, we use the underlying microscopic problem as heuristics. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
 We chose the speed of agents given by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{\max}]$ such that
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{\max})= 0.$$
 A classical example of such a speed function is $v(\rho) = v_{\max}\frac{\rho_{\max}-\rho}{\rho_{\max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows [see @LW55;@Ric56].
@@ -58,7 +58,7 @@ A classical example of such a speed function is $v(\rho) = v_{\max}\frac{\rho_{\
 The second equation of the model characterizes the unitary direction field $\vec{V}(t,x)$ depending on the density $\rho$ in the whole domain. We assume that the pedestrians want to minimize their exit time while also trying to avoid high density regions. In order to model this situation, we use an optimal control problem. We suppose that the density $\rho(\cdot) \in \mathcal{C}^1(\bar \Omega)$ stays constant in time (this assumption is quite controversial).
 Then, for any $x \in \Omega$, we define the value function by
 $$ \phi(x) = \inf_{X \in \mathcal{A}_x} \int_0^{+\infty} \mathbb{1}_{\Omega}(X(t))g(\rho(X(t))) \textrm{d} t,$$
-where $A_x$ denotes the set of admissible trajectories and $g$ is an increasing function modeling the discomfort of a agent standing in a high density region.
+where $A_x$ denotes the set of admissible trajectories and $g$ is an increasing function modeling the discomfort of an agent standing in a high density region.
 A very classical result of the theory of viscosity solution for the Hamilton-Jacobi-Bellman (HJB) equations is that
 solving the optimal control problem above is in fact equivalent to solving the eikonal equation:
 
@@ -113,7 +113,7 @@ Videos corresponding to various numerical experiments (including this one) are a
 
 In the above simulation, the following distinctive features of the Hughes model can be observed:
 
-- **Repartition of the agents between the different exits.** Notice that after the time $t=10$s, the agents seem to be separated in two different groups, one for each exit.
+- **Repartition of the density between the different exits.** Notice that after the time $t=10$s, the total density of pedestrian appears to be separated in two different groups, one for each exit.
 
 - **Geometry of the congestion figures.** Notice that after $t=15$s, the density profiles do not seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation.
 
