@@ -29,12 +29,16 @@ msh-files = []
 file-import = []
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=80", "setuptools-scm[simple]>=9.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "src/hughes2d/_version.py"
 
 [dependency-groups]
 dev = [
     "coverage>=7.8.2",
     "pytest>=8.3.4",
     "pytest-cov>=6.1.1",
+    "setuptools-scm>=10.0.5",
 ]
