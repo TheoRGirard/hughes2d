@@ -41,8 +41,8 @@ jobs:
         
     - name: Test with pytest and generate coverage bade
       run: |
-        uv run -m pytest --cov-report=  --cov
         #temporary fix since coverage-badge depends on pkg_resource that is no longer included in setuptools >= 82.0.0
+        uv run -m pytest --cov-report=  --cov --with 'setuptools<82.0.0'
         uv run coverage-badge -o coverage.svg --with 'setuptools<82.0.0'
 
     - name: Run Coverage
