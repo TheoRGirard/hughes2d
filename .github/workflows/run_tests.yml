@@ -27,7 +27,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install uv
-        if: steps.check_release.outputs.already_released == 'false'
         uses: astral-sh/setup-uv@v7
 
     - name: Install dependencies without extras
