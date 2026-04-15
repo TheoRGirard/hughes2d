@@ -1,0 +1,94 @@
+#Based on the auto-release action of pyjanitor: https://github.com/pyjanitor-devs/pyjanitor/blob/dev/.github/workflows/auto-release.yml
+
+name: Auto-versioning
+
+on:
+  # Manual release for minor/major versions.
+  # To cut a new release, navigate to the Actions section of the repo
+  # and select this workflow (Auto-release) on the right hand side.
+  # Then, click "Run workflow" and select major, minor, or patch.
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "One of major, minor, or patch"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      change_log_note:
+        description: "The changelog entry for the version"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  version:
+    name: Create a new version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.13
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set version name
+        run: echo "VERSION_NAME=${{ github.event.inputs.version_name }}" >> $GITHUB_ENV
+
+      - name: Dry run uv version bump
+        run: uv version --bump ${{ env.VERSION_NAME }} --dry-run --short
+
+      - name: Store new version number
+        run: echo "version_number=$(uv version --bump ${{ env.VERSION_NAME }} --dry-run --short | tr -d ' \n')" >> $GITHUB_ENV
+
+      - name: Display new version number
+        run: |
+          echo "version_name: ${{ env.VERSION_NAME }}"
+          echo "version_number: v${{ env.version_number }}"
+
+      - name: Ensure repo status is clean
+        run: git status
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Run uv version bump
+        run: uv version --bump ${{ env.VERSION_NAME }} --frozen
+
+      - name: Update CHANGELOG
+        run: sed -i "1s;^;\n## [${{ env.version_number }}] - ($(date +'%d/%m/%Y'))\n\n${{ github.event.inputs.change_log_note }};" CHANGELOG.md
+
+      - name: Update doc
+        run: sed -i "s|version = .*|version = '${{ env.version_number }}'|" docs/source/conf.py
+
+      - name: Update __init__.py
+        run: sed -i "s|__version__ = .*|__version__ = '${{ env.version_number }}'|" src/hughes2d/__init__.py
+        
+      - name: Commit version bump and create tag
+        run: |
+          git add pyproject.toml CHANGELOG.md docs/source/conf.py src/hughes2d/__init__.py
+          git commit -m "Bump version to ${{ env.version_number }}"
+          git tag v${{ env.version_number }}
+
+      - name: Ensure tag creation
+        run: git tag | grep ${{ env.version_number }}
+
+      - name: Push changes with tags
+        run: |
+          git push && git push --tags
+
+      - name: Ensure complete
+        run: echo "Auto-versioning complete!"
