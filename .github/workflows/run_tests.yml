@@ -1,0 +1,52 @@
+# This workflow will install Python dependencies, run tests and generate a coverage badge with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# And for example of an integration with uv see: https://github.com/pyjanitor-devs/pyjanitor/tree/dev/.github/workflows
+
+name: Python package
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+        if: steps.check_release.outputs.already_released == 'false'
+        uses: astral-sh/setup-uv@v7
+
+    - name: Install dependencies without extras
+      run: |
+        uv sync
+        uv add pytest pytest-cov coverage-badge coveralls
+        
+    - name: Test with pytest and generate coverage bade
+      run: |
+        uv run -m pytest --cov-report=  --cov
+        #temporary fix since coverage-badge depends on pkg_resource that is no longer included in setuptools >= 82.0.0
+        uv run coverage-badge -o coverage.svg --with 'setuptools<82.0.0'
+
+    - name: Run Coverage
+      run: |
+        uv run -m coverage run -m pytest
+        
+    - name: Run coveralls
+      run: coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
