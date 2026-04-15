@@ -37,15 +37,20 @@ jobs:
     - name: Install dependencies without extras
       run: |
         uv sync
-        uv add pytest pytest-cov coverage-badge
+        uv add pytest
         
-    - name: Test with pytest and generate .coverage
+    - name: Test with pytest
       run: |
+        uv run -m pytest
+
+    - name: Test with all extras and generate .coverage
+      run: |
+        uv sync --all-extras
         uv run coverage run -m pytest
 
-    - name: Run coverage-badge
+    - name: Run coveralls
       run: |
-        #temporary fix since coverage-badge depends on pkg_resource that is no longer included in setuptools >= 82.0.0
-        uv run --with 'setuptools<82.0.0' coverage-badge -o coverage.svg
+        uv run pip install coveralls
+        coveralls
         
         
