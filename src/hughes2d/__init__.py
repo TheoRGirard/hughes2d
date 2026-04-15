@@ -14,3 +14,5 @@ __all__ = [
         "Plotter",
         "VertexValueMap",
         ]
+
+__version__ = '1.1.2'
