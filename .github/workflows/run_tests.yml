@@ -10,6 +10,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
@@ -39,9 +42,18 @@ jobs:
         uv sync
         uv add pytest
         
-    - name: Test with pytest
+    - name: Test with pytest 
       run: |
         uv run -m pytest
+
+    - name: setup ffmpeg for matplotlib save testing
+      uses: FedericoCarboni/setup-ffmpeg@v3
+      id: setup-ffmpeg
+      with:
+        ffmpeg-version: release
+        architecture: ''
+        linking-type: static
+        github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
     - name: Test with all extras and generate .coverage
       run: |
