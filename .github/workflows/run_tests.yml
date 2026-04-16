@@ -42,18 +42,14 @@ jobs:
         uv sync
         uv add pytest
         
-    - name: Test with pytest 
+    - name: Test with pytest without extras
       run: |
-        uv run -m pytest
+        #This only test the import errors when extras are not installed
+        uv run -m pytest test/test_Mesh2D_squareDomain_plots.py test/test_run_examples.py
 
     - name: setup ffmpeg for matplotlib save testing
       uses: FedericoCarboni/setup-ffmpeg@v3
       id: setup-ffmpeg
-      with:
-        ffmpeg-version: release
-        architecture: ''
-        linking-type: static
-        github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
     - name: Test with all extras and generate .coverage
       run: |
