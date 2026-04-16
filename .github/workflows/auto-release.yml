@@ -64,7 +64,7 @@ jobs:
         if: steps.check_release.outputs.already_released == 'false'
         uses: ncipollo/release-action@v1
         with:
-          bodyFile: "docs/releases/v${{ env.version_number }}.md"
+          generateReleaseNotes: true
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: v${{ env.version_number }}
 
