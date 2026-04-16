@@ -1,11 +1,6 @@
 [project]
 name = "hughes2d"
-<<<<<<< HEAD
 version = "1.1.3"
-=======
-version = "1.1.2"
-#dynamic = ["version"]
->>>>>>> 90db695 (Deleting wrong integration of setuptools_scm)
 description = "A python package for simulating macroscopic pedestrian evacuations."
 readme = "README.md"
 authors = [
@@ -32,10 +27,6 @@ file-formats = [
 ]
 msh-files = []
 file-import = []
-
-[build-system]
-requires = ["setuptools>=80", "setuptools-scm[simple]>=9.2"]
-build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
