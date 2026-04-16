@@ -15,4 +15,4 @@ __all__ = [
         "VertexValueMap",
         ]
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'

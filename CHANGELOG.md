@@ -1,4 +1,7 @@
 
+## [1.1.3] - (16/04/2026)
+
+- Setup of auto-versioning
 ## [1.1.2] - (14/04/2026)
 
 - Fixing example 08/time-slices
