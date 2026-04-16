@@ -1,7 +1,14 @@
+- Setup of auto-releasing workflow with publishing to pyPI
+- Fixing et reworking paper
+- Setup of pre-commit
+- Deleting requirements.txt
+- Reformatting pyproject
 
 ## [1.1.3] - (16/04/2026)
 
 - Setup of auto-versioning
+- Rewriting the testing workflow with uv instead of pip
+  
 ## [1.1.2] - (14/04/2026)
 
 - Fixing example 08/time-slices
