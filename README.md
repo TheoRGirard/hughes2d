@@ -14,7 +14,19 @@ Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
 Testing is done with pytest.
 
 ## Installation
-The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
+
+### Quick install
+The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). It is recommended to install the package with uv:
+```
+uv add hughes2d
+```
+It is also possible to install the package with pip:
+```
+pip install hughes2d
+```
+
+### Cloning the repo
+If uv is installed, you can clone and install the **hughes2d** package and its dependencies by typing:
 ```
 git clone --depth 1 https://github.com/TheoRGirard/hughes2d
 cd hughes2d
