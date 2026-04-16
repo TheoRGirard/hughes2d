@@ -2,6 +2,7 @@
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TheoRGirard/hughes2d/run_tests.yml?label=pytest)
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
+[![status](https://joss.theoj.org/papers/18c0ab4463fcfb4c1a0ebcbf69036acb/status.svg)](https://joss.theoj.org/papers/18c0ab4463fcfb4c1a0ebcbf69036acb)
 [![Coverage Status](https://coveralls.io/repos/github/TheoRGirard/hughes2d/badge.svg?branch=main)](https://coveralls.io/github/TheoRGirard/hughes2d?branch=main)
 
 
