@@ -107,9 +107,26 @@ $$
     \rho_0(x) := 0.7\times \mathbb{1}_{B((7,2.5),2.4)}, \; \;
     c(\rho) = 1 +5\rho.
 $$
-Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations).
+Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
 
-![Sample simulation using the Hughes model](docs/source/assets/demo.png)
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+  <div>
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_0s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_4s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_15s.svg)
+  </div>
+  <div>
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_1s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_7s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_20s.svg)
+  </div>
+  <div>
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_2s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_10s.svg)
+    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_25s.svg)
+  </div>
+</div>
+
 
 In the above simulation, the following distinctive features of the Hughes model can be observed:
 
