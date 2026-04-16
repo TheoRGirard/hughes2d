@@ -60,5 +60,7 @@ jobs:
       run: |
         uv run pip install coveralls
         coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
         
