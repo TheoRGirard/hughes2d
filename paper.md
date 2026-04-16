@@ -111,19 +111,19 @@ Videos corresponding to various numerical experiments (including this one) are a
 
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
   <div>
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_0s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_4s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_15s.svg)
+    <img src="docs/source/assets/demo/slice_0s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_4s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_15s.svg" alt="Sample simulation using the Hughes model">
   </div>
   <div>
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_1s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_7s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_20s.svg)
+    <img src="docs/source/assets/demo/slice_1s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_7s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_20s.svg" alt="Sample simulation using the Hughes model">
   </div>
   <div>
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_2s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_10s.svg)
-    ![Sample simulation using the Hughes model](docs/source/assets/demo/slice_25s.svg)
+    <img src="docs/source/assets/demo/slice_2s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_10s.svg" alt="Sample simulation using the Hughes model">
+    <img src="docs/source/assets/demo/slice_25s.svg" alt="Sample simulation using the Hughes model">
   </div>
 </div>
 
