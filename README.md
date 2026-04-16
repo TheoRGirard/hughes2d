@@ -1,6 +1,7 @@
 ![hughes2d logo](logo/logo.gif)
 
-[![Python package](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml/badge.svg)](https://github.com/TheoRGirard/hughes2d/actions/workflows/python-package.yml)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TheoRGirard/hughes2d/run_tests.yml?label=pytest)
+![Dynamic TOML Badge](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FTheoRGirard%2Fhughes2d%2Fblob%2Fmain%2Fpyproject.toml&query=%24%5Bproject%5D.version&label=version)
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
 [![Coverage Status](https://coveralls.io/repos/github/TheoRGirard/hughes2d/badge.svg?branch=main)](https://coveralls.io/github/TheoRGirard/hughes2d?branch=main)
 
