@@ -1,7 +1,6 @@
 ![hughes2d logo](logo/logo.gif)
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TheoRGirard/hughes2d/run_tests.yml?label=pytest)
-![Dynamic TOML Badge](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fgithub.com%2FTheoRGirard%2Fhughes2d%2Fblob%2Fmain%2Fpyproject.toml&query=%24%5Bproject%5D.version&label=version)
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
 [![Coverage Status](https://coveralls.io/repos/github/TheoRGirard/hughes2d/badge.svg?branch=main)](https://coveralls.io/github/TheoRGirard/hughes2d?branch=main)
 
@@ -11,6 +10,7 @@
 A numerical scheme to approximate the solutions of the Hughes model using a finite volume scheme for the scalar conservation law and a fast marching algorithm for the Eikonal equation.
 
 Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
+Testing is done with pytest.
 
 ## Installation
 The hughes2d package dependencies are managed using **uv** (see [uv](https://docs.astral.sh/uv/)). If uv is installed, you can install the **hughes2d** package and its dependencies by typing:
