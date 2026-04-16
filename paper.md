@@ -109,24 +109,7 @@ $$
 $$
 Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
 
-<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-  <div>
-    <img src="docs/source/assets/demo/slice_0s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_4s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_15s.svg" alt="Sample simulation using the Hughes model">
-  </div>
-  <div>
-    <img src="docs/source/assets/demo/slice_1s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_7s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_20s.svg" alt="Sample simulation using the Hughes model">
-  </div>
-  <div>
-    <img src="docs/source/assets/demo/slice_2s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_10s.svg" alt="Sample simulation using the Hughes model">
-    <img src="docs/source/assets/demo/slice_25s.svg" alt="Sample simulation using the Hughes model">
-  </div>
-</div>
-
+![Sample simulation using the Hughes model](docs/source/assets/demo/figure_v3.png)
 
 In the above simulation, the following distinctive features of the Hughes model can be observed:
 
