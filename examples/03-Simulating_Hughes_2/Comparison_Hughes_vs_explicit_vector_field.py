@@ -108,4 +108,4 @@ axs.set_title("L¹ difference with the explicit solution with |Δ| = "+str(dx)+"
 axs.set_xlabel("t")
 axs.legend()
 
-plt.savefig(Path(__file__).parent / "figs" / "CompareExplicit.png")
+plt.savefig(Path(__file__).parent / "CompareExplicit.png")
