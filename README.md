@@ -1,4 +1,4 @@
-![hughes2d logo](logo/logo.gif)
+![hughes2d logo](https://github.com/TheoRGirard/hughes2d/raw/refs/heads/main/logo/logo.gif)
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TheoRGirard/hughes2d/run_tests.yml?label=pytest)
 [![Read the Docs](https://img.shields.io/readthedocs/hughes2d)](https://hughes2d.readthedocs.io/en/latest/index.html)
