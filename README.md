@@ -55,18 +55,14 @@ You can also include all the extras:
 uv sync --all-extras
 ```
 
-### Without uv
-If you don't have uv installed, you can see a list of the dependencies in the _pyproject.toml_ file.
+### Using pip
 
-You can either install the dependencies with pip:
+To install the package from the cloned repo, without using `uv`, you can use `pip` and its editable mode:
 ```
 git clone https://github.com/TheoRGirard/hughes2d
 cd hughes2d
-pip install -r requirements.txt
-pip install -e
+pip install -e .
 ```
-
-or install the dependencies manually.
 
 ## Getting started
 You can find a file named _getting_started.py_ in /examples/00-getting_started. We rewrite below the content of this file.
