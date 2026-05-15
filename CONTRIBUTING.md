@@ -3,15 +3,6 @@
 Thanks for your interest and for taking contribution into consideration for the Hughes2d package !!!
 Below are a few information about how to contribute to this project.
 
-
-
-#### Table of contents
-* [Useful links and contact](#useful-links-and-contact)
-* [Setting up the environment](https://github.com/TheoRGirard/hughes2d/README.md)
-* [How to submit changes](#how-to-submit-changes)
-* [How to report a bug](#how-to-report-a-bug)
-
-
 ## Useful links and contact
 
 * [documentation](https://hughes2d.readthedocs.io/en/latest/index.html)
