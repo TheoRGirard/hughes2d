@@ -11,7 +11,8 @@
 A numerical scheme to approximate the solutions of the Hughes model using a finite volume scheme for the scalar conservation law and a fast marching algorithm for the Eikonal equation.
 
 Documentation: https://hughes2d.readthedocs.io/en/latest/index.html
-Testing is done with pytest.
+
+Testing is done with [pytest](https://docs.pytest.org/en/stable/), to execute the test suite, simply run `pytest` in the root of the package source folder.
 
 ## Installation
 
