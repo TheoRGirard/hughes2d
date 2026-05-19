@@ -20,6 +20,11 @@ dependencies = [ "numpy>=2.2.2", "triangle>=20250106" ]
   msh-files = [ ]
   file-import = [ ]
 
+  [project.urls]
+  Tracker = "https://github.com/TheoRGirard/hughes2d/issues"
+  Documentation = "https://hughes2d.readthedocs.io"
+  Source = "https://github.com/TheoRGirard/hughes2d"
+
 [build-system]
 requires = [ "hatchling" ]
 build-backend = "hatchling.build"
