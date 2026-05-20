@@ -109,15 +109,15 @@ $$
 $$
 Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
 
-![Sample simulation using the Hughes model](docs/source/assets/demo/figure_demo.pdf)
-
-In the above simulation, the following distinctive features of the Hughes model can be observed:
+In the simulation (see figure below), the following distinctive features of the Hughes model can be observed:
 
 - **Repartition of the density between the different exits.** Notice that after the time $t=10$s, the total density of pedestrian appears to be separated in two different groups, one for each exit.
 
 - **Geometry of the congestion figures.** Notice that after $t=15$s, the density profiles do not seem to evolve much. The room evacuates at a slow pace and the density profile for different times "look alike" until the end of the evacuation.
 
 - **Regularization of the density in time.** Starting at $t=1$s, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. This regularization in time could be a key property in order to give a mathematical proof of existence of a solution.
+
+![Sample simulation using the Hughes model](docs/source/assets/demo/figure_demo.pdf)
 
 # Research impact statement
 
