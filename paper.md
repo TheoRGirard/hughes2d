@@ -109,7 +109,7 @@ $$
 $$
 Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
 
-In the simulation (see figure below), the following distinctive features of the Hughes model can be observed:
+In the simulation (see Figure 1 below), the following distinctive features of the Hughes model can be observed:
 
 - **Repartition of the density between the different exits.** Notice that after the time $t=10$s, the total density of pedestrian appears to be separated in two different groups, one for each exit.
 
