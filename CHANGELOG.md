@@ -1,7 +1,11 @@
+- Modifications and update of instructions in README, CONTRIBUTING and links in pyproject
+- Fixing the docstring and tests for VertexValuedMap plot methods
+- Increasing fontsize in save_time_slices method
 
 ## [1.1.4] - (16/04/2026)
 
-- Incorporating the JOSS reviews and comments - Setup of auto-releasing workflow with publishing to pyPI
+- Incorporating the JOSS reviews and comments
+- Setup of auto-releasing workflow with publishing to pyPI
 - Fixing et reworking paper
 - Setup of pre-commit
 - Deleting requirements.txt
