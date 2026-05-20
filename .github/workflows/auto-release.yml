@@ -18,19 +18,31 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          
+      - name: Get Current Release
+        id: get_current_release
+        uses: joutvhu/get-release@v1
+        with:
+          latest: true
+          # Tag name start with `v`
+          pattern: '^v.*'
+          # Including pre-release
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if already released
         id: check_release
         run: |
           CURRENT_COMMIT=$(git rev-parse HEAD)
-          echo "Current commit: $CURRENT_COMMIT"
+          echo "Current release: ${{ steps.get_current_release.outputs.tag_name }}"
           if git tag --points-at $CURRENT_COMMIT | grep -q "^v"; then
             echo "already_released=true" >> $GITHUB_OUTPUT
-            echo "This commit already has a release tag. Will skip release."
+            echo "This commit already has a released tag. Will skip release."
             git tag --points-at $CURRENT_COMMIT
           else
             echo "already_released=false" >> $GITHUB_OUTPUT
-            echo "No release tag found. Proceeding with release."
+            echo "No release found. Proceeding with release."
           fi
 
       - name: Setup Python environment
