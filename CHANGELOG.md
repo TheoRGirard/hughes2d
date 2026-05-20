@@ -1,4 +1,7 @@
-- Modifications and update of instructions in README, CONTRIBUTING and links in pyproject
+
+## [1.1.5] - (20/05/2026)
+
+From the review process of JOSS:- Modifications and update of instructions in README, CONTRIBUTING and links in pyproject
 - Fixing the docstring and tests for VertexValuedMap plot methods
 - Increasing fontsize in save_time_slices method
 
