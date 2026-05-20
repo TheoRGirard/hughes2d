@@ -109,7 +109,7 @@ $$
 $$
 Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
 
-![Sample simulation using the Hughes model](docs/source/assets/demo/figure_v3.png)
+![Sample simulation using the Hughes model](docs/source/assets/demo/figure_demo.pdf)
 
 In the above simulation, the following distinctive features of the Hughes model can be observed:
 
