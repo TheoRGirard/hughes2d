@@ -48,7 +48,7 @@ The model consists of a system of two equations set on a bounded domain $\Omega 
 
 ## The scalar conservation law
 
-The first equation models the flow of a density $\rho(t,x)$ representing the density of pedestrians at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{\max} >0$. In order to describe the model, we use the underlying microscopic problem as heuristics. We assume that the pedestrian move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
+The first equation models the flow of a density $\rho(t,x)$ representing the density of pedestrians at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{\max} >0$. In order to describe the model, we use the underlying microscopic problem as heuristics. We assume that the pedestrians move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
 We chose the speed of agents given by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{\max}]$ such that
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{\max})= 0.$$
 A classical example of such a speed function is $v(\rho) = v_{\max}\frac{\rho_{\max}-\rho}{\rho_{\max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows [see @LW55;@Ric56].
@@ -123,7 +123,7 @@ In the simulation (see Figure 1 below), the following distinctive features of th
 
 On a mathematical point of view, the simulation using the Hughes model suggests that there indeed exist solutions to the problem (a mathematical fact that is not proven at the moment).
 Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation using `hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
-Eventually, part of the tools developed here for approximating Hughes model are not specific to the PDEs involved. Most of the codebase could be easily reused and incorporated in other macroscopic pedestrian crowd projects.
+Many of the tools developed here for approximating Hughes model are not specific to the PDEs involved. Most of the codebase could be easily reused and incorporated in other macroscopic pedestrian crowd projects.
 
 # AI usage disclosure
 
