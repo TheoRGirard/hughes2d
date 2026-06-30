@@ -25,12 +25,12 @@ bibliography: paper.bib
 
 # State of the field
 
-The mathematical modeling of pedestrian crowd is a rapidly developing topic since a few decades. There exist multiple software packages for simulating crowds of pedestrians -- both open source [@vadere;@JuPedSim;@UMANS;@Cromosim;@CrowdWalk]) and proprietary (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available packages. However, to the best of our knowledge, all these developments deal with microscopic simulations, meaning that a finite -potentially huge- number of particles are simulated. We propose here a Python package for macroscopic simulations of pedestrian evacuations, specifically for the seminal Hughes pedestrian flow model, where the crowd is modeled as a fluid density and not as a finite number of particles.
+The mathematical modeling of pedestrian crowd is a rapidly developing topic since a few decades. There exist multiple software packages for simulating crowds of pedestrians -- both open source [@vadere;@JuPedSim;@UMANS;@Cromosim;@CrowdWalk] and proprietary (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available packages. However, to the best of our knowledge, all these developments deal with microscopic simulations, meaning that a finite -potentially huge- number of particles are simulated. We propose here a Python package for macroscopic simulations of pedestrian evacuations, specifically for the seminal Hughes pedestrian flow model, where the crowd is modeled as a fluid density and not as a finite number of particles.
 
 
 # Statement of need
 
-The Hughes model has been thoroughly studied during the last two decades [see @survey], but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. While example numerical solutions to the Hughes model can be found in literature (e.g., [@Goatin2014]), these are not supported by a publicly available and reusable codebase. The present package is aimed at providing a reliable and open-source solution to approximate the behavior of the Hughes model.
+The Hughes model has been thoroughly studied during the last two decades [see @survey], but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. While example numerical solutions to the Hughes model can be found in literature [e.g., @Goatin2014], these are not supported by a publicly available and reusable codebase. The present package is aimed at providing a reliable and open-source solution to approximate the behavior of the Hughes model.
 We also hope that this package will help formulating conjectures in the future.
 
 
@@ -107,7 +107,7 @@ $$
     \rho_0(x) := 0.7\times \mathbb{1}_{B((7,2.5),2.4)}, \; \;
     c(\rho) = 1 +5\rho.
 $$
-Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) (see also [@videoGirardHughes26]).
+Videos corresponding to various numerical experiments (including this one) are available at [https://theorgirard.github.io/simulations](https://theorgirard.github.io/simulations) [see also @videoGirardHughes26].
 
 In the simulation (see Figure 1 below), the following distinctive features of the Hughes model can be observed:
 
