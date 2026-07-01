@@ -109,7 +109,7 @@ def convert_to_mp4(
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(values), interval=30)
 
     ff_writer = animation.FFMpegWriter(fps=25)
-    ani.save( filename + ".mp4", writer=ff_writer, dpi=dpi_set)
+    ani.save(filename + ".mp4", writer=ff_writer, dpi=dpi_set)
 
 
 def save_time_slices(
@@ -119,6 +119,7 @@ def save_time_slices(
     limits: list[list[float]] = EMPTY_LIST,
     dpi_set: int = 300,
     pic_size: tuple[int, int] = (8, 6),
+    ft_size: int = 10,
     format: str = "svg",
     *,
     plot_scale: bool = True,
@@ -134,6 +135,7 @@ def save_time_slices(
             [[x_min,x_max],[y_min,y_max]].
         dpi_set (int): resolution of the video as dots per inches (dpi)
         pic_size (tuple[int,int], optional): size of the picture as (width,height)
+        ft_size: (int, optional): fontsize for legends and labels,
         format (str, optional): the output extension as a string.
         plot_scale (bool, keyword-only): toggles the plot of a color scale for
             the density.
@@ -179,10 +181,13 @@ def save_time_slices(
                 plt.axis("equal")
 
             ax.add_collection(col)
-            ax.set_title("t = " + str(t) + "s", fontsize="xx-large")
+            ax.set_title("t = " + str(t) + "s", fontsize=ft_size)
+            ax.tick_params(axis="both", labelsize=ft_size)
             if plot_scale:
-                fig.colorbar(rgcol, ax=ax, label="density")
-            plt.savefig( slicename + str(t) + "s." + format, format=format, dpi=dpi_set)
+                cb = fig.colorbar(rgcol, ax=ax, label="density")
+                cb.set_label("density", size=ft_size)
+                cb.ax.tick_params(labelsize=ft_size)
+            plt.savefig(slicename + str(t) + "s." + format, format=format, dpi=dpi_set)
         else:
             print(
                 "Warning: time slice ",
