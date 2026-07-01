@@ -29,9 +29,6 @@ from hughes2d.EikonalSolver import EikoSolver
 from hughes2d.LWR2D import LWRSolver
 from hughes2d.Mesh2D import CellValueMap, Mesh, VertexValueMap
 
-if __name__ == "__main__":
-    threading.freeze_support()
-
 previous_thread_dens = object()
 previous_thread_vec = object()
 EMPTY_LIST = []
