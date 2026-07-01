@@ -1,3 +1,5 @@
+- Allowing temporarily the use of deprecated Node20 in the "Test with pytest" github action
+- Updating the figure and paper for JOSS
 - Making fontsize adjustable in save_time_slices
 - Switching from multiprocessing to multithreading
 
