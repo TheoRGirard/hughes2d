@@ -109,7 +109,7 @@ def convert_to_mp4(
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(values), interval=30)
 
     ff_writer = animation.FFMpegWriter(fps=25)
-    ani.save(str(Path(__file__).parent / filename) + ".mp4", writer=ff_writer, dpi=dpi_set)
+    ani.save( filename + ".mp4", writer=ff_writer, dpi=dpi_set)
 
 
 def save_time_slices(
@@ -182,7 +182,7 @@ def save_time_slices(
             ax.set_title("t = " + str(t) + "s", fontsize="xx-large")
             if plot_scale:
                 fig.colorbar(rgcol, ax=ax, label="density")
-            plt.savefig(str(Path(__file__).parent / slicename) + str(t) + "s." + format, format=format, dpi=dpi_set)
+            plt.savefig( slicename + str(t) + "s." + format, format=format, dpi=dpi_set)
         else:
             print(
                 "Warning: time slice ",
