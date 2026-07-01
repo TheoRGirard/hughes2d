@@ -117,13 +117,13 @@ In the simulation (see Figure 1 below), the following distinctive features of th
 
 - **Regularization of the density in time.** Starting at $t=1$s, we can observe that the density seems to be continuous on the boundary of the support of the initial datum. This regularization in time could be a key property in order to give a mathematical proof of existence of a solution.
 
-![Sample simulation using the Hughes model](docs/source/assets/demo/figure_demo.pdf)
-
 # Research impact statement
 
 On a mathematical point of view, the simulation using the Hughes model suggests that there indeed exist solutions to the problem (a mathematical fact that is not proven at the moment).
 Apart from the mathematical conjectures we derive from the simulations, we also hope that, by making an open source software, more researchers will take an interest in macroscopic pedestrian models. A numerical comparison of the simulation using `hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
 Many of the tools developed here for approximating Hughes model are not specific to the PDEs involved. Most of the codebase could be easily reused and incorporated in other macroscopic pedestrian crowd projects.
+
+![Sample simulation using the Hughes model](docs/source/assets/demo/figure_demo.pdf)
 
 # AI usage disclosure
 
