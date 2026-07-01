@@ -17,7 +17,7 @@ Hughes2d package. If not, see <https://www.gnu.org/licenses/>.
 
 import csv
 import json
-import multiprocessing
+import threading
 from collections.abc import Callable
 import datetime
 from pathlib import Path
@@ -30,10 +30,10 @@ from hughes2d.LWR2D import LWRSolver
 from hughes2d.Mesh2D import CellValueMap, Mesh, VertexValueMap
 
 if __name__ == "__main__":
-    multiprocessing.freeze_support()
+    threading.freeze_support()
 
-previous_process_dens = object()
-previous_process_vec = object()
+previous_thread_dens = object()
+previous_thread_vec = object()
 EMPTY_LIST = []
 DEFAULT_OPTIONS = {"model": "hughes"}
 EMPTY_THRESHOLD = 1e-2
@@ -328,23 +328,23 @@ class PedestrianSolver:
             raise ValueError(str(self.options["model"]) + " is not a valid model.")
 
         if self.options["save"]:
-            global previous_process_dens, previous_process_vec
-            proc = multiprocessing.Process(
+            global previous_thread_dens, previous_thread_vec
+            new_thread = threading.Thread(
                 target=_write_first_line,
                 args=((self.options["filename"] + "_vectors.csv"), self.directions),
             )
-            proc.start()
-            previous_process_vec = proc
+            new_thread.start()
+            previous_thread_vec = new_thread
 
-            proc = multiprocessing.Process(
+            new_thread = threading.Thread(
                 target=_write_first_line,
                 args=(
                     (self.options["filename"] + "_densities.csv"),
                     initial_density.values,
                 ),
             )
-            proc.start()
-            previous_process_dens = proc
+            new_thread.start()
+            previous_thread_dens = new_thread
 
         if "total_mass" in self.options["additional_computations"]:
             self.total_masses = [initial_density.integrate()]
@@ -611,19 +611,19 @@ def _write_slice(filename: str, chunk: ArrayLike) -> None:
 
 
 def _write_slice_parallel_dens(filename: str, data: ArrayLike) -> None:
-    global previous_process_dens
-    if previous_process_dens.is_alive():
-        previous_process_dens.join()
-    proc = multiprocessing.Process(target=_write_slice, args=(filename, data))
-    proc.start()
-    previous_process_dens = proc
+    global previous_thread_dens
+    if previous_thread_dens.is_alive():
+        previous_thread_dens.join()
+    new_thread = threading.Thread(target=_write_slice, args=(filename, data))
+    new_thread.start()
+    previous_thread_dens = new_thread
 
 
 def _write_slice_parallel_vec(filename: str, data: ArrayLike) -> None:
-    global previous_process_vec
-    if previous_process_vec.is_alive():
-        previous_process_vec.join()
+    global previous_thread_vec
+    if previous_thread_vec.is_alive():
+        previous_thread_vec.join()
 
-    proc = multiprocessing.Process(target=_write_slice, args=(filename, data))
-    proc.start()
-    previous_process_vec = proc
+    new_thread = threading.Thread(target=_write_slice, args=(filename, data))
+    new_thread.start()
+    previous_thread_vec = new_thread
