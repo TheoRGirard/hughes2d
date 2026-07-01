@@ -1,3 +1,5 @@
+- Making fontsize adjustable in save_time_slices
+- Switching from multiprocessing to multithreading
 
 ## [1.1.5] - (20/05/2026)
 
