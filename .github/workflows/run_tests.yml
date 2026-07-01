@@ -50,6 +50,8 @@ jobs:
     - name: setup ffmpeg for matplotlib save testing
       uses: FedericoCarboni/setup-ffmpeg@v3
       id: setup-ffmpeg
+      env: 
+        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     - name: Test with all extras and generate .coverage
       run: |
