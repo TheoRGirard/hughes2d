@@ -5,7 +5,7 @@ from hughes2d.Mesh2D import Mesh, NonConvexDomain
 filename = Path(__file__).parent / "config_simple.dxf"
 
 MyDomain = NonConvexDomain()
-MyDomain.importFromDXF(filename)
+MyDomain.import_from_dxf(filename)
 MyDomain.show()
 
 MyMesh = Mesh()
