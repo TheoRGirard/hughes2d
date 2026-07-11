@@ -37,7 +37,7 @@ jobs:
           CURRENT_COMMIT_TAG=$(git tag --points-at HEAD)
           echo "Current release: ${{ steps.get_current_release.outputs.tag_name }}"
           echo "Current commit: $CURRENT_COMMIT_TAG"
-          if [ ${{ steps.get_current_release.outputs.tag_name }} = $CURRENT_COMMIT_TAG ] then
+          if git tag --points-at ${{ steps.get_current_release.outputs.tag_name }} | grep -q "^v"; then
             echo "already_released=true" >> $GITHUB_OUTPUT
             echo "This commit already has a released tag. Will skip release."
           else
