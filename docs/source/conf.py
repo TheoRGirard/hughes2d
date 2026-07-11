@@ -6,7 +6,7 @@ copyright = '2025-2026, Girard'
 author = 'Girard Théo'
 
 release = '1.0'
-version = '1.1.6'
+version = '1.1.7'
 
 sys.path.insert(0, str(Path('..', '..', 'src').resolve()))
 

@@ -1,4 +1,7 @@
 
+## [1.1.7] - (11/07/2026)
+
+Fixing the auto-releasing action
 ## [1.1.6] - (11/07/2026)
 
 From the JOSS review process:- Fixing windows compatibility with line ending in CSV writer
