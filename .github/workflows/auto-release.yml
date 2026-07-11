@@ -34,14 +34,12 @@ jobs:
       - name: Check if already released
         id: check_release
         run: |
-          CURRENT_COMMIT=$(git rev-parse HEAD)
-          CURRENT_COMMIT_TAG=$(git tag --points-at $CURRENT_COMMIT)
+          CURRENT_COMMIT_TAG=$(git tag --points-at HEAD)
           echo "Current release: ${{ steps.get_current_release.outputs.tag_name }}"
           echo "Current commit: $CURRENT_COMMIT_TAG"
           if [ ${{ steps.get_current_release.outputs.tag_name }} = $CURRENT_COMMIT_TAG ] then
             echo "already_released=true" >> $GITHUB_OUTPUT
             echo "This commit already has a released tag. Will skip release."
-            git tag --points-at $CURRENT_COMMIT
           else
             echo "already_released=false" >> $GITHUB_OUTPUT
             echo "No release found. Proceeding with release."
