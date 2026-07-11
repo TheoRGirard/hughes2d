@@ -82,7 +82,11 @@ def convert_to_mp4(
     with Path(filename + "_densities.csv").open("r") as file:
         csv_file = csv.reader(file)
         for lines in csv_file:
-            values = [*values, np.array([float(lines[i]) for i in range(len(lines))])]
+            if len(lines) > 0:
+                values = [
+                    *values,
+                    np.array([float(lines[i]) for i in range(len(lines))]),
+                ]
 
     fig, ax = plt.subplots(figsize=pic_size, dpi=dpi_set)
 

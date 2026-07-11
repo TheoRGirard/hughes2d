@@ -596,13 +596,13 @@ class PedestrianSolver:
 
 
 def _write_first_line(filename: str, chunk: ArrayLike) -> None:
-    with Path(filename).open("w", encoding="UTF8") as f:
+    with Path(filename).open("w", encoding="UTF8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(chunk)
 
 
 def _write_slice(filename: str, chunk: ArrayLike) -> None:
-    with Path(filename).open("a", encoding="UTF8") as f:
+    with Path(filename).open("a", encoding="UTF8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(chunk)
 
