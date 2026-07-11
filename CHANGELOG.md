@@ -1,4 +1,7 @@
-- Fixing windows compatibility with line ending in CSV writer
+
+## [1.1.6] - (11/07/2026)
+
+From the JOSS review process:- Fixing windows compatibility with line ending in CSV writer
 - Fixing minor bugs in example scripts
 - Allowing temporarily the use of deprecated Node20 in the "Test with pytest" github action
 - Updating the figure and paper for JOSS
