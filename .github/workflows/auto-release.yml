@@ -34,13 +34,13 @@ jobs:
       - name: Check if git tag points to a version
         id: check_git_tag
         run: |
-          CURRENT_COMMIT=$(git rev-parse HEAD)
-          echo "Current commit: $CURRENT_COMMIT"
-          if git tag --points-at $CURRENT_COMMIT | grep -q "^v"; then
+          if git tag --points-at HEAD | grep -q "^v"; then
             echo "git_head_valid=true" >> $GITHUB_OUTPUT
             echo "git is not pointing to a version."
           else
-            echo "already_released=false" >> $GITHUB_OUTPUT
+            echo "git_head_valid=false" >> $GITHUB_OUTPUT
+            echo "git is pointing to the version:"
+            git tag --points-at HEAD
           fi
       
       - name: Check if already released
