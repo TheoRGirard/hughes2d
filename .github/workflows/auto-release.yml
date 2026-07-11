@@ -31,7 +31,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check if git tag points to a version
+        id: check_git_tag
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          echo "Current commit: $CURRENT_COMMIT"
+          if git tag --points-at $CURRENT_COMMIT | grep -q "^v"; then
+            echo "git_head_valid=true" >> $GITHUB_OUTPUT
+            echo "git is not pointing to a version."
+          else
+            echo "already_released=false" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Check if already released
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
         id: check_release
         run: |
           CURRENT_COMMIT_TAG=$(git tag --points-at HEAD)
@@ -46,34 +59,41 @@ jobs:
           fi
 
       - name: Setup Python environment
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         uses: actions/setup-python@v6
         with:
           python-version: 3.13
 
       - name: Install uv
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         uses: astral-sh/setup-uv@v7
 
       - name: Ensure repo status is clean
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: git status
 
       - name: Build package
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: uv build
 
       - name: Get version number from uv
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: echo "version_number=$(uv version --short | tr -d ' \n')" >> $GITHUB_ENV
 
       - name: Display new version number
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: |
           echo "version_number: v${{ env.version_number }}"
 
       - name: Create release in GitHub repo
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         uses: ncipollo/release-action@v1
         with:
           generateReleaseNotes: true
@@ -81,9 +101,11 @@ jobs:
           tag: v${{ env.version_number }}
 
       - name: Publish package (trusted publishing)
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: uv publish --trusted-publishing always
 
       - name: Ensure complete
-        if: steps.check_release.outputs.already_released == 'false'
+        if: steps.check_git_tag.outputs.git_head_valid == 'true'
+          && steps.check_release.outputs.already_released == 'false'
         run: echo "Auto-release complete!"
