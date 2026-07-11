@@ -1,3 +1,5 @@
+- Fixing windows compatibility with line ending in CSV writer
+- Fixing minor bugs in example scripts
 - Allowing temporarily the use of deprecated Node20 in the "Test with pytest" github action
 - Updating the figure and paper for JOSS
 - Making fontsize adjustable in save_time_slices
@@ -5,7 +7,8 @@
 
 ## [1.1.5] - (20/05/2026)
 
-From the review process of JOSS:- Modifications and update of instructions in README, CONTRIBUTING and links in pyproject
+From the review process of JOSS:
+- Modifications and update of instructions in README, CONTRIBUTING and links in pyproject
 - Fixing the docstring and tests for VertexValuedMap plot methods
 - Increasing fontsize in save_time_slices method
 
