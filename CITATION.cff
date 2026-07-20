@@ -1,0 +1,28 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Girard
+  given-names: Théo
+  orcid: "https://orcid.org/0000-0002-9382-6746"
+doi: 10.5281/zenodo.21453600
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Girard
+    given-names: Théo
+    orcid: "https://orcid.org/0000-0002-9382-6746"
+  date-published: 2026-07-20
+  doi: 10.21105/joss.10106
+  issn: 2475-9066
+  issue: 123
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 10106
+  title: "hughes2d: Approximating solutions to the Hughes
+    pedestrian-flow model"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.10106"
+  volume: 11
+title: "hughes2d: Approximating solutions to the Hughes pedestrian-flow
+  model"
