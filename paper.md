@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-`hughes2d` is an open-source python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of the Hughes model introduced in [@Hug02] and other related models. The Hughes model is a macroscopic model -- there are no particles here, the crowd is represented by a density function- coupling two non-linear partial differential equations.
+`hughes2d` is an open-source Python package for simulation pedestrian crowds in two dimensions. More specifically, the package is designed to compute approximations of the Hughes model introduced in @Hug02 and other related models. The Hughes model is a macroscopic model -- there are no particles here, the crowd is represented by a density function- coupling two non-linear partial differential equations.
 
 
 # State of the field
