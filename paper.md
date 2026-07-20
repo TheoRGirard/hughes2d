@@ -25,31 +25,28 @@ bibliography: paper.bib
 
 # State of the field
 
-The mathematical modeling of pedestrian crowd is a rapidly developing topic since a few decades. There exist multiple software packages for simulating crowds of pedestrians -- both open source [@vadere;@JuPedSim;@UMANS;@Cromosim;@CrowdWalk] and proprietary (PTV viswalk, MassMotion). We defer to the [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available packages. However, to the best of our knowledge, all these developments deal with microscopic simulations, meaning that a finite -potentially huge- number of particles are simulated. We propose here a Python package for macroscopic simulations of pedestrian evacuations, specifically for the seminal Hughes pedestrian flow model, where the crowd is modeled as a fluid density and not as a finite number of particles.
+The mathematical modeling of a pedestrian crowd is a rapidly developing topic over the past few decades. Multiple software packages exist for simulating crowds of pedestrians -- both open source [@vadere;@JuPedSim;@UMANS;@Cromosim;@CrowdWalk] and proprietary (PTV viswalk, MassMotion). We defer to [awesome-crowdynamics repository](https://github.com/pozapas/awesome-crowdynamics) for an exhaustive list of the available packages. However, to the best of our knowledge, all these developments deal with microscopic simulations, meaning that a finite, potentially huge, number of particles are simulated. Here, we have developed a Python package for macroscopic simulations of pedestrian evacuations, specifically for the seminal Hughes pedestrian flow model, where the crowd is modeled as a fluid density and not as a finite number of particles.
 
 
 # Statement of need
 
-The Hughes model has been thoroughly studied during the last two decades [see @survey], but there exists, at the moment, no general mathematical result of existence of solutions in 2D for this model. While example numerical solutions to the Hughes model can be found in literature [e.g., @Goatin2014], these are not supported by a publicly available and reusable codebase. The present package is aimed at providing a reliable and open-source solution to approximate the behavior of the Hughes model.
+The Hughes model has been thoroughly studied during the last two decades [see @survey], but at the moment, no general mathematical result of existence of solutions in 2D for this model exists. While example numerical solutions to the Hughes model can be found in literature [e.g., @Goatin2014], these are not supported by a publicly available and reusable codebase. This package is aimed at providing a reliable and open-source solution to approximate the behavior of the Hughes model.
 We also hope that this package will help formulating conjectures in the future.
 
 
 # Software design
 
-The `hughes2d` package provides a way to produce simulation of macroscopic pedestrian models without having to learn the mathematical theory related to the underlying PDEs. Indeed, for the Hughes model, particular attention must be dedicated to the choice of numerical schemes: an adapted finite volume scheme for discontinuous scalar conservation law and a fast marching algorithm for the eikonal equation. In fact, the design choices and numerical schemes implemented here result from the collaborations and discussions with many mathematicians (B. Andreianov, V. Perrollaz, F. Peru and A. Sylla to name a few). Additionally, instead of the common choice of square meshes, we extend the range of applications by employing a numerical scheme working on a triangular grid.
+The `hughes2d` package provides a way to produce simulation of macroscopic pedestrian models without having to learn the mathematical theory related to the underlying PDEs. Indeed, for the Hughes model, particular attention must be dedicated to the choice of numerical schemes: an adapted finite volume scheme for discontinuous scalar conservation law and a fast marching algorithm for the eikonal equation. In fact, the design choices and numerical schemes implemented here result from collaborations and discussions with many mathematicians (B. Andreianov, V. Perrollaz, F. Peru, and A. Sylla, to name a few). Additionally, instead of the common choice of square meshes, we extend the range of applications by employing a numerical scheme working on a triangular grid.
 
 
 # Mathematical introduction to the Hughes model
 
-The model consists of a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed **scalar conservation law** with discontinuous flux. The second is an **eikonal equation** with a discontinuous source term.
-
-
-> **Remark:** We defer to the introduction of Section 4.5.1 in @Gir25 for the presentation of the numerical schemes used in the present package.
+The model consists of a system of two equations set on a bounded domain $\Omega \subset \mathbb{R}^2$. The first PDE is a vector-directed **scalar conservation law** with discontinuous flux. The second is an **eikonal equation** with a discontinuous source term. See the introduction of Section 4.5.1 in @Gir25 for the presentation of the numerical schemes used in this package.
 
 ## The scalar conservation law
 
 The first equation models the flow of a density $\rho(t,x)$ representing the density of pedestrians at time $t$ and location $x$. It is bounded between $0$ and a given $\rho_{\max} >0$. In order to describe the model, we use the underlying microscopic problem as heuristics. We assume that the pedestrians move with the speed of agents $v(t,x)$ at time $t$ and location $x$ following a unitary direction field $\vec{V}(t,x) \in \mathcal{S}_1$.
-We chose the speed of agents given by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{\max}]$ such that
+We choose the speed of agents given by $v(\rho(t,x))$ where $v$ is a decreasing function defined on $[0,\rho_{\max}]$ such that
 $$ v(0)=: v_{\max} \textrm{ and } v(\rho_{\max})= 0.$$
 A classical example of such a speed function is $v(\rho) = v_{\max}\frac{\rho_{\max}-\rho}{\rho_{\max}}$. This corresponds to the very classical Lighthill-Whitham-Richards (LWR) model for traffic flows [see @LW55;@Ric56].
 
@@ -119,10 +116,10 @@ In the simulation (see Figure 1 below), the following distinctive features of th
 
 # Research impact statement
 
-On a mathematical point of view, the simulation using the Hughes model suggests that there indeed exist solutions to the problem (a mathematical fact that is not proven at the moment). The package can be used (and is already used) in order to visualize and test mathematical conjectures.
-By making an open source software, we also want to highlight the scientific interest of macroscopic pedestrian models. The hughes2d package is intented as a bridge between scientific communities. On one hand, we hope that more people in the mathematical pedestrian crowds community will take interest in open source development and contribute to the project. On the other hand, by providing easily accessible ways of approximating the solutions to a family of PDE models, we hope that some non-mathematician scientists will take interest in this family of models and contribute to the present package in multiple original directions.
-A numerical comparison of the simulation using `hughes2d` with other models is already on-going (see [BOUM project](https://conferences.cirm-math.fr/3512.html)).
-Most of the meshing tools and solvers for PDEs developed here for approximating Hughes model are also not specific to the PDEs involved. Most of the codebase could be easily reused and incorporated in other macroscopic pedestrian crowd projects.
+From a mathematical point of view, the simulation using the Hughes model suggests that there indeed exist solutions to the problem (a mathematical fact that is not proven at the moment). The package can be used (and is already used) in order to visualize and test mathematical conjectures.
+By making an open source software, we also want to highlight the scientific interest of macroscopic pedestrian models. The hughes2d package is intented as a bridge between scientific communities. On one hand, we hope that more people in the mathematical pedestrian crowds community will take an interest in open source development and contribute to the project. On the other hand, by providing easily accessible ways of approximating the solutions to a family of PDE models, we hope that some non-mathematician scientists will take an interest in this family of models and contribute to the present package in multiple original directions.
+A numerical comparison of the simulation using `hughes2d` with other models is already on-going (see the [BOUM project](https://conferences.cirm-math.fr/3512.html)).
+Most of the meshing tools and solvers for PDEs developed here for approximating the Hughes model are not specific to the PDEs involved; most of the codebase could be easily reused and incorporated in other macroscopic pedestrian crowd projects.
 
 ![Sample simulation of a pedestrian density using the Hughes model in the 2D domain $\bar\Omega$](docs/source/assets/demo/figure_demo.pdf)
 
