@@ -1,4 +1,7 @@
 
+## [1.1.8] - (20/07/2026)
+
+Final JOSS version: - paper fixing
 ## [1.1.7] - (11/07/2026)
 
 Fixing the auto-releasing action
